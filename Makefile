@@ -12,4 +12,4 @@ all: test
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
-	rm *.o
+	rm *.o test
