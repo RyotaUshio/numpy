@@ -95,6 +95,7 @@ namespace numpy {
     //   return *this;
     // }
 
+
     ndarray<T> operator[](const std::size_t irow) {
       if (ndim <= 0)
 	throw std::out_of_range("Cannot subscript a 0-D array");
