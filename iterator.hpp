@@ -1,167 +1,113 @@
 #pragma once
+#include <iostream>
+#include <tuple>
+#include <cstdio>
+#include "utils.hpp"
 
 namespace numpy {
-  typedef unsigned int uint;
   template <typename T> class ndarray;
 
+  
   template <typename T>
   struct base_iter {
     std::size_t index;
-    ndarray<T>& array;
-    uint axis;
+    ndarray<T>* array;
+    int axis;
     std::size_t stride;
     
-    base_iter(array<T>& arr, std::size_t idx, uint ax)
-      : array(arr), index(idx), axis(ax) {
-      switch(axis)
+    base_iter(ndarray<T>* arr, int ax=-1, std::size_t offset=0)
+      : array(arr), axis(ax) {
+      index = arr->offset + offset;
+      stride = arr->unit_stride;
+      if (ax >= 0)
+	stride *= utils::product(arr->shape, ax+1);
     }
 
-    base_iter(array_iterator<T>& src) // copy constructor
-      : base_iter(src.array, src.index) {}
+    base_iter(const base_iter<T>& src) // copy constructor
+      : base_iter(src.array, src.axis) {
+      index = src.index;
+    }
+
+    void info() {
+      std::cout << "array->shape = "; utils::print_vector(array->shape);
+      std::cout << "array->size = " << array->size << std::endl;
+      std::cout << "array->ndim = " << array->ndim << std::endl;
+      std::cout << "array->dtype.name() = " << array->dtype.name() << std::endl;
+      std::cout << "array->offset = " << array->offset << std::endl;
+      std::cout << "array->unit_stride = " << array->unit_stride << std::endl;
+      std::cout << "array->jump = " << std::boolalpha << array->jump << std::endl;
+      if (array->jump) {
+	std::cout << "array->jump_period = " << std::boolalpha << array->jump_period << std::endl;
+	std::cout << "array->unit_jump = " << std::boolalpha << array->unit_jump << std::endl;
+      }
+      std::cout << "index = " << index << std::endl;
+      std::cout << "axis = " << axis << std::endl;
+      std::cout << "stride = " << stride << std::endl;
+    }
+
+    const T* raw_ptr() const {
+      return &(array->memory_ptr->data[index]);
+    }
 
     T& operator*() {
-      return arr._data[index];
+      return array->memory_ptr->data[index];
+    }
+
+    base_iter<T>& operator+=(const std::size_t rhs) {
+      std::size_t incre = stride * rhs;
+
+      // jump
+      if (array->jump) {
+	std::size_t tmp1, tmp2, tmp;
+	std::size_t unit_jump = array->unit_jump; // array->jump_period * stride;
+	tmp1 = (index - array->offset);
+	tmp2 = tmp1 % unit_jump;
+	tmp = tmp2 + incre;
+
+	// printf("index = %lu, array->offset = %lu\n", index, array->offset);
+	// printf("incre = %lu, tmp1 = (index - array->offset) = %lu, unit_jump = (array->jump_period * stride) = %lu, tmp2 = tmp1 %% unit_jump = %lu, tmp = tmp2 + incre = %lu\n", incre, tmp1, unit_jump, tmp2, tmp);
+	
+	std::size_t q, r;
+	q = tmp / array->jump_period * stride;
+	if (q) {
+	  index += q * unit_jump;
+	  index -= array->jump_period;
+	}
+	// printf("q = %lu, r = %lu\n", q, r);
+      }
+      
+      index += incre;
+      
+      return *this;
+    }
+
+    long operator-(const base_iter<T>& rhs) const {
+      return this->raw_ptr() - rhs.raw_ptr();
+    }
+
+    base_iter<T> operator+(const std::size_t rhs) const {
+      base_iter<T> tmp(*this);
+      tmp += rhs;
+      return tmp;
     }
     
     base_iter<T>& operator++() { // pre-increment
-      std::size_t stride = 1; // may vary
-      index += stride;
+      *this += 1;
       return *this;
     }
     
     base_iter<T> operator++(int) { // post-increment: takes a dummy parameter of int
       base_iter<T> tmp(*this);
-      ++(*this);
+      operator++();
       return tmp;
     }
     
-    bool operator!=(const array_iterator<T>& rhs) {
+    bool operator!=(const base_iter<T>& rhs) const {
       return (index != rhs.index);
     }
 
-    bool operator==(const array_iterator<T>& rhs) {
+    bool operator==(const base_iter<T>& rhs) const {
       return (not (*this) != rhs);
     }
   };
 }
-
-
-
-
-// template <typename T>
-// class array {
-//   friend array_iterator<T>; // allow array_iterator to access 'm_size' and 'm_data'
-  
-//   std::size_t m_size; // size of array
-//   T* m_data;
-
-// public:
-//   typedef array_iterator<T> iterator; // enable reference to array_iterator as 'array<T>::iterator'
-  
-//   array(std::size_t size); // numpy.empty(size)
-//   array(std::size_t size, T val); // numpy.full(size, val)
-//   ~array();
-
-//   T operator[](std::size_t index) const; // read-only
-//   T& operator[](std::size_t index);
-//   std::string str() const;
-//   array<T>::iterator begin() const;
-//   array<T>::iterator end() const;
-// };
-
-
-
-// template <typename T>
-// struct array_iterator {
-//   std::size_t m_index;
-//   array<T>* m_array;
-
-//   array_iterator(std::size_t index, array<T>* array_);
-//   array_iterator(array_iterator<T>& src); // copy constructor
-//   T& operator*();
-//   array_iterator<T>& operator++(); // pre-increment
-//   array_iterator<T> operator++(int); // post-increment: takes a dummy parameter of int
-//   bool operator!=(const array_iterator<T>& rhs);
-// };
-
-
-
-// template <typename T>
-// array<T>::array(std::size_t size)
-//   : m_size(size) {
-//   m_data = new T[m_size];
-// }
-
-// template <typename T>
-// array<T>::array(std::size_t size, T val)
-//   : array(size) {
-//   for(auto& e : *this)
-//     e = val;
-// }
-
-// template <typename T>
-// array<T>::~array() {
-//   delete[] m_data;
-// }
-
-// template <typename T>
-// T array<T>::operator[](std::size_t index) const {
-//   return m_data[index];
-// }
-
-// template <typename T>
-// T& array<T>::operator[](std::size_t index) {
-//   return m_data[index];
-// }
-
-// template <typename T>
-// std::string array<T>::str() const {
-//   std::stringstream ss;
-//   for(const auto e : *this) {
-//     ss << e << ' ';
-//   }
-//   return ss.str();
-// }
-
-
-
-// template <typename T>
-// array_iterator<T>::array_iterator(std::size_t index, array<T>* array_)
-//   : m_index(index), m_array(array_) {}
-
-// template <typename T>
-// array_iterator<T>::array_iterator(array_iterator<T>& src)
-//   : array_iterator<T>(src.m_index, src.m_array) {}
-
-// template <typename T>
-// T& array_iterator<T>::operator*() {
-//   return (*m_array)[m_index];
-// }
-
-// template <typename T>
-// array_iterator<T>& array_iterator<T>::operator++() {
-//   m_index++;
-//   return *this;
-// }
-
-// template <typename T>
-// array_iterator<T> array_iterator<T>::operator++(int) {
-//   array_iterator<T> tmp(*this);
-//   ++(*this);
-//   return tmp;
-// }
-
-// template <typename T>
-// bool array_iterator<T>::operator!=(const array_iterator& rhs) {
-//   return (m_index != rhs.m_index);
-// }
-
-// template <typename T>
-// array_iterator<T> array<T>::begin() const {
-//   return {0, (array<T>*)this};
-// }
-
-// template <typename T>
-// array_iterator<T> array<T>::end() const {
-//   return {m_size, (array<T>*)this};
-// }

@@ -1,13 +1,15 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -O3 -g
-HPP = $(wildcard *.hpp)
+HEADER = $(wildcard *.hpp)
+SRC = $(wildcard *.cpp)
+EXC = $(basename $(SRC))
 
 .PHONY: clean all
 
-all: test
+all: $(EXC)
 
-%: %.cpp $(HPP)
+%: %.cpp $(HEADER)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 clean:
-	rm *.o test
+	rm *.o $(EXC)
