@@ -118,7 +118,7 @@ namespace numpy {
 	throw std::invalid_argument("index.size must be == ndim");
       
       int axis;
-      std::size_t unit_offset = unit_stride;
+      std::size_t unit_offset = 1;
       auto itr = begin();
       
       for(axis=ndim-1; axis>=0; axis--) {
