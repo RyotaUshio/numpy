@@ -63,9 +63,6 @@ namespace numpy {
 	tmp1 = (index - array->offset);
 	tmp2 = tmp1 % unit_jump;
 	tmp = tmp2 + incre;
-
-	// printf("index = %lu, array->offset = %lu\n", index, array->offset);
-	// printf("incre = %lu, tmp1 = (index - array->offset) = %lu, unit_jump = (array->jump_period * stride) = %lu, tmp2 = tmp1 %% unit_jump = %lu, tmp = tmp2 + incre = %lu\n", incre, tmp1, unit_jump, tmp2, tmp);
 	
 	std::size_t q, r;
 	q = tmp / array->jump_period * stride;
@@ -73,7 +70,12 @@ namespace numpy {
 	  index += q * unit_jump;
 	  index -= array->jump_period;
 	}
-	// printf("q = %lu, r = %lu\n", q, r);
+	
+#ifdef DEBUG
+	printf("index = %lu, array->offset = %lu\n", index, array->offset);
+	printf("incre = %lu, tmp1 = (index - array->offset) = %lu, unit_jump = (array->jump_period * stride) = %lu, tmp2 = tmp1 %% unit_jump = %lu, tmp = tmp2 + incre = %lu\n", incre, tmp1, unit_jump, tmp2, tmp);
+	printf("q = %lu, r = %lu\n", q, r);
+#endif
       }
       
       index += incre;

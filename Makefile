@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -O3 -g
+override CXXFLAGS += -std=c++17 -O3 -g
 HEADER = $(wildcard *.hpp)
 SRC = $(wildcard *.cpp)
 EXC = $(basename $(SRC))
