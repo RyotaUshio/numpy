@@ -1,8 +1,6 @@
 #pragma once
 #include <iostream>
 #include <vector>
-#include <stdexcept>
-#include <boost/shared_ptr.hpp>
 
 namespace numpy {
 

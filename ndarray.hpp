@@ -6,7 +6,8 @@
 #include <initializer_list>
 #include <stdexcept>
 #include <typeinfo>
-#include <boost/shared_ptr.hpp>
+// #include <boost/shared_ptr.hpp>
+#include <memory>
 #include "memory.hpp"
 #include "iterator.hpp"
 #include "utils.hpp"
@@ -23,10 +24,10 @@ namespace numpy {
 
   public:
     // attributes
-    boost::shared_ptr<shared_memory<T> > memory_ptr;
+    std::shared_ptr<shared_memory<T> > memory_ptr;
     std::size_t offset; // head of the array
     std::size_t unit_stride;
-    // std::size_t jump_distance;
+    // The "jump" concept is invalid. Replace it with the concept "a stride for each dimension".
     bool jump;
     std::size_t jump_period;
     std::size_t unit_jump;
@@ -41,7 +42,7 @@ namespace numpy {
     // constructors
 
   private:
-    ndarray(boost::shared_ptr<shared_memory<T> > ptr,
+    ndarray(std::shared_ptr<shared_memory<T> > ptr,
 	    std::vector<std::size_t> shape_,
 	    std::size_t offset_,
 	    std::size_t unit_stride_,
@@ -60,7 +61,7 @@ namespace numpy {
 	    std::size_t offset_,
 	    std::size_t unit_stride_,
 	    std::size_t jump_period_=-1)
-      : ndarray<T>(boost::shared_ptr<shared_memory<T> >(ptr), shape_, offset_, unit_stride_, jump_period_) {}
+      : ndarray<T>(std::shared_ptr<shared_memory<T> >(ptr), shape_, offset_, unit_stride_, jump_period_) {}
 
   public:
     ndarray(std::vector<T> data, std::vector<std::size_t> shape_)
