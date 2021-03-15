@@ -1,6 +1,8 @@
 #pragma once
 
+#include <iostream>
 #include <string>
+#include <sstream>
 #include <regex>
 #include <limits>
 #include <stdexcept>
@@ -10,22 +12,29 @@ namespace numpy {
   class slice {
     static std::string _r_int, _r_colon_int;
     static std::regex re;
-  
-    int m_start;
-    int m_stop;
-    int m_step;
 
+    bool stop_is_None;
   public:
-    slice(int start, int stop, int step)
-      : m_start(start), m_stop(stop), m_step(step) {}
-    slice(int idx)
-      : slice(idx, idx+1, 0) {}
+    int start;
+    int stop;
+    int step;
+
+    slice(int start, int stop, int step=1)
+      : start(start), stop(stop), step(step) {}
+    explicit slice(int stop)
+      : slice(0, stop, 1) {}
     slice(std::string str) { // ":"とか"1:-1"とか
       std::smatch m;
       if (std::regex_match(str, m, re)) {
-	m_start = (m[1].str().empty()) ? 0 : std::stoi(m[1]);
-	m_stop = (m[3].str().empty()) ? std::numeric_limits<int>::max() : std::stoi(m[3]);
-	m_step = (m[5].str().empty()) ? 1 : std::stoi(m[5]);
+	start = (m[1].str().empty()) ? 0 : std::stoi(m[1]);
+	if (m[3].str().empty()) {
+	  stop_is_None = true;
+	  stop = std::numeric_limits<int>::max();
+	} else {
+	  stop_is_None = false;
+	  stop = std::stoi(m[3]);
+	}
+	step = (m[5].str().empty()) ? 1 : std::stoi(m[5]);
       }
       else
 	throw std::invalid_argument("Broken slice \"" + str + "\"");
@@ -33,20 +42,34 @@ namespace numpy {
     slice(const char* str)
       : slice(std::string(str)) {}
 
-    int size(const std::size_t length) const {
-      return (stop(length) - start(length)) / m_step;
+    int size(int length) const {
+      int ret =  (abs_stop(length) - abs_start(length)) / step;
+      return (ret > 0) ? ret : 0;
     }
 
-    int start(const std::size_t length) const {
-      return (m_start < 0) ? length + m_start : m_start;
+    int abs_start(int length) const {
+      return (start < 0) ? length + start : start;
     }
 
-    int stop(const std::size_t length) const {
-      return (m_stop < 0) ? length + m_stop : m_stop;
+    int abs_stop(int length) const {
+      if (stop_is_None)
+	return length;
+      return (stop < 0) ? length + stop : stop;
     }
 
-    int step() const {
-      return m_step;
+    // for debug
+    std::string str() const {
+      std::stringstream ss;
+      ss << start << ":";
+      if (stop_is_None)
+	ss << "None:";
+      else
+	ss << stop << ":";
+      ss << step << std::endl;
+      return ss.str();
+    }
+    void print() const {
+      std::cout << str() << std::endl;
     }
   };
 

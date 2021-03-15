@@ -42,9 +42,7 @@ namespace numpy {
 
   private:
     ndarray(std::shared_ptr<shared_memory<T> > ptr, array_metadata<T> meta_)
-      : memory_ptr(ptr), meta(meta_), shape(meta.shape), size(meta.size), ndim(meta.ndim), dtype(meta.dtype) {
-      
-    }
+      : memory_ptr(ptr), meta(meta_), shape(meta.shape), size(meta.size), ndim(meta.ndim), dtype(meta.dtype) {}
 
     ndarray(shared_memory<T> *ptr, array_metadata<T> meta_)
       : ndarray<T>(std::shared_ptr<shared_memory<T> >(ptr), meta_) {}
@@ -115,6 +113,11 @@ namespace numpy {
     ndarray<dtype> astype() {
       // shared_memoryのastypeが必要
     }
-   
+
+
+    // for debug
+    void printmeta() {
+      meta.print();
+    }
   };
 }
