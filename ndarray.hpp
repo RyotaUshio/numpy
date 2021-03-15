@@ -10,14 +10,14 @@
 #include <memory>
 #include "memory.hpp"
 #include "metadata.hpp"
-#include "iterator.hpp"
+// #include "iterator.hpp"
 #include "utils.hpp"
 
 namespace numpy {
   
   template <typename T>
   class ndarray {
-    friend base_iter<T>;
+    // friend base_iter<T>;
 
   public:
     // attributes
@@ -36,13 +36,15 @@ namespace numpy {
     const dim_type& ndim;
     const std::type_info& dtype;
     
-    typedef base_iter<T> iterator;
+    // typedef base_iter<T> iterator;
 
     // constructors
 
   private:
     ndarray(std::shared_ptr<shared_memory<T> > ptr, array_metadata<T> meta_)
-      : memory_ptr(ptr), meta(meta_), shape(meta_.shape), size(meta_.size), ndim(meta_.ndim), dtype(meta_.dtype) {}
+      : memory_ptr(ptr), meta(meta_), shape(meta.shape), size(meta.size), ndim(meta.ndim), dtype(meta.dtype) {
+      
+    }
 
     ndarray(shared_memory<T> *ptr, array_metadata<T> meta_)
       : ndarray<T>(std::shared_ptr<shared_memory<T> >(ptr), meta_) {}
@@ -70,13 +72,13 @@ namespace numpy {
     //   return *this;
     // }
 
-    base_iter<T> begin() const {
-      return base_iter<T>(const_cast< ndarray<T> * >(this));
-    };
+    // base_iter<T> begin() const {
+    //   return base_iter<T>(const_cast< ndarray<T> * >(this));
+    // };
     
-    base_iter<T> end() const {
-      return begin() + (size - 1) + 1;
-    };
+    // base_iter<T> end() const {
+    //   return begin() + (size - 1) + 1;
+    // };
 
     // indexing
     template <class... Indexer>
@@ -96,12 +98,12 @@ namespace numpy {
     
     std::string _str_rec(const char delimiter) const {
       if (ndim <= 0) 
-	return std::to_string(memory_ptr->data[offset]);
+	return std::to_string(memory_ptr->data[meta.offset]);
       std::stringstream ss;
       ss << "[";
       long len = static_cast<long>(shape[0]);
       for (long i=0; i<len; i++) {
-	ss << (*this)({i})._str_rec(delimiter);
+	ss << (*this)(i)._str_rec(delimiter);
 	if (i < len - 1)
 	  ss << delimiter << "  ";
       }

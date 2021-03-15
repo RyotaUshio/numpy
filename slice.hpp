@@ -11,9 +11,9 @@ namespace numpy {
     static std::string _r_int, _r_colon_int;
     static std::regex re;
   
-    const int m_start;
-    const int m_stop;
-    const int m_step;
+    int m_start;
+    int m_stop;
+    int m_step;
 
   public:
     slice(int start, int stop, int step)
@@ -34,7 +34,7 @@ namespace numpy {
       : slice(std::string(str)) {}
 
     int size(const std::size_t length) const {
-      return (stop(length) - start(length)) / step;
+      return (stop(length) - start(length)) / m_step;
     }
 
     int start(const std::size_t length) const {

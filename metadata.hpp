@@ -51,14 +51,14 @@ namespace numpy {
       ndim = shape.size();
     }
 
-    array_metadata<T> _indexer_inplace_impl(dim_type axis) {}
-    template <class... Tail> void _indexer_inplace_impl(dim_type axis, int head, Tail... tail);
-    template <class... Tail> void _indexer_inplace_impl(dim_type axis, slice head, Tail... tail);
+    void _indexer_inplace_impl(dim_type axis) {}
+    // template <class... Tail> void _indexer_inplace_impl(dim_type axis, int head, Tail... tail);
+    // template <class... Tail> void _indexer_inplace_impl(dim_type axis, slice head, Tail... tail);
     
     template <class... Tail>
     void _indexer_inplace_impl(dim_type axis, slice head, Tail... tail) {
-      offset += head.start() * stride[axis];
-      shape[axis] = std::abs(head.size());
+      offset += head.start(shape[axis]) * stride[axis];
+      shape[axis] = std::abs(head.size(shape[axis]));
       stride[axis] *= head.step();
       _indexer_inplace_impl(axis + 1, tail...);
     }
@@ -77,12 +77,11 @@ namespace numpy {
     }
 
     template <class... Index>
-    array_metadata<T> indexer(Index... indices) {
+    array_metadata<T> indexer(Index... indices) const {
       array_metadata<T> newmeta(*this);
       newmeta.indexer_inplace(indices...);
       return newmeta;
-    }
-    
+    }    
   };
   
 }

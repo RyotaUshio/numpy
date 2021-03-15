@@ -31,17 +31,17 @@ namespace numpy {
     line();
     std::cout << "__repr__() = ";
     std::cout << a.__repr__() << std::endl;
-    line();
-    std::cout << "begin().info()" << std::endl;
-    a.begin().info();
-    line();
-    std::cout << "end().info()" << std::endl;
-    a.end().info();
-    line();
-    std::cout << "range-based for loop" << std::endl;
-    for (const auto e : a)
-      std::cout << e << ", ";
-    std::cout << std::endl;
+    // line();
+    // std::cout << "begin().info()" << std::endl;
+    // a.begin().info();
+    // line();
+    // std::cout << "end().info()" << std::endl;
+    // a.end().info();
+    // line();
+    // std::cout << "range-based for loop" << std::endl;
+    // for (const auto e : a)
+    //   std::cout << e << ", ";
+    // std::cout << std::endl;
     line();
   }
 
