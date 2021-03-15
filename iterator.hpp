@@ -4,57 +4,60 @@
 #include <tuple>
 #include <cstdio>
 #include "utils.hpp"
+#include "metadata.hpp"
 
 namespace numpy {
   template <typename T> class ndarray;
   
   template <typename T>
-  struct nditer {
-    const ndarray<T>& array;
-    std::size_t index; // index w.r.t. the axis
-    int axis;
-    int max_index;
+  class elementwise_iterator {
+    using vec_itr = std::vector<T>::iterator;
     
-    nditer(const ndarray<T>& arr, int ax=-1, std::size_t offset=0)
-      : array(arr), axis(ax) {
-      if (axis > 0) {
-	max_index = array.shape[axis];
-      }
+    const array_metadata<T>& meta;
+    vec_itr dataptr;
+
+    elementwise_iterator(const array_metadata<T>& meta_, vec_itr dataptr_, int index_)
+      : meta(meta_), dataptr(dataptr_), index(index_) {}
+
+    elementwise_iterator(const ndarray<T>& array, int index_, std::size_t offset=0)
+      : elementwise_iterator(array.meta, array.memory_ptr->data.begin() + offset, index_) {}
+    
+    T& operator*() {
+      return *dataptr;
     }
 
-    ndarray<T>& operator*() {
+    T operator*() const {
+      return *dataptr;
+    }
+
+    elementwise_iterator<T>& operator+=(const std::size_t rhs) {
       
     }
 
-    nd_iter<T>& operator+=(const std::size_t rhs) {
-    }
-
-    nd_iter<T> operator+(const std::size_t rhs) const {
-      nd_iter<T> tmp(*this);
+    elementwise_iterator<T> operator+(const std::size_t rhs) const {
+      elementwise_iterator<T> tmp(*this);
       tmp += rhs;
       return tmp;
     }
     
-    nd_iter<T>& operator++() { // pre-increment
+    elementwise_iterator<T>& operator++() { // pre-increment
       *this += 1;
       return *this;
     }
     
-    nd_iter<T> operator++(int) { // post-increment: takes a dummy parameter of int
-      nd_iter<T> tmp(*this);
+    elementwise_iterator<T> operator++(int) { // post-increment: takes a dummy parameter of int
+      elementwise_iterator<T> tmp(*this);
       operator++();
       return tmp;
     }
 
-    long operator-(const nd_iter<T>& rhs) const {
+    int operator-(const elementwise_iterator<T>& rhs) const {
+      
     }
     
-    bool operator!=(const nd_iter<T>& rhs) const {
-      return (index != rhs.index) or (axis != rhs.axis) or (&array != &(rhs.array));
+    bool operator!=(const elementwise_iterator<T>& rhs) const {
+      
     }
 
-    bool operator==(const nd_iter<T>& rhs) const {
-      return (not (*this) != rhs);
-    }
   };
 }

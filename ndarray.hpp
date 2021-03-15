@@ -14,48 +14,58 @@
 
 namespace numpy {
   
-  template <typename T>
+  template <typename Type>
   class ndarray {
-    // friend nd_iter<T>;
+    // friend elementwise_iterator<Type>;
 
   public:
     // attributes
-    std::shared_ptr<shared_memory<T> > memory_ptr;
-    array_metadata<T> meta;
+    std::shared_ptr<shared_memory<Type> > memory_ptr;
+    array_metadata<Type> meta;
     
   public:
     const shape_type& shape;
     const size_type& size;
     const dim_type& ndim;
     const std::type_info& dtype;
+
+    // const ndarray<Type>& T; // keep a reference to the transposed array (循環しちゃう??)
     
-    // typedef nd_iter<T> iterator;
+    // typedef elementwise_iterator<Type> iterator;
 
     // constructors
 
   private:
-    ndarray(std::shared_ptr<shared_memory<T> > ptr, array_metadata<T> meta_)
+    ndarray(std::shared_ptr<shared_memory<Type> > ptr, array_metadata<Type> meta_)
       : memory_ptr(ptr), meta(meta_), shape(meta.shape), size(meta.size), ndim(meta.ndim), dtype(meta.dtype) {}
 
-    ndarray(shared_memory<T> *ptr, array_metadata<T> meta_)
-      : ndarray<T>(std::shared_ptr<shared_memory<T> >(ptr), meta_) {}
+    ndarray(shared_memory<Type> *ptr, array_metadata<Type> meta_)
+      : ndarray<Type>(std::shared_ptr<shared_memory<Type> >(ptr), meta_) {}
 
   public:
-    ndarray(const std::vector<T>& data, const shape_type& shape_)
-      : ndarray<T>(new shared_memory<T>(data), array_metadata<T>(shape_)) {}
+    ndarray(const std::vector<Type>& data, const shape_type& shape_)
+      : ndarray<Type>(new shared_memory<Type>(data), array_metadata<Type>(shape_)) {}
     
-    ndarray(T* first, T* last, shape_type shape_)
-      : ndarray<T>(std::vector<T>(first, last), shape_) {}
+    ndarray(Type* first, Type* last, shape_type shape_)
+      : ndarray<Type>(std::vector<Type>(first, last), shape_) {}
 
-    ndarray(const ndarray<T>& src)
+    ndarray(const ndarray<Type>& src)
       : ndarray(src.memory_ptr, src.meta) {}
 
-    ndarray<T> reshape(const shape_type& newshape) const {
-      return ndarray<T>(memory_ptr, array_metadata<T>(newshape));
+    ndarray<Type> reshape(const shape_type& newshape) const {
+      return ndarray<Type>(memory_ptr, array_metadata<Type>(newshape));
+    }
+
+    ndarray<Type> transpose(const std::vector<dim_type>& axes) const {
+      return ndarray<Type>(memory_ptr, meta.transpose(axes));
+    }
+    
+    ndarray<Type> transpose() const {
+      return ndarray<Type>(memory_ptr, meta.transpose());
     }
     
     // operators
-    // ndarray<T>& operator+=(ndarray<T> rhs) {
+    // ndarray<Type>& operator+=(ndarray<Type> rhs) {
     //   if (not std::equal(shape, rhs.shape))
     // 	throw std::invalid_argument("Cannot add arrays with different shape");
       
@@ -63,20 +73,20 @@ namespace numpy {
     //   return *this;
     // }
 
-    // nd_iter<T> begin() const {
-    //   return nd_iter<T>(const_cast< ndarray<T> * >(this));
+    // elementwise_iterator<Type> begin() const {
+    //   return elementwise_iterator<Type>(const_cast< ndarray<Type> * >(this));
     // };
     
-    // nd_iter<T> end() const {
+    // elementwise_iterator<Type> end() const {
     //   return begin() + (size - 1) + 1;
     // };
 
     // indexing
     template <class... Indexer>
-    ndarray<T> operator()(Indexer... indices) const {
-      array_metadata<T> newmeta = meta.indexer(indices...);
-      return ndarray<T>(memory_ptr, newmeta);
-    }
+    ndarray<Type> operator()(Indexer... indices) const {
+      array_metadata<Type> newmeta = meta.indexer(indices...);
+      return ndarray<Type>(memory_ptr, newmeta);
+    }    
 
     // other methods
     std::string __repr__() const {
@@ -94,9 +104,14 @@ namespace numpy {
       ss << "[";
       long len = static_cast<long>(shape[0]);
       for (long i=0; i<len; i++) {
+	if (i >= 1)
+	  ss << "\t";
 	ss << (*this)(i)._str_rec(delimiter);
-	if (i < len - 1)
-	  ss << delimiter << "  ";
+	if (i < len - 1) {
+	  ss << delimiter;
+	  if (ndim >= 2)
+	    ss << "\n";
+	}
       }
       ss << "]";
       return ss.str();
@@ -108,8 +123,8 @@ namespace numpy {
       // return ndarray<dtype>(&(memory_ptr->astype<dtype>()), array_metadata<dtype>(shape_));
     }
 
-    ndarray<T> copy() {
-      // return astype<T>();
+    ndarray<Type> copy() {
+      // return astype<Type>();
     }
 
 

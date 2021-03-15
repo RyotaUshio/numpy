@@ -27,14 +27,14 @@ namespace numpy {
     stride_type stride;
     const std::type_info& dtype;
 
-    array_metadata(shape_type shape_, stride_type stride_, offset_type offset_=0)
+    array_metadata(const shape_type& shape_, const stride_type& stride_, const offset_type& offset_=0)
       : shape(shape_), stride(stride_), offset(offset_), dtype(typeid(T)) {
       adjust_to_shape();
       if (stride.size() != ndim)
 	throw std::invalid_argument("Stride and shape must have the same length.");
     }
 
-    array_metadata(shape_type shape_, offset_type offset_=0)
+    array_metadata(const shape_type& shape_, const offset_type& offset_=0)
       : shape(shape_), offset(offset_), dtype(typeid(T)) {
       adjust_to_shape();
       stride = stride_type(shape.size());
@@ -91,8 +91,27 @@ namespace numpy {
       return newmeta;
     }
 
+    array_metadata<T> transpose(const std::vector<dim_type>& axes) const {
+      if (axes.size() != ndim)
+	throw std::invalid_argument("ValueError: axes don't match array");
+      shape_type newshape;
+      stride_type newstride;
+      for (const auto e : axes) {
+	newshape.push_back(shape[e]);
+	newstride.push_back(stride[e]);
+      }
+      return array_metadata<T>(newshape, newstride);
+    }
+
+    array_metadata<T> transpose() const {
+      std::vector<dim_type> axes(ndim);
+      for(int i=0; i<ndim; i++)
+	axes[i] = ndim - 1 - i;
+      return transpose(axes);
+    }
+
     // for debug
-    void print() {
+    void print() const {
       std::cout << "shape: "; utils::print_vector(shape);
       std::cout << "size: " << size << std::endl;
       std::cout << "ndim: " << ndim << std::endl;
