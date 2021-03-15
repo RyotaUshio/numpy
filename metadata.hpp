@@ -3,7 +3,7 @@
 #include <vector>
 #include <stdexcept> // invalid_argument
 #include "utils.hpp"
-#include "slice.hpp"
+#include "python.hpp"
 
 
 namespace numpy {
@@ -60,7 +60,7 @@ namespace numpy {
     void _indexer_inplace_impl(dim_type axis) {}
     
     template <class... Tail>
-    void _indexer_inplace_impl(dim_type axis, slice head, Tail... tail) {
+    void _indexer_inplace_impl(dim_type axis, python::slice head, Tail... tail) {
       offset += head.abs_start(shape[axis]) * stride[axis];
       shape[axis] = head.size(shape[axis]);
       stride[axis] *= head.step;

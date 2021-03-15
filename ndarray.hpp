@@ -6,7 +6,6 @@
 #include <initializer_list>
 #include <stdexcept>
 #include <typeinfo>
-// #include <boost/shared_ptr.hpp>
 #include <memory>
 #include "memory.hpp"
 #include "metadata.hpp"
@@ -17,26 +16,20 @@ namespace numpy {
   
   template <typename T>
   class ndarray {
-    // friend base_iter<T>;
+    // friend nd_iter<T>;
 
   public:
     // attributes
     std::shared_ptr<shared_memory<T> > memory_ptr;
     array_metadata<T> meta;
-    // std::size_t offset; // head of the array
-    // std::vector<int> stride;
     
   public:
-    // std::vector<std::size_t> shape;
-    // std::size_t size;
-    // std::size_t ndim;
-    // const std::type_info& dtype;
     const shape_type& shape;
     const size_type& size;
     const dim_type& ndim;
     const std::type_info& dtype;
     
-    // typedef base_iter<T> iterator;
+    // typedef nd_iter<T> iterator;
 
     // constructors
 
@@ -48,7 +41,7 @@ namespace numpy {
       : ndarray<T>(std::shared_ptr<shared_memory<T> >(ptr), meta_) {}
 
   public:
-    ndarray(std::vector<T> data, shape_type shape_)
+    ndarray(const std::vector<T>& data, const shape_type& shape_)
       : ndarray<T>(new shared_memory<T>(data), array_metadata<T>(shape_)) {}
     
     ndarray(T* first, T* last, shape_type shape_)
@@ -57,8 +50,8 @@ namespace numpy {
     ndarray(const ndarray<T>& src)
       : ndarray(src.memory_ptr, src.meta) {}
 
-    void reshape(const shape_type& newshape) {
-      meta.reshape(newshape);
+    ndarray<T> reshape(const shape_type& newshape) const {
+      return ndarray<T>(memory_ptr, array_metadata<T>(newshape));
     }
     
     // operators
@@ -70,11 +63,11 @@ namespace numpy {
     //   return *this;
     // }
 
-    // base_iter<T> begin() const {
-    //   return base_iter<T>(const_cast< ndarray<T> * >(this));
+    // nd_iter<T> begin() const {
+    //   return nd_iter<T>(const_cast< ndarray<T> * >(this));
     // };
     
-    // base_iter<T> end() const {
+    // nd_iter<T> end() const {
     //   return begin() + (size - 1) + 1;
     // };
 
@@ -109,9 +102,14 @@ namespace numpy {
       return ss.str();
     }
 
-    template <typename dtype>
+    template <class dtype>
     ndarray<dtype> astype() {
-      // shared_memoryのastypeが必要
+      // iteratorほしい
+      // return ndarray<dtype>(&(memory_ptr->astype<dtype>()), array_metadata<dtype>(shape_));
+    }
+
+    ndarray<T> copy() {
+      // return astype<T>();
     }
 
 

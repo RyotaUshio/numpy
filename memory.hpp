@@ -30,8 +30,6 @@ namespace numpy {
 		<< _constructed_count - _destructed_count
 		<< " object(s)" << std::endl;
     }
-
-    
     
   };
 

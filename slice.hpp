@@ -7,7 +7,7 @@
 #include <limits>
 #include <stdexcept>
 
-namespace numpy {
+namespace python {
   
   class slice {
     static std::string _r_int, _r_colon_int;
@@ -58,18 +58,22 @@ namespace numpy {
     }
 
     // for debug
-    std::string str() const {
+    std::string __repr__() const {
       std::stringstream ss;
-      ss << start << ":";
+      ss << "slice(" << start << ", ";
       if (stop_is_None)
-	ss << "None:";
+	ss << "None, ";
       else
-	ss << stop << ":";
-      ss << step << std::endl;
+	ss << stop << ", ";
+      ss << step << ")";
       return ss.str();
     }
+
+    std::string __str__() const {
+      return __repr__();
+    }
     void print() const {
-      std::cout << str() << std::endl;
+      std::cout << __repr__() << std::endl;
     }
   };
 
