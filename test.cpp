@@ -2,7 +2,6 @@
 #include <cassert>
 #include <string>
 #include <vector>
-#include <algorithm>
 #include "python.hpp"
 #include "numpy.hpp"
 
