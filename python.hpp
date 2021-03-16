@@ -13,5 +13,13 @@ namespace python {
   template <class T> std::string repr(const T& obj) {
     return obj.__repr__();
   }
+
+  void print() {
+    std::cout << std::endl;
+  }
   
+  template <class... Args> void print(const std::string& head, const Args&... args) {
+    std::cout << head << " ";
+    print(args...);
+  }
 }
