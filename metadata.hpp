@@ -18,9 +18,10 @@ namespace numpy {
   
   template <class T>
   class array_metadata {
-    friend ndarray<T>;
     friend array_transpose<T>;
     friend array_iter<T>;
+    template <class Dtype> friend class array_metadata;
+    template <class Dtype> friend class ndarray;
     
     shape_type shape;
     dim_type ndim;
@@ -46,8 +47,12 @@ namespace numpy {
       }
     }
     
-    array_metadata(const array_metadata& src)
+    array_metadata(const array_metadata<T>& src)
       : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride), dtype(src.dtype) {}
+
+    template <class Dtype>
+    array_metadata(const array_metadata<Dtype>& src)
+      : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride), dtype(typeid(Dtype)) {}
 
     void set_shape(const shape_type& newshape) {
       shape = newshape;

@@ -33,7 +33,7 @@ int main() {
     for(j=0; j<int(a.shape[1]); j++)
       for(k=0; k<int(a.shape[2]); k++) 
 	std::cout << "a(" << i << ", " << j << ", " << k << ") = "
-		  << a(i, j, k).__repr__() << std::endl;;
+		  << a(i, j, k) << std::endl;;
       
   print("\n<initialization from a C-style array>");
   int src_carray[] = {0, 1, 2, 3};
@@ -65,8 +65,21 @@ int main() {
   print(a_T);
   
   print("\n<full, zeros, ones>");
-  print(np::full({2, 3}, np::pi));
-  print(np::zeros({2, 3}));
-  print(np::ones<np::int64>({2, 3}));
+  auto pies = np::full({2, 3}, np::pi);
+  auto zeros = np::zeros({2, 3});
+  auto ones_int = np::ones<np::int64>({2, 3});
+  print(pies);
+  print(zeros);
+  print(ones_int);
+
+  print("\n<dtype conversion>");
+  auto ones = ones_int.astype<np::float64>();
+  print(ones);
+
+  print("\n<arithmetic operations>");
+  print( pies += ones );
+  print( ones -= pies );
+  print( ones *= zeros );
+  print( pies /= pies );
   
 }

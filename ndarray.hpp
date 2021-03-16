@@ -8,6 +8,7 @@
 #include <typeinfo>
 #include <memory>
 #include <utility>
+#include <functional>
 #include "dtype.hpp"
 #include "memory.hpp"
 #include "metadata.hpp"
@@ -20,6 +21,7 @@ namespace numpy {
   
   template <typename Type>
   class ndarray {
+    template <typename Dtype> friend class ndarray;
     friend array_iter<Type>;
     friend array_transpose<Type>;
 
@@ -46,9 +48,12 @@ namespace numpy {
     ndarray(shared_memory<Type> *ptr, const array_metadata<Type>& meta_)
       : ndarray<Type>(std::shared_ptr<shared_memory<Type> >(ptr), meta_) {}
 
+    ndarray(const std::vector<Type>& data, const array_metadata<Type>& meta_)
+      : ndarray<Type>(new shared_memory<Type>(data), meta_) {}
+    
   public:
     ndarray(const std::vector<Type>& data, const shape_type& shape_)
-      : ndarray<Type>(new shared_memory<Type>(data), array_metadata<Type>(shape_)) {}
+      : ndarray<Type>(data, array_metadata<Type>(shape_)) {}
     
     ndarray(Type* first, Type* last, const shape_type& shape_)
       : ndarray<Type>(std::vector<Type>(first, last), shape_) {}
@@ -73,14 +78,29 @@ namespace numpy {
     }
     
     // operators
-    // ndarray<Type>& operator+=(ndarray<Type> rhs) {
-    //   if (not std::equal(shape, rhs.shape))
-    // 	throw std::invalid_argument("Cannot add arrays with different shape");
-      
-    //   // iteratorが必要
-    //   return *this;
-    // }
+    template <class Operation>
+    ndarray<Type>& comp_assign(const ndarray<Type>& rhs, Operation op) {
+      // broadcast(rhs); ...
+      std::transform(begin(), end(), rhs.begin(), begin(), op);
+      return *this;
+    }
 
+    ndarray<Type>& operator+=(const ndarray<Type>& rhs) {
+      return comp_assign(rhs, std::plus<Type>());
+    }
+
+    ndarray<Type>& operator-=(const ndarray<Type>& rhs) {
+      return comp_assign(rhs, std::minus<Type>());
+    }
+
+    ndarray<Type>& operator*=(const ndarray<Type>& rhs) {
+      return comp_assign(rhs, std::multiplies<Type>());
+    }
+
+    ndarray<Type>& operator/=(const ndarray<Type>& rhs) {
+      return comp_assign(rhs, std::divides<Type>());
+    }
+    
     array_iter<Type> begin() const {
       return array_iter<Type>(*this);
     };
@@ -129,10 +149,13 @@ namespace numpy {
       return __repr__();
     }
 
-    template <class dtype>
-    ndarray<dtype> astype() {
-      // iteratorほしい
-      // return ndarray<dtype>(&(memory_ptr->astype<dtype>()), array_metadata<dtype>(shape_));
+    template <class Dtype>
+    ndarray<Dtype> astype() {
+      // なんでだめ?
+      // return ndarray<Dtype>(std::vector<Dtype>(begin(), end()), array_metadata<Dtype>(meta));
+      std::vector<Dtype> newdata(size);
+      std::transform(begin(), end(), newdata.begin(), [](Type e){return static_cast<Dtype>(e);});
+      return ndarray<Dtype>(newdata, array_metadata<Dtype>(meta));
     }
 
     ndarray<Type> copy() {
