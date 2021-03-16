@@ -5,11 +5,11 @@
 #include "slice.hpp"
 
 namespace python {
-
+  
   template <class T> std::string str(const T& obj) {
     return obj.__str__();
   }
-
+  
   template <class T> std::string repr(const T& obj) {
     return obj.__repr__();
   }
@@ -18,8 +18,8 @@ namespace python {
     std::cout << std::endl;
   }
   
-  template <class... Args> void print(const std::string& head, const Args&... args) {
+  template <class Head, class... Tail> void print(const Head& head, const Tail&... tail) {
     std::cout << head << " ";
-    print(args...);
+    print(tail...);
   }
 }
