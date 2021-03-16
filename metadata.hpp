@@ -3,6 +3,8 @@
 #include <vector>
 #include <stdexcept> // invalid_argument
 #include <algorithm> // find
+#include <string>
+#include <sstream>
 #include "utils.hpp"
 #include "python.hpp"
 
@@ -11,6 +13,7 @@ namespace numpy {
 
   template <class T> class ndarray;
   template <class T> class array_transpose;
+  template <class T> class array_iter;
   
   typedef int size_type;
   typedef std::vector<size_type> shape_type;
@@ -22,6 +25,7 @@ namespace numpy {
   class array_metadata {
     friend ndarray<T>;
     friend array_transpose<T>;
+    friend array_iter<T>;
     
     shape_type shape;
     dim_type ndim;
@@ -113,13 +117,18 @@ namespace numpy {
       return transpose(axes);
     }
 
+  public:
     // for debug
-    void print() const {
-      std::cout << "shape: "; utils::print_vector(shape);
-      std::cout << "size: " << size << std::endl;
-      std::cout << "ndim: " << ndim << std::endl;
-      std::cout << "offset: " << offset << std::endl;
-      std::cout << "stride: "; utils::print_vector(stride);
+    std::string __repr__() const {
+      std::stringstream ss;
+      ss << "array_metadata<" << typeid(T).name() << ">(";
+      ss << "shape=" << utils::str(shape);
+      ss << ", size=" << size;
+      ss << ", ndim=" << ndim;
+      ss << ", offset=" << offset;
+      ss << ", stride=" << utils::str(stride);
+      ss << ")";
+      return ss.str();
     }
   };
   

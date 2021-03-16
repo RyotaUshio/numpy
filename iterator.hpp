@@ -4,8 +4,8 @@
 #pragma once
 #include <iostream>
 #include <vector>
-#include <tuple>
-#include <cstdio>
+#include <string>
+#include <sstream>
 #include <memory>
 #include "utils.hpp"
 #include "metadata.hpp"
@@ -18,7 +18,7 @@ namespace numpy {
   class array_iter {
     typedef std::vector<dim_type> coord_type;
     typedef typename std::vector<T>::iterator ptr;
-    
+
     const array_metadata<T>& meta;
     const std::shared_ptr<shared_memory<T> >& memory_ptr;
     ptr dataptr;
@@ -40,7 +40,16 @@ namespace numpy {
       : meta(meta_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
       set_index(index_);
     }
-    
+
+  public:
+    array_iter(const ndarray<T>& array)
+      : array_iter<T>(array, array.memory_ptr->data.begin() + array.meta.offset, 0) {}
+
+  private:
+    template <class... Args>
+    array_iter(const ndarray<T>& array, const Args&... rest)
+      : array_iter<T>(array.meta, array.memory_ptr, rest...) {}
+     
     void coord_to_index() {
       int unit = 1;
       index = 0;
@@ -71,7 +80,7 @@ namespace numpy {
     }
 
     ptr coord_to_ptr(const coord_type& coord_) {
-      return (memory_ptr->data.begin() += utils::dot(meta.stride, coord_, meta.offset));
+      return (memory_ptr->data.begin() + utils::dot(meta.stride, coord_, meta.offset));
     }
 
     void go_to(const coord_type& dest) {
@@ -85,6 +94,8 @@ namespace numpy {
       set_index(dest_index);
       dataptr = coord_to_ptr(coord);
     }
+
+  public:
 
     T& operator*() {
       return *dataptr;
@@ -119,12 +130,29 @@ namespace numpy {
       return *this += n; 
     }
 
-    int operator-(const int n) const {
+    array_iter<T> operator-(const int n) const {
       return *this + (-n);
     }
     
     bool operator!=(const array_iter<T>& rhs) const {
       return dataptr != rhs.dataptr;
+    }
+    
+    bool operator==(const array_iter<T>& rhs) const {
+      return not (dataptr != rhs.dataptr);
+    }
+
+    // for debug
+    std::string __repr__() const {
+      std::stringstream ss;
+      ss << "array_iterator<" << typeid(T).name() << ">(";
+      ss << "meta=" << repr(meta);
+      ss << ", memory_ptr=" << memory_ptr;
+      ss << ", dataptr=" << &(*dataptr);
+      ss << ", index=" << index;
+      ss << ", coord=" << utils::str(coord);
+      ss << ")";
+      return ss.str();
     }
   };
 }

@@ -80,13 +80,13 @@ namespace numpy {
     //   return *this;
     // }
 
-    // array_iter<Type> begin() const {
-    //   return array_iter<Type>(const_cast< ndarray<Type> * >(this));
-    // };
+    array_iter<Type> begin() const {
+      return array_iter<Type>(*this);
+    };
     
-    // array_iter<Type> end() const {
-    //   return begin() + (size - 1) + 1;
-    // };
+    array_iter<Type> end() const {
+      return begin() + size;
+    }
 
     // indexing
     template <class... Indexer>

@@ -23,7 +23,7 @@ namespace numpy {
     
     // for debug
     template <typename T>
-    std::string vector_to_str(const std::vector<T>& vec) {
+    std::string str(const std::vector<T>& vec) {
       std::stringstream ss;
       bool first = true;
       ss << "(";
@@ -37,6 +37,11 @@ namespace numpy {
       }
       ss << ")";
       return ss.str();
+    }
+
+    template <typename T>
+    std::string vector_to_str(const std::vector<T>& vec) {
+      return str(vec);
     }
     
     template <typename T>
@@ -53,17 +58,17 @@ namespace numpy {
       std::cout << "dtype : " << a.dtype.name() << std::endl;
       std::cout << "__repr__() = ";
       std::cout << a.__repr__() << std::endl;
-      // line();
+      line();
       // std::cout << "begin().info()" << std::endl;
       // a.begin().info();
       // line();
       // std::cout << "end().info()" << std::endl;
       // a.end().info();
       // line();
-      // std::cout << "range-based for loop" << std::endl;
-      // for (const auto e : a)
-      //   std::cout << e << ", ";
-      // std::cout << std::endl;
+      std::cout << "range-based for loop" << std::endl;
+      for (const auto e : a)
+        std::cout << e << ", ";
+      std::cout << std::endl;
       line();
     }
 
