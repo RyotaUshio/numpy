@@ -46,6 +46,7 @@ namespace numpy {
     return a.transpose();
   }
 
-  const double pi = M_PI;
-  const double e = std::exp(1);
+  constexpr double pi = M_PI;
+  const double e = std::exp(1.0);
+  
 }

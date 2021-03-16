@@ -15,6 +15,7 @@
 #include "metadata.hpp"
 #include "iterator.hpp"
 #include "utils.hpp"
+#include "typename.hpp"
 
 namespace numpy {
 
