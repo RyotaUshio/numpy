@@ -14,4 +14,8 @@ int main() {
 
   for(const auto e : a)
     std::cout << e << std::endl;
+
+  // 現時点で可能なもっともPythonicな書き方
+  for(auto e : a)
+    print(e);
 }
