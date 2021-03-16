@@ -5,6 +5,7 @@
 #include <algorithm> // find
 #include <string>
 #include <sstream>
+#include "dtype.hpp"
 #include "utils.hpp"
 #include "python.hpp"
 
@@ -15,12 +16,6 @@ namespace numpy {
   template <class T> class array_transpose;
   template <class T> class array_iter;
   
-  typedef int size_type;
-  typedef std::vector<size_type> shape_type;
-  typedef int dim_type;
-  typedef std::vector<int> stride_type;
-  typedef int offset_type;
-
   template <class T>
   class array_metadata {
     friend ndarray<T>;

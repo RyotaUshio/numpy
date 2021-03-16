@@ -8,6 +8,7 @@
 #include <typeinfo>
 #include <memory>
 #include <utility>
+#include "dtype.hpp"
 #include "memory.hpp"
 #include "metadata.hpp"
 #include "iterator.hpp"
@@ -124,6 +125,10 @@ namespace numpy {
       return ss.str();
     }
 
+    operator std::string() const {
+      return __repr__();
+    }
+
     template <class dtype>
     ndarray<dtype> astype() {
       // iteratorほしい
@@ -133,18 +138,14 @@ namespace numpy {
     ndarray<Type> copy() {
       // return astype<Type>();
     }
-
-
-    // for debug
-    void printmeta() {
-      meta.print();
-    }
+    
   };
-  
+
   
   template <class Type>
   class array_transpose {
     friend ndarray<Type>;
+    
     const std::shared_ptr<shared_memory<Type> >& memory_ptr;
     const array_metadata<Type> meta;
     
@@ -159,7 +160,13 @@ namespace numpy {
     operator ndarray<Type>() const {
       return ndarray<Type>(memory_ptr, meta);
     }
-
   };
+
+  
+  template <class Type>
+  std::ostream& operator<<(std::ostream& os, const ndarray<Type>& a) {
+    os << a.__repr__();
+    return os;
+  }  
   
 }

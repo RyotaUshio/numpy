@@ -7,6 +7,7 @@
 #include <string>
 #include <sstream>
 #include <memory>
+#include "dtype.hpp"
 #include "utils.hpp"
 #include "metadata.hpp"
 #include "memory.hpp"
