@@ -61,11 +61,18 @@ namespace numpy {
 
     void index_to_coord() {
       coord.resize(meta.ndim);
-      int tmp = index;
-      for (int i=meta.ndim - 1; i>=0; i--) {
-	coord[i] = tmp % meta.shape[i];
-	tmp -= coord[i];
-	tmp /= meta.shape[i];
+      int q, r;
+      q = index / meta.size;
+      r = index % meta.size;
+      int i;
+
+      for (i=0; i<meta.ndim; i++)
+	coord[i] = q * meta.shape[i];
+     
+      for (i=meta.ndim - 1; i>=0; i--) {
+	coord[i] += r % meta.shape[i];
+	r -= coord[i];
+	r /= meta.shape[i];
       }
     }
 
@@ -80,7 +87,7 @@ namespace numpy {
     }
 
     ptr coord_to_ptr(const coord_type& coord_) {
-      return (memory_ptr->data.begin() + utils::dot(meta.stride, coord_, meta.offset));
+      return memory_ptr->data.begin() + utils::dot(meta.stride, coord_, meta.offset);
     }
 
     void go_to(const coord_type& dest) {
@@ -127,7 +134,7 @@ namespace numpy {
     }
 
     array_iter<T>& operator-=(const int n) {
-      return *this += n; 
+      return *this += -n; 
     }
 
     array_iter<T> operator-(const int n) const {
