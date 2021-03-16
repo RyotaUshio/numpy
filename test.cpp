@@ -1,4 +1,3 @@
-#include <iostream>
 #include <cassert>
 #include <string>
 #include <vector>
@@ -31,9 +30,8 @@ int main() {
   int i, j, k;
   for(i=0; i<int(a.shape[0]); i++)
     for(j=0; j<int(a.shape[1]); j++)
-      for(k=0; k<int(a.shape[2]); k++) 
-	std::cout << "a(" << i << ", " << j << ", " << k << ") = "
-		  << a(i, j, k) << std::endl;;
+      for(k=0; k<int(a.shape[2]); k++)
+	print_sep("", "a(", i, ", ", j, ", ", k, ") = ", a(i, j, k));
       
   print("\n<initialization from a C-style array>");
   int src_carray[] = {0, 1, 2, 3};
@@ -45,20 +43,22 @@ int main() {
   assert(carray2.ndim == 2);
 
   print("\n<reshaping>");
-  print(carray1);
-  print(np::reshape(carray1, {1, 4}));
-  print(np::reshape(carray1, {4, 1}));
-  print(np::reshape(carray1, {4}));
+  print_sep("\n",
+	    carray1,
+	    np::reshape(carray1, {1, 4}),
+	    np::reshape(carray1, {4, 1}),
+	    np::reshape(carray1, {4}));
 
   print("\n<transpose() method>");
-  print(a);
-  print(np::transpose(a, {0, 1, 2}));
-  print(np::transpose(a, {0, 2, 1}));
-  print(np::transpose(a, {1, 0, 2}));
-  print(np::transpose(a, {1, 2, 0}));
-  print(np::transpose(a, {2, 0, 1}));
-  print(np::transpose(a, {2, 1, 0}));
-  print(np::transpose(a));
+  print_sep("\n",
+	    a,
+	    np::transpose(a, {0, 1, 2}),
+	    np::transpose(a, {0, 2, 1}),
+	    np::transpose(a, {1, 0, 2}),
+	    np::transpose(a, {1, 2, 0}),
+	    np::transpose(a, {2, 0, 1}),
+	    np::transpose(a, {2, 1, 0}),
+	    np::transpose(a));
 
   print("\n<.T attribute>");
   np::ndarray<int> a_T = a.T;
