@@ -2,6 +2,7 @@
 #include <typeinfo> // for dtype
 #include <vector>
 #include <stdexcept> // invalid_argument
+#include <algorithm> // find
 #include "utils.hpp"
 #include "python.hpp"
 
@@ -9,16 +10,18 @@
 namespace numpy {
 
   template <class T> class ndarray;
+  template <class T> class array_transpose;
   
+  typedef int size_type;
+  typedef std::vector<size_type> shape_type;
+  typedef int dim_type;
   typedef std::vector<int> stride_type;
-  typedef std::vector<std::size_t> shape_type;
-  typedef std::size_t size_type;
-  typedef unsigned int dim_type;
-  typedef std::size_t offset_type;
+  typedef int offset_type;
 
   template <class T>
   class array_metadata {
     friend ndarray<T>;
+    friend array_transpose<T>;
     
     shape_type shape;
     dim_type ndim;
@@ -56,7 +59,7 @@ namespace numpy {
       size = utils::product(shape);
       ndim = shape.size();
     }
-
+    
     void _indexer_inplace_impl(dim_type axis) {}
     
     template <class... Tail>

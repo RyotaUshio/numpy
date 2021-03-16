@@ -15,6 +15,11 @@ namespace numpy {
     T product(const std::vector<T>& vec, std::size_t from=0, std::size_t to=0) {
       return std::reduce(vec.begin()+from, vec.end()-to, T(1), [](T a, T b){return a * b;});
     }
+
+    template <typename T>
+    T dot(const std::vector<T>& lhs, const std::vector<T>& rhs, T init=0) {
+      return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), init);
+    }
     
     // for debug
     template <typename T>

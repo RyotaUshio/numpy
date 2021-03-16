@@ -50,7 +50,7 @@ int main() {
   std::cout << str(np::reshape(carray1, {4, 1})) << std::endl;
   std::cout << str(np::reshape(carray1, {4})) << std::endl;
 
-  std::cout << "\n<transposition>" << std::endl;
+  std::cout << "\n<transpose() method>" << std::endl;
   std::cout << repr(a) << std::endl;
   std::cout << repr(np::transpose(a, {0, 1, 2})) << std::endl;
   std::cout << repr(np::transpose(a, {0, 2, 1})) << std::endl;
@@ -59,6 +59,10 @@ int main() {
   std::cout << repr(np::transpose(a, {2, 0, 1})) << std::endl;
   std::cout << repr(np::transpose(a, {2, 1, 0})) << std::endl;
   std::cout << repr(np::transpose(a)) << std::endl;
+
+  std::cout << "\n<.T attribute>" << std::endl;
+  np::ndarray<int> a_T = a.T;
+  std::cout << repr(a_T) << std::endl;
 
   // std::cout << "\n<range-based for loop>" << std::endl;
   // for(const auto e : a1)

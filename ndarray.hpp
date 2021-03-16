@@ -7,16 +7,20 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <memory>
+#include <utility>
 #include "memory.hpp"
 #include "metadata.hpp"
-// #include "iterator.hpp"
+#include "iterator.hpp"
 #include "utils.hpp"
 
 namespace numpy {
+
+  template <typename Type> class array_transpose;
   
   template <typename Type>
   class ndarray {
-    // friend elementwise_iterator<Type>;
+    friend array_iter<Type>;
+    friend array_transpose<Type>;
 
   public:
     // attributes
@@ -29,29 +33,32 @@ namespace numpy {
     const dim_type& ndim;
     const std::type_info& dtype;
 
-    // const ndarray<Type>& T; // keep a reference to the transposed array (循環しちゃう??)
+    array_transpose<Type> T;
     
-    // typedef elementwise_iterator<Type> iterator;
+    typedef array_iter<Type> iterator;
 
     // constructors
-
   private:
-    ndarray(std::shared_ptr<shared_memory<Type> > ptr, array_metadata<Type> meta_)
-      : memory_ptr(ptr), meta(meta_), shape(meta.shape), size(meta.size), ndim(meta.ndim), dtype(meta.dtype) {}
+    ndarray(const std::shared_ptr<shared_memory<Type> >& ptr, const array_metadata<Type>& meta_)
+      : memory_ptr(ptr), meta(meta_), shape(meta.shape), size(meta.size), ndim(meta.ndim), dtype(meta.dtype), T(*this) {}
 
-    ndarray(shared_memory<Type> *ptr, array_metadata<Type> meta_)
+    ndarray(shared_memory<Type> *ptr, const array_metadata<Type>& meta_)
       : ndarray<Type>(std::shared_ptr<shared_memory<Type> >(ptr), meta_) {}
 
   public:
     ndarray(const std::vector<Type>& data, const shape_type& shape_)
       : ndarray<Type>(new shared_memory<Type>(data), array_metadata<Type>(shape_)) {}
     
-    ndarray(Type* first, Type* last, shape_type shape_)
+    ndarray(Type* first, Type* last, const shape_type& shape_)
       : ndarray<Type>(std::vector<Type>(first, last), shape_) {}
 
     ndarray(const ndarray<Type>& src)
-      : ndarray(src.memory_ptr, src.meta) {}
+      : ndarray<Type>(src.memory_ptr, src.meta) {}
 
+    ndarray<Type>& operator=(const ndarray<Type>& rhs) {
+      return ndarray<Type>(rhs);
+    }
+    
     ndarray<Type> reshape(const shape_type& newshape) const {
       return ndarray<Type>(memory_ptr, array_metadata<Type>(newshape));
     }
@@ -73,11 +80,11 @@ namespace numpy {
     //   return *this;
     // }
 
-    // elementwise_iterator<Type> begin() const {
-    //   return elementwise_iterator<Type>(const_cast< ndarray<Type> * >(this));
+    // array_iter<Type> begin() const {
+    //   return array_iter<Type>(const_cast< ndarray<Type> * >(this));
     // };
     
-    // elementwise_iterator<Type> end() const {
+    // array_iter<Type> end() const {
     //   return begin() + (size - 1) + 1;
     // };
 
@@ -133,4 +140,26 @@ namespace numpy {
       meta.print();
     }
   };
+  
+  
+  template <class Type>
+  class array_transpose {
+    friend ndarray<Type>;
+    const std::shared_ptr<shared_memory<Type> >& memory_ptr;
+    const array_metadata<Type> meta;
+    
+    array_transpose(const ndarray<Type>& origin)
+      : memory_ptr(origin.memory_ptr), meta(origin.meta.transpose()) {}
+
+  public:
+    array_metadata<Type>& get_meta() {
+      return meta;
+    }
+
+    operator ndarray<Type>() const {
+      return ndarray<Type>(memory_ptr, meta);
+    }
+
+  };
+  
 }

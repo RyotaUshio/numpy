@@ -1,27 +1,91 @@
+// An iterator corresponding the original NumPy's "PyArrayIterObject"
+// https://numpy.org/doc/stable/reference/c-api/types-and-structures.html#c.PyArrayIterObject
+
 #pragma once
 #include <iostream>
 #include <vector>
 #include <tuple>
 #include <cstdio>
+#include <memory>
 #include "utils.hpp"
 #include "metadata.hpp"
+#include "memory.hpp"
 
 namespace numpy {
   template <typename T> class ndarray;
   
   template <typename T>
-  class elementwise_iterator {
-    using vec_itr = std::vector<T>::iterator;
+  class array_iter {
+    typedef std::vector<dim_type> coord_type;
+    typedef typename std::vector<T>::iterator ptr;
     
     const array_metadata<T>& meta;
-    vec_itr dataptr;
+    const std::shared_ptr<shared_memory<T> >& memory_ptr;
+    ptr dataptr;
+    int index; // current 1-d index
+    coord_type coord; // current N-d index
 
-    elementwise_iterator(const array_metadata<T>& meta_, vec_itr dataptr_, int index_)
-      : meta(meta_), dataptr(dataptr_), index(index_) {}
+    array_iter(const array_metadata<T>& meta_,
+	       const std::shared_ptr<shared_memory<T> >& memory_ptr_,
+	       const ptr& dataptr_,
+	       const coord_type& coord_)
+      : meta(meta_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
+      set_coord(coord_);
+    }
 
-    elementwise_iterator(const ndarray<T>& array, int index_, std::size_t offset=0)
-      : elementwise_iterator(array.meta, array.memory_ptr->data.begin() + offset, index_) {}
+    array_iter(const array_metadata<T>& meta_,
+	       const std::shared_ptr<shared_memory<T> >& memory_ptr_,
+	       const ptr& dataptr_,
+	       const int index_)
+      : meta(meta_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
+      set_index(index_);
+    }
     
+    void coord_to_index() {
+      int unit = 1;
+      index = 0;
+      for (int i=meta.ndim - 1; i>=0; i--) {
+	index += coord[i] * unit;
+	unit *= meta.shape[i];
+      }
+    }
+
+    void index_to_coord() {
+      coord.resize(meta.ndim);
+      int tmp = index;
+      for (int i=meta.ndim - 1; i>=0; i--) {
+	coord[i] = tmp % meta.shape[i];
+	tmp -= coord[i];
+	tmp /= meta.shape[i];
+      }
+    }
+
+    void set_coord(const coord_type& newcoord) {
+      coord = newcoord;
+      coord_to_index();
+    }
+
+    void set_index(const int newindex) {
+      index = newindex;
+      index_to_coord();
+    }
+
+    ptr coord_to_ptr(const coord_type& coord_) {
+      return (memory_ptr->data.begin() += utils::dot(meta.stride, coord_, meta.offset));
+    }
+
+    void go_to(const coord_type& dest) {
+      // Originally "PyArray_ITER_GOTO (it, dest)"
+      set_coord(dest);
+      dataptr = coord_to_ptr(coord);
+    }
+
+    void go_to(const int dest_index) {
+      // Originally "PyArray_ITER_GOTO1D(it, index)"
+      set_index(dest_index);
+      dataptr = coord_to_ptr(coord);
+    }
+
     T& operator*() {
       return *dataptr;
     }
@@ -30,34 +94,37 @@ namespace numpy {
       return *dataptr;
     }
 
-    elementwise_iterator<T>& operator+=(const std::size_t rhs) {
-      
+    array_iter<T>& operator+=(const int n) {
+      go_to(index + n);
+      return *this;
     }
 
-    elementwise_iterator<T> operator+(const std::size_t rhs) const {
-      elementwise_iterator<T> tmp(*this);
-      tmp += rhs;
-      return tmp;
+    array_iter<T> operator+(const int n) const {
+      array_iter<T> tmp(*this);
+      return tmp += n;
     }
     
-    elementwise_iterator<T>& operator++() { // pre-increment
+    array_iter<T>& operator++() { // pre-increment
       *this += 1;
       return *this;
     }
     
-    elementwise_iterator<T> operator++(int) { // post-increment: takes a dummy parameter of int
-      elementwise_iterator<T> tmp(*this);
+    array_iter<T> operator++(int) { // post-increment: takes a dummy parameter of int
+      array_iter<T> tmp(*this);
       operator++();
       return tmp;
     }
 
-    int operator-(const elementwise_iterator<T>& rhs) const {
-      
-    }
-    
-    bool operator!=(const elementwise_iterator<T>& rhs) const {
-      
+    array_iter<T>& operator-=(const int n) {
+      return *this += n; 
     }
 
+    int operator-(const int n) const {
+      return *this + (-n);
+    }
+    
+    bool operator!=(const array_iter<T>& rhs) const {
+      return dataptr != rhs.dataptr;
+    }
   };
 }
