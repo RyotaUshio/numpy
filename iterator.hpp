@@ -18,8 +18,8 @@ namespace numpy {
   
   template <typename T>
   class array_iter : public python::object {
-    typedef std::vector<dim_type> coord_type;
-    typedef typename std::vector<T>::iterator ptr;
+    using coord_type = std::vector<dim_type>;
+    using ptr = typename std::vector<T>::iterator;
 
     const array_metadata<T>& meta;
     const std::shared_ptr<shared_memory<T> >& memory_ptr;
