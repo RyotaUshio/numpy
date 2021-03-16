@@ -20,12 +20,26 @@ namespace python {
     return os;
   }
 
-  void print() {
+  void _print_impl(bool first, std::string sep) {
     std::cout << std::endl;
   }
   
-  template <class Head, class... Tail> void print(const Head& head, const Tail&... tail) {
-    std::cout << head << " ";
-    print(tail...);
+  template <class Head, class... Tail>
+  void _print_impl(bool first, std::string sep, const Head& head, const Tail&... tail) {
+    if (not first)
+      std::cout << ", ";
+    std::cout << head;
+    _print_impl(false, sep, tail...);
   }
+
+  template <class... Args>
+  void print_sep(std::string sep, Args... args) {
+    _print_impl(true, sep, args...);
+  }
+
+  template <class... Args>
+  void print(Args... args) {
+    print_sep(",", args...);
+  }
+  
 }
