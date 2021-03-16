@@ -7,6 +7,7 @@
 #include <string>
 #include <sstream>
 #include <memory>
+#include "pyobject.hpp"
 #include "dtype.hpp"
 #include "utils.hpp"
 #include "metadata.hpp"
@@ -16,7 +17,7 @@ namespace numpy {
   template <typename T> class ndarray;
   
   template <typename T>
-  class array_iter {
+  class array_iter : public python::object {
     typedef std::vector<dim_type> coord_type;
     typedef typename std::vector<T>::iterator ptr;
 
@@ -150,8 +151,7 @@ namespace numpy {
       return not (dataptr != rhs.dataptr);
     }
 
-    // for debug
-    std::string __repr__() const {
+    std::string __repr__() const override {
       std::stringstream ss;
       ss << "array_iterator<" << typeid(T).name() << ">(";
       ss << "meta=" << repr(meta);

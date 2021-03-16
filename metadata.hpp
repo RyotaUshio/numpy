@@ -5,6 +5,7 @@
 #include <algorithm> // find
 #include <string>
 #include <sstream>
+#include "pyobject.hpp"
 #include "dtype.hpp"
 #include "utils.hpp"
 #include "python.hpp"
@@ -17,7 +18,7 @@ namespace numpy {
   template <class T> class array_iter;
   
   template <class T>
-  class array_metadata {
+  class array_metadata : public python::object {
     friend array_transpose<T>;
     friend array_iter<T>;
     template <class Dtype> friend class array_metadata;
@@ -119,7 +120,7 @@ namespace numpy {
 
   public:
     // for debug
-    std::string __repr__() const {
+    std::string __repr__() const override {
       std::stringstream ss;
       ss << "array_metadata<" << typeid(T).name() << ">(";
       ss << "shape=" << utils::str(shape);

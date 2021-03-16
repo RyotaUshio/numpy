@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include "pyobject.hpp"
 #include "slice.hpp"
 
 namespace python {
@@ -12,6 +13,11 @@ namespace python {
   
   template <class T> std::string repr(const T& obj) {
     return obj.__repr__();
+  }
+  
+  std::ostream& operator<<(std::ostream& os, const object& a) {
+    os << a.__repr__();
+    return os;
   }
 
   void print() {

@@ -9,6 +9,7 @@
 #include <memory>
 #include <utility>
 #include <functional>
+#include "python.hpp"
 #include "dtype.hpp"
 #include "memory.hpp"
 #include "metadata.hpp"
@@ -20,25 +21,25 @@ namespace numpy {
   template <typename Type> class array_transpose;
   
   template <typename Type>
-  class ndarray {
+  class ndarray : public python::object {
     template <typename Dtype> friend class ndarray;
     friend array_iter<Type>;
     friend array_transpose<Type>;
 
-  public:
-    // attributes
+  private:
     std::shared_ptr<shared_memory<Type> > memory_ptr;
     array_metadata<Type> meta;
     
   public:
+    using iterator = array_iter<Type>;
+    
     const shape_type& shape;
     const size_type& size;
     const dim_type& ndim;
     const std::type_info& dtype;
 
     array_transpose<Type> T;
-    
-    typedef array_iter<Type> iterator;
+  
 
     // constructors
   private:
@@ -117,11 +118,11 @@ namespace numpy {
     }    
 
     // other methods
-    std::string __repr__() const {
+    std::string __repr__() const override {
       return "array(" + _str_rec(',') + ")";
     }
 
-    std::string __str__() const {
+    std::string __str__() const override {
       return _str_rec('\0');
     }
     
@@ -143,10 +144,6 @@ namespace numpy {
       }
       ss << "]";
       return ss.str();
-    }
-
-    operator std::string() const {
-      return __repr__();
     }
 
     template <class Dtype>
@@ -184,12 +181,5 @@ namespace numpy {
       return ndarray<Type>(memory_ptr, meta);
     }
   };
-
-  
-  template <class Type>
-  std::ostream& operator<<(std::ostream& os, const ndarray<Type>& a) {
-    os << a.__repr__();
-    return os;
-  }  
   
 }
