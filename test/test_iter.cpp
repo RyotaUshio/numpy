@@ -1,6 +1,6 @@
-#include "python.hpp"
+#include "Numpy/python.hpp"
 using namespace python;
-#include "numpy.hpp"
+#include "Numpy/numpy.hpp"
 #include <iostream>
 
 namespace np = numpy;

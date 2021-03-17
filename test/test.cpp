@@ -1,8 +1,8 @@
 #include <cassert>
 #include <string>
 #include <vector>
-#include "python.hpp"
-#include "numpy.hpp"
+#include "Numpy/python.hpp"
+#include "Numpy/numpy.hpp"
 
 using namespace python;
 namespace np = numpy;

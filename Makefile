@@ -1,7 +1,7 @@
 CXX = g++
-override CXXFLAGS += -std=c++17 -O3 -Wall # -g
-HEADER = $(wildcard *.hpp)
-SRC = $(wildcard *.cpp)
+override CXXFLAGS += -std=c++17 -O3 -Wall -I . # -g
+HEADER = $(wildcard ./Numpy/*.hpp)
+SRC = $(wildcard ./test/*.cpp)
 EXC = $(basename $(SRC))
 
 .PHONY: clean all
@@ -12,4 +12,4 @@ all: $(EXC)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 clean:
-	rm *.o $(EXC)
+	rm $(EXC)
