@@ -55,7 +55,7 @@ namespace numpy {
   
     template <typename T>
     void test(ndarray<T>& a) {
-      std::cout << "dtype : " << a.dtype.name() << std::endl;
+      std::cout << "dtype : " << a.dtype().name() << std::endl;
       std::cout << "__repr__() : " << std::endl;;
       std::cout << a.__repr__() << std::endl;
       line();

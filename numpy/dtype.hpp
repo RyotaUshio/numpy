@@ -49,8 +49,10 @@ namespace numpy {
 
   /******** type aliases for internal use ********/
   using size_type = intp;
-  using shape_type = std::vector<intp>;
+  using shape_elem_type = intp;
+  using shape_type = std::vector<shape_elem_type>;
   using dim_type = intp;
+  using axis_type = dim_type;
   using stride_type = std::vector<intp>;
   using offset_type = intp;
   

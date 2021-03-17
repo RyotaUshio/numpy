@@ -50,6 +50,6 @@ namespace numpy {
   const double e = std::exp(1.0);
 
   /******************** Explicit instantiation ********************/
-  // template class ndarray<int_>;
+  template class ndarray<int_>;
   
 }
