@@ -29,7 +29,7 @@ namespace numpy {
 
   private:
     std::shared_ptr<shared_memory<Type>> memory_ptr;
-    array_metadata<Type> meta;
+    array_metadata meta;
     
   public:
     using iterator = array_iter<Type>;
@@ -44,18 +44,18 @@ namespace numpy {
 
     // constructors
   private:
-    ndarray(const std::shared_ptr<shared_memory<Type>>& ptr, const array_metadata<Type>& meta_)
-      : memory_ptr(ptr), meta(meta_), shape(meta.shape), size(meta.size), ndim(meta.ndim), dtype(meta.dtype), T(*this) {}
+    ndarray(const std::shared_ptr<shared_memory<Type>>& ptr, const array_metadata& meta_)
+      : memory_ptr(ptr), meta(meta_), shape(meta.shape), size(meta.size), ndim(meta.ndim), dtype(typeid(Type)), T(*this) {}
 
-    ndarray(shared_memory<Type> *ptr, const array_metadata<Type>& meta_)
+    ndarray(shared_memory<Type> *ptr, const array_metadata& meta_)
       : ndarray<Type>(std::shared_ptr<shared_memory<Type>>(ptr), meta_) {}
 
-    ndarray(const std::vector<Type>& data, const array_metadata<Type>& meta_)
+    ndarray(const std::vector<Type>& data, const array_metadata& meta_)
       : ndarray<Type>(new shared_memory<Type>(data), meta_) {}
     
   public:
     ndarray(const std::vector<Type>& data, const shape_type& shape_)
-      : ndarray<Type>(data, array_metadata<Type>(shape_)) {}
+      : ndarray<Type>(data, array_metadata(shape_)) {}
     
     ndarray(Type* first, Type* last, const shape_type& shape_)
       : ndarray<Type>(std::vector<Type>(first, last), shape_) {}
@@ -68,7 +68,7 @@ namespace numpy {
     }
     
     ndarray<Type> reshape(const shape_type& newshape) const {
-      return ndarray<Type>(memory_ptr, array_metadata<Type>(newshape));
+      return ndarray<Type>(memory_ptr, array_metadata(newshape));
     }
 
     ndarray<Type> transpose(const std::vector<dim_type>& axes) const {
@@ -114,7 +114,7 @@ namespace numpy {
     // indexing
     template <class... Indexer>
     ndarray<Type> operator()(Indexer... indices) const {
-      array_metadata<Type> newmeta = meta.indexer(indices...);
+      array_metadata newmeta = meta.indexer(indices...);
       return ndarray<Type>(memory_ptr, newmeta);
     }    
 
@@ -153,7 +153,7 @@ namespace numpy {
       // return ndarray<Dtype>(std::vector<Dtype>(begin(), end()), array_metadata<Dtype>(meta));
       std::vector<Dtype> newdata(size);
       std::transform(begin(), end(), newdata.begin(), [](Type e){return static_cast<Dtype>(e);});
-      return ndarray<Dtype>(newdata, array_metadata<Dtype>(meta));
+      return ndarray<Dtype>(newdata, array_metadata(meta));
     }
 
     ndarray<Type> copy() {
@@ -168,13 +168,13 @@ namespace numpy {
     friend ndarray<Type>;
     
     const std::shared_ptr<shared_memory<Type>>& memory_ptr;
-    const array_metadata<Type> meta;
+    const array_metadata meta;
     
     array_transpose(const ndarray<Type>& origin)
       : memory_ptr(origin.memory_ptr), meta(origin.meta.transpose()) {}
 
   public:
-    array_metadata<Type>& get_meta() {
+    array_metadata& get_meta() {
       return meta;
     }
 

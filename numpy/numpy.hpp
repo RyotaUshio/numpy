@@ -48,5 +48,8 @@ namespace numpy {
 
   constexpr double pi = M_PI;
   const double e = std::exp(1.0);
+
+  /******************** Explicit instantiation ********************/
+  // template class ndarray<int_>;
   
 }

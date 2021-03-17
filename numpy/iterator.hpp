@@ -21,13 +21,13 @@ namespace numpy {
     using coord_type = std::vector<dim_type>;
     using ptr = typename std::vector<T>::iterator;
 
-    const array_metadata<T>& meta;
+    const array_metadata& meta;
     const std::shared_ptr<shared_memory<T>>& memory_ptr;
     ptr dataptr;
     int index; // current 1-d index
     coord_type coord; // current N-d index
 
-    array_iter(const array_metadata<T>& meta_,
+    array_iter(const array_metadata& meta_,
 	       const std::shared_ptr<shared_memory<T>>& memory_ptr_,
 	       const ptr& dataptr_,
 	       const coord_type& coord_)
@@ -35,7 +35,7 @@ namespace numpy {
       set_coord(coord_);
     }
 
-    array_iter(const array_metadata<T>& meta_,
+    array_iter(const array_metadata& meta_,
 	       const std::shared_ptr<shared_memory<T>>& memory_ptr_,
 	       const ptr& dataptr_,
 	       const int index_)

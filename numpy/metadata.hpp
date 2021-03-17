@@ -17,29 +17,26 @@ namespace numpy {
   template <class T> class array_transpose;
   template <class T> class array_iter;
   
-  template <class T>
   class array_metadata : public python::object {
-    friend array_transpose<T>;
-    friend array_iter<T>;
-    template <class Dtype> friend class array_metadata;
     template <class Dtype> friend class ndarray;
+    template <class Dtype> friend class array_transpose;
+    template <class Dtype> friend class array_iter;
     
     shape_type shape;
     dim_type ndim;
     size_type size;
     offset_type offset;
     stride_type stride;
-    const std::type_info& dtype;
 
     array_metadata(const shape_type& shape_, const stride_type& stride_, const offset_type& offset_=0)
-      : shape(shape_), stride(stride_), offset(offset_), dtype(typeid(T)) {
+      : shape(shape_), offset(offset_), stride(stride_) {
       adjust_to_shape();
       if (stride.size() != ndim)
 	throw std::invalid_argument("Stride and shape must have the same length.");
     }
 
     array_metadata(const shape_type& shape_, const offset_type& offset_=0)
-      : shape(shape_), offset(offset_), dtype(typeid(T)) {
+      : shape(shape_), offset(offset_) {
       adjust_to_shape();
       stride = stride_type(shape.size());
       stride[ndim-1] = 1;
@@ -48,12 +45,12 @@ namespace numpy {
       }
     }
     
-    array_metadata(const array_metadata<T>& src)
-      : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride), dtype(src.dtype) {}
+    array_metadata(const array_metadata& src)
+      : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride) {}
 
     template <class Dtype>
-    array_metadata(const array_metadata<Dtype>& src)
-      : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride), dtype(typeid(Dtype)) {}
+    array_metadata(const array_metadata& src)
+      : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride) {}
 
     void set_shape(const shape_type& newshape) {
       shape = newshape;
@@ -93,13 +90,13 @@ namespace numpy {
     }
 
     template <class... Index>
-    array_metadata<T> indexer(Index... indices) const {
-      array_metadata<T> newmeta(*this);
+    array_metadata indexer(Index... indices) const {
+      array_metadata newmeta(*this);
       newmeta.indexer_inplace(indices...);
       return newmeta;
     }
 
-    array_metadata<T> transpose(const std::vector<dim_type>& axes) const {
+    array_metadata transpose(const std::vector<dim_type>& axes) const {
       if (axes.size() != ndim)
 	throw std::invalid_argument("ValueError: axes don't match array");
       shape_type newshape;
@@ -108,10 +105,10 @@ namespace numpy {
 	newshape.push_back(shape[e]);
 	newstride.push_back(stride[e]);
       }
-      return array_metadata<T>(newshape, newstride);
+      return array_metadata(newshape, newstride);
     }
 
-    array_metadata<T> transpose() const {
+    array_metadata transpose() const {
       std::vector<dim_type> axes(ndim);
       for(int i=0; i<ndim; i++)
 	axes[i] = ndim - 1 - i;
@@ -122,7 +119,7 @@ namespace numpy {
     // for debug
     std::string __repr__() const override {
       std::stringstream ss;
-      ss << "array_metadata<" << typeid(T).name() << ">(";
+      ss << "array_metadata(";
       ss << "shape=" << utils::str(shape);
       ss << ", size=" << size;
       ss << ", ndim=" << ndim;
