@@ -9,13 +9,13 @@
 #include <memory>
 #include <utility>
 #include <functional>
-#include "python.hpp"
-#include "dtype.hpp"
-#include "memory.hpp"
-#include "metadata.hpp"
-#include "iterator.hpp"
-#include "utils.hpp"
-#include "typename.hpp"
+#include <numpy/python.hpp>
+#include <numpy/dtype.hpp>
+#include <numpy/memory.hpp>
+#include <numpy/metadata.hpp>
+#include <numpy/iterator.hpp>
+#include <numpy/utils.hpp>
+#include <numpy/typename.hpp>
 
 namespace numpy {
 

@@ -6,7 +6,7 @@
 #include <regex>
 #include <limits>
 #include <stdexcept>
-#include "pyobject.hpp"
+#include <numpy/pyobject.hpp>
 
 namespace python {
 

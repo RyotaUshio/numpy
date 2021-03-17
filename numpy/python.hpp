@@ -2,8 +2,8 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
-#include "pyobject.hpp"
-#include "slice.hpp"
+#include <numpy/pyobject.hpp>
+#include <numpy/slice.hpp>
 
 namespace python {
   

@@ -7,11 +7,11 @@
 #include <string>
 #include <sstream>
 #include <memory>
-#include "pyobject.hpp"
-#include "dtype.hpp"
-#include "utils.hpp"
-#include "metadata.hpp"
-#include "memory.hpp"
+#include <numpy/pyobject.hpp>
+#include <numpy/dtype.hpp>
+#include <numpy/utils.hpp>
+#include <numpy/metadata.hpp>
+#include <numpy/memory.hpp>
 
 namespace numpy {
   template <typename T> class ndarray;

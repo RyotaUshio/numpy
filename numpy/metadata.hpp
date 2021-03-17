@@ -5,10 +5,10 @@
 #include <algorithm> // find
 #include <string>
 #include <sstream>
-#include "pyobject.hpp"
-#include "dtype.hpp"
-#include "utils.hpp"
-#include "python.hpp"
+#include <numpy/pyobject.hpp>
+#include <numpy/dtype.hpp>
+#include <numpy/utils.hpp>
+#include <numpy/python.hpp>
 
 
 namespace numpy {
