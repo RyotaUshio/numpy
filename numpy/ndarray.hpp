@@ -12,7 +12,7 @@
 #include <numpy/python.hpp>
 #include <numpy/dtype.hpp>
 #include <numpy/memory.hpp>
-#include <numpy/metadata.hpp>
+#include <numpy/viewinfo.hpp>
 #include <numpy/iterator.hpp>
 #include <numpy/utils.hpp>
 #include <numpy/typename.hpp>
@@ -25,7 +25,7 @@ namespace numpy {
   class ndarray : public python::object {
   public:
     using iterator = array_iter<Dtype>;
-    using view = array_view;
+    using viewinfo = array_view;
     
     template <typename AnotherDtype> friend class ndarray;
     friend array_iter<Dtype>;
@@ -33,26 +33,26 @@ namespace numpy {
 
   private:
     std::shared_ptr<shared_memory<Dtype>> memory_ptr;
-    ndarray::view meta;
+    ndarray::viewinfo view;
     
   public:
     // accessors
     inline const shape_type& shape() const noexcept {
-      return meta.shape;
+      return view.shape;
     }
     
     inline const shape_elem_type& shape(axis_type axis) const noexcept(false) {
       if (axis > ndim())
 	throw std::out_of_range("IndexError: shape index out of range");
-      return meta.shape[axis];
+      return view.shape[axis];
     }
     
     inline const size_type& size() const noexcept {
-      return meta.size;
+      return view.size;
     }
     
     inline const dim_type& ndim() const noexcept {
-      return meta.ndim;
+      return view.ndim;
     }
     
     inline const std::type_info& dtype() const{
@@ -65,18 +65,18 @@ namespace numpy {
   private:
     ndarray() = default;
     
-    ndarray(const std::shared_ptr<shared_memory<Dtype>>& ptr, const array_view& meta_)
-      : memory_ptr(ptr), meta(meta_), T(*this) {}
+    ndarray(const std::shared_ptr<shared_memory<Dtype>>& ptr, const viewinfo& view_)
+      : memory_ptr(ptr), view(view_), T(*this) {}
 
-    ndarray(shared_memory<Dtype> *ptr, const array_view& meta_)
-      : ndarray<Dtype>(std::shared_ptr<shared_memory<Dtype>>(ptr), meta_) {}
+    ndarray(shared_memory<Dtype> *ptr, const viewinfo& view_)
+      : ndarray<Dtype>(std::shared_ptr<shared_memory<Dtype>>(ptr), view_) {}
 
-    ndarray(const std::vector<Dtype>& data, const array_view& meta_)
-      : ndarray<Dtype>(new shared_memory<Dtype>(data), meta_) {}
+    ndarray(const std::vector<Dtype>& data, const viewinfo& view_)
+      : ndarray<Dtype>(new shared_memory<Dtype>(data), view_) {}
     
   public:
     ndarray(const std::vector<Dtype>& data, const shape_type& shape_)
-      : ndarray<Dtype>(data, array_view(shape_)) {}
+      : ndarray<Dtype>(data, viewinfo(shape_)) {}
     
     ndarray(Dtype* first, Dtype* last, const shape_type& shape_)
       : ndarray<Dtype>(std::vector<Dtype>(first, last), shape_) {}
@@ -84,14 +84,14 @@ namespace numpy {
     friend void swap(ndarray<Dtype>& first, ndarray<Dtype>& second) {
       using std::swap;
       swap(first.memory_ptr, second.memory_ptr);
-      swap(first.meta, second.meta);
+      swap(first.view, second.view);
       swap(first.T, second.T);
     }
 
     // Copy constructor & copy assignment operator
     // The copied object should refer to the same memory address, but newly generate its view object.
     ndarray(const ndarray<Dtype>& src)
-      : ndarray<Dtype>(src.memory_ptr, src.meta) {}
+      : ndarray<Dtype>(src.memory_ptr, src.view) {}
 
     // ndarray<Dtype>& operator=(ndarray<Dtype> rhs)
     //   : ndarray<Dtype>() {
@@ -110,15 +110,15 @@ namespace numpy {
     // }
     
     ndarray<Dtype> reshape(const shape_type& newshape) const {
-      return ndarray<Dtype>(memory_ptr, array_view(newshape));
+      return ndarray<Dtype>(memory_ptr, viewinfo(newshape));
     }
 
     ndarray<Dtype> transpose(const std::vector<dim_type>& axes) const {
-      return ndarray<Dtype>(memory_ptr, meta.transpose(axes));
+      return ndarray<Dtype>(memory_ptr, view.transpose(axes));
     }
     
     ndarray<Dtype> transpose() const {
-      return ndarray<Dtype>(memory_ptr, meta.transpose());
+      return ndarray<Dtype>(memory_ptr, view.transpose());
     }
     
     // operators
@@ -150,14 +150,14 @@ namespace numpy {
     };
     
     array_iter<Dtype> end() const {
-      return begin() + meta.size;
+      return begin() + view.size;
     }
 
     // indexing
     template <class... Indexer>
     ndarray<Dtype> operator()(Indexer... indices) const {
-      array_view newmeta = meta.indexer(indices...);
-      return ndarray<Dtype>(memory_ptr, newmeta);
+      viewinfo newview = view.indexer(indices...);
+      return ndarray<Dtype>(memory_ptr, newview);
     }    
 
     // other methods
@@ -170,18 +170,18 @@ namespace numpy {
     }
     
     std::string _str_rec(const char delimiter) const {
-      if (meta.ndim <= 0) 
-	return std::to_string(memory_ptr->data[meta.offset]);
+      if (view.ndim <= 0) 
+	return std::to_string(memory_ptr->data[view.offset]);
       std::stringstream ss;
       ss << "[";
-      long len = static_cast<long>(meta.shape[0]);
+      long len = static_cast<long>(view.shape[0]);
       for (long i=0; i<len; i++) {
 	if (i >= 1)
 	  ss << "\t";
 	ss << (*this)(i)._str_rec(delimiter);
 	if (i < len - 1) {
 	  ss << delimiter;
-	  if (meta.ndim >= 2)
+	  if (view.ndim >= 2)
 	    ss << "\n";
 	}
       }
@@ -192,10 +192,10 @@ namespace numpy {
     template <class AnotherDtype>
     ndarray<AnotherDtype> astype() {
       // なんでだめ?
-      // return ndarray<AnotherDtype>(std::vector<AnotherDtype>(begin(), end()), array_view<AnotherDtype>(meta));
-      std::vector<AnotherDtype> newdata(meta.size);
+      // return ndarray<AnotherDtype>(std::vector<AnotherDtype>(begin(), end()), viewinfo<AnotherDtype>(view));
+      std::vector<AnotherDtype> newdata(view.size);
       std::transform(begin(), end(), newdata.begin(), [](Dtype e){return static_cast<AnotherDtype>(e);});
-      return ndarray<AnotherDtype>(newdata, array_view(meta));
+      return ndarray<AnotherDtype>(newdata, viewinfo(view));
     }
 
     // ndarray<Dtype> copy() {
@@ -209,18 +209,18 @@ namespace numpy {
     friend ndarray<Dtype>;
     
     const std::shared_ptr<shared_memory<Dtype>>& memory_ptr;
-    const array_view meta;
+    const typename ndarray<Dtype>::viewinfo view;
     
     array_transpose(const ndarray<Dtype>& origin)
-      : memory_ptr(origin.memory_ptr), meta(origin.meta.transpose()) {}
+      : memory_ptr(origin.memory_ptr), view(origin.view.transpose()) {}
 
   public:
-    array_view& get_meta() {
-      return meta;
+    typename ndarray<Dtype>::viewinfo& get_view() {
+      return view;
     }
 
     operator ndarray<Dtype>() const {
-      return ndarray<Dtype>(memory_ptr, meta);
+      return ndarray<Dtype>(memory_ptr, view);
     }
   };
   

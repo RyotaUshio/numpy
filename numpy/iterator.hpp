@@ -10,7 +10,7 @@
 #include <numpy/pyobject.hpp>
 #include <numpy/dtype.hpp>
 #include <numpy/utils.hpp>
-#include <numpy/metadata.hpp>
+#include <numpy/viewinfo.hpp>
 #include <numpy/memory.hpp>
 
 namespace numpy {
@@ -21,60 +21,60 @@ namespace numpy {
     using coord_type = std::vector<dim_type>;
     using ptr = typename std::vector<T>::iterator;
 
-    const array_view& meta;
+    const array_view& view;
     const std::shared_ptr<shared_memory<T>>& memory_ptr;
     ptr dataptr;
     int index; // current 1-d index
     coord_type coord; // current N-d index
 
-    array_iter(const array_view& meta_,
+    array_iter(const array_view& view_,
 	       const std::shared_ptr<shared_memory<T>>& memory_ptr_,
 	       const ptr& dataptr_,
 	       const coord_type& coord_)
-      : meta(meta_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
+      : view(view_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
       set_coord(coord_);
     }
 
-    array_iter(const array_view& meta_,
+    array_iter(const array_view& view_,
 	       const std::shared_ptr<shared_memory<T>>& memory_ptr_,
 	       const ptr& dataptr_,
 	       const int index_)
-      : meta(meta_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
+      : view(view_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
       set_index(index_);
     }
 
   public:
     array_iter(const ndarray<T>& array)
-      : array_iter<T>(array, array.memory_ptr->data.begin() + array.meta.offset, 0) {}
+      : array_iter<T>(array, array.memory_ptr->data.begin() + array.view.offset, 0) {}
 
   private:
     template <class... Args>
     array_iter(const ndarray<T>& array, const Args&... rest)
-      : array_iter<T>(array.meta, array.memory_ptr, rest...) {}
+      : array_iter<T>(array.view, array.memory_ptr, rest...) {}
      
     void coord_to_index() {
       int unit = 1;
       index = 0;
-      for (int i=meta.ndim - 1; i>=0; i--) {
+      for (int i=view.ndim - 1; i>=0; i--) {
 	index += coord[i] * unit;
-	unit *= meta.shape[i];
+	unit *= view.shape[i];
       }
     }
 
     void index_to_coord() {
-      coord.resize(meta.ndim);
+      coord.resize(view.ndim);
       int q, r;
-      q = index / meta.size;
-      r = index % meta.size;
+      q = index / view.size;
+      r = index % view.size;
       int i;
 
-      for (i=0; i<meta.ndim; i++)
-	coord[i] = q * meta.shape[i];
+      for (i=0; i<view.ndim; i++)
+	coord[i] = q * view.shape[i];
      
-      for (i=meta.ndim - 1; i>=0; i--) {
-	coord[i] += r % meta.shape[i];
+      for (i=view.ndim - 1; i>=0; i--) {
+	coord[i] += r % view.shape[i];
 	r -= coord[i];
-	r /= meta.shape[i];
+	r /= view.shape[i];
       }
     }
 
@@ -89,7 +89,7 @@ namespace numpy {
     }
 
     ptr coord_to_ptr(const coord_type& coord_) {
-      return memory_ptr->data.begin() + utils::dot(meta.stride, coord_, meta.offset);
+      return memory_ptr->data.begin() + utils::dot(view.stride, coord_, view.offset);
     }
 
     void go_to(const coord_type& dest) {
@@ -154,7 +154,7 @@ namespace numpy {
     std::string __repr__() const override {
       std::stringstream ss;
       ss << "array_iterator<" << typeid(T).name() << ">(";
-      ss << "meta=" << repr(meta);
+      ss << "view=" << repr(view);
       ss << ", memory_ptr=" << memory_ptr;
       ss << ", dataptr=" << &(*dataptr);
       ss << ", index=" << index;

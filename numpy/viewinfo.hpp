@@ -91,9 +91,9 @@ namespace numpy {
 
     template <class... Index>
     array_view indexer(Index... indices) const {
-      array_view newmeta(*this);
-      newmeta.indexer_inplace(indices...);
-      return newmeta;
+      array_view newview(*this);
+      newview.indexer_inplace(indices...);
+      return newview;
     }
 
     array_view transpose(const std::vector<dim_type>& axes) const {
