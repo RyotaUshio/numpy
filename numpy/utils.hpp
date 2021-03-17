@@ -5,6 +5,7 @@
 #include <cmath>
 #include <string>
 #include <sstream>
+#include <numpy/typename.hpp>
 
 
 namespace numpy {
@@ -39,6 +40,10 @@ namespace numpy {
       return ss.str();
     }
 
+    std::string str(const std::type_info& type) {
+      return getNameByTypeInfo(type);
+    }
+
     template <typename T>
     std::string vector_to_str(const std::vector<T>& vec) {
       return str(vec);
@@ -55,7 +60,7 @@ namespace numpy {
   
     template <typename T>
     void test(ndarray<T>& a) {
-      std::cout << "dtype : " << a.dtype().name() << std::endl;
+      std::cout << "dtype : " << str(a.dtype()) << std::endl;
       std::cout << "__repr__() : " << std::endl;;
       std::cout << a.__repr__() << std::endl;
       line();

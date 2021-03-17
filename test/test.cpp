@@ -14,11 +14,11 @@ int main() {
     src.push_back(i);
   np::ndarray<int> a(src, {2, 3, 4});
 
-  print("\n<indexing 1>");
+  print("\n<slice & indexing 1>");
   auto b = a(":", 0, ":-1");
   auto c = a(0, ":", 1);
   auto d = c(1);
-  auto e = a(":", "1:2", 1);
+  auto e = a("+00000000000000:", "1:2:", 1);
 
   np::utils::test(a);
   np::utils::test(b);

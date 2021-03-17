@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <numpy/typename.hpp>
 
 namespace numpy {
 
@@ -27,7 +28,7 @@ namespace numpy {
     }
 
     static void manager() {
-      std::cout << "[memory manager of numpy::shared_memory<" << typeid(T).name() << ">]\n"
+      std::cout << "[memory manager of numpy::shared_memory<" << TYPENAME(T) << ">]\n"
 		<<"Constructed: " << _constructed_count << " time(s)\n"
 		<< "Destruced  : " << _destructed_count << " time(s)\n"
 		<< "Remaining undestructed: "

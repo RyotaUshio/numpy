@@ -155,7 +155,7 @@ namespace numpy {
 
     std::string __repr__() const override {
       std::stringstream ss;
-      ss << "array_iterator<" << typeid(T).name() << ">(";
+      ss << "array_iterator<" << TYPENAME(T) << ">(";
       ss << "view=" << repr(view);
       ss << ", memory_ptr=" << memory_ptr;
       ss << ", dataptr=" << &(*dataptr);
