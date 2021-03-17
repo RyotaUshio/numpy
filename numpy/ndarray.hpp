@@ -23,6 +23,7 @@ namespace numpy {
   
   template <typename Dtype>
   class ndarray : public python::object {
+    
   public:
     using iterator = array_iter<Dtype>;
     using viewinfo = array_view;
@@ -206,6 +207,7 @@ namespace numpy {
   
   template <class Dtype>
   class array_transpose {
+    
     friend ndarray<Dtype>;
     
     const std::shared_ptr<shared_memory<Dtype>>& memory_ptr;

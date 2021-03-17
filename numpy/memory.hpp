@@ -5,10 +5,14 @@
 namespace numpy {
 
   template <typename T>
-  struct shared_memory {
-    std::vector<T> data;
+  class shared_memory {
+
+  private:
     static int _constructed_count;
     static int _destructed_count;
+
+  public:
+    std::vector<T> data;
 
     shared_memory(std::vector<T> vec)
       : data(vec) {

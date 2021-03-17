@@ -11,6 +11,7 @@
 namespace python {
 
   class slice : public object {
+    
     static std::string _r_int, _r_colon_int;
     static std::regex re;
 

@@ -14,10 +14,12 @@
 #include <numpy/memory.hpp>
 
 namespace numpy {
+  
   template <typename T> class ndarray;
   
   template <typename T>
   class array_iter : public python::object {
+    
     using coord_type = std::vector<dim_type>;
     using ptr = typename std::vector<T>::iterator;
 

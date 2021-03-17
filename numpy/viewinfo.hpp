@@ -12,12 +12,9 @@
 
 
 namespace numpy {
-
-  template <class T> class ndarray;
-  template <class T> class array_transpose;
-  template <class T> class array_iter;
   
   class array_view : public python::object {
+    
     template <class Dtype> friend class ndarray;
     template <class Dtype> friend class array_transpose;
     template <class Dtype> friend class array_iter;
