@@ -4,12 +4,15 @@ HEADER = $(wildcard ./Numpy/*.hpp)
 SRC = $(wildcard ./test/*.cpp)
 EXC = $(basename $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all run
 
 all: $(EXC)
 
 %: %.cpp $(HEADER)
 	$(CXX) $(CXXFLAGS) -o $@ $<
+
+run:
+	for name in $(EXC); do $$name; done
 
 clean:
 	rm $(EXC)
