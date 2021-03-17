@@ -6,7 +6,7 @@ EXC = $(basename $(SRC))
 
 .PHONY: clean all run
 
-all: $(EXC)
+all: $(EXC) run
 
 %: %.cpp $(HEADER)
 	$(CXX) $(CXXFLAGS) -o $@ $<
