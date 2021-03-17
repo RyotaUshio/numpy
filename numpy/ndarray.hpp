@@ -28,7 +28,7 @@ namespace numpy {
     friend array_transpose<Type>;
 
   private:
-    std::shared_ptr<shared_memory<Type> > memory_ptr;
+    std::shared_ptr<shared_memory<Type>> memory_ptr;
     array_metadata<Type> meta;
     
   public:
@@ -44,11 +44,11 @@ namespace numpy {
 
     // constructors
   private:
-    ndarray(const std::shared_ptr<shared_memory<Type> >& ptr, const array_metadata<Type>& meta_)
+    ndarray(const std::shared_ptr<shared_memory<Type>>& ptr, const array_metadata<Type>& meta_)
       : memory_ptr(ptr), meta(meta_), shape(meta.shape), size(meta.size), ndim(meta.ndim), dtype(meta.dtype), T(*this) {}
 
     ndarray(shared_memory<Type> *ptr, const array_metadata<Type>& meta_)
-      : ndarray<Type>(std::shared_ptr<shared_memory<Type> >(ptr), meta_) {}
+      : ndarray<Type>(std::shared_ptr<shared_memory<Type>>(ptr), meta_) {}
 
     ndarray(const std::vector<Type>& data, const array_metadata<Type>& meta_)
       : ndarray<Type>(new shared_memory<Type>(data), meta_) {}
@@ -167,7 +167,7 @@ namespace numpy {
   class array_transpose {
     friend ndarray<Type>;
     
-    const std::shared_ptr<shared_memory<Type> >& memory_ptr;
+    const std::shared_ptr<shared_memory<Type>>& memory_ptr;
     const array_metadata<Type> meta;
     
     array_transpose(const ndarray<Type>& origin)
