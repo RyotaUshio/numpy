@@ -9,18 +9,19 @@ CPPTEST = $(filter-out $(PYTEST), $(EXC))
 
 .PHONY: clean all run py++
 
-all: $(CPPTEST) test
+all: test
 
 %: %.cpp $(HEADER)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 test: run py++
 
-run:
-	for name in $(filter $(addprefix %/, $(NOTPYTEST)), $(EXC)); do $$name; done
+run: $(CPPTEST)
+	for name in $(CPPTEST); do $$name; done
 
 py++:
 	for name in $(notdir $(PYTEST)); do ./py++ $$name; done
 
 clean:
 	rm $(EXC) ./test/._py++_*
+
