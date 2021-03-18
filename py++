@@ -3,12 +3,162 @@
 import re
 import os
 import sys
-import time
+
+class color:
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    PURPLE = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    
+    REVERSE = '\033[07m' #反転
+    BOLD = '\033[01m'
+    UNDERLINE = '\033[4m'
+    FLASH = '\033[05m' #点滅
+    RED_FLASH = '\033[05;41m' #赤背景+点滅
+    END = '\033[0m'
+    
+cpp_kw_list = """alignas
+alignof
+and
+and_eq
+asm
+atomic_cancel
+atomic_commit
+atomic_noexcept
+auto
+bitand
+bitor
+bool
+break
+case
+catch
+char
+char8_t
+char16_t
+char32_t
+class
+compl
+concept
+const
+consteval
+constexpr
+constinit
+const_cast
+continue
+co_await
+co_return
+co_yield 
+decltype 
+default
+delete
+do
+double
+dynamic_cast
+else
+enum
+explicit
+export
+extern
+false
+float
+for
+friend
+goto
+if
+inline
+int
+long
+mutable
+namespace
+new
+noexcept
+not
+not_eq
+nullptr
+operator
+or
+or_eq
+private
+protected
+public
+reflexpr
+register
+reinterpret_cast
+requires
+return
+short
+signed
+sizeof
+static
+static_assert
+static_cast
+struct
+switch
+synchronized
+template
+this
+thread_local
+throw
+true
+try
+typedef
+typeid
+typename
+union
+unsigned
+using
+virtual
+void
+volatile
+wchar_t
+while
+xor
+xor_eq""".split('\n')
+
+builtin_type = ['short', 'int', 'unsigned', 'signed', 'long', 'bool', 'char', 'wchar_t', 'char16_t', 'char32_t', 'char8_t', 'float', 'double', 'void']
+
+with open('numpy/dtype.hpp', 'r') as f:
+    np_type = re.findall(r'using (\w+) = .*', f.read())
+
+types = builtin_type + np_type
+
+cpp_kw_list = [kw for kw in cpp_kw_list if kw not in types]
+cpp_type = re.compile(r'(\W+)(' + '|'.join(types) + r')(\W+)')
+cpp_kw = re.compile(r'(\W+)(' + '|'.join(cpp_kw_list) + r')(\W+)')
+namespace = re.compile(r'(\w*::\w+)')
 
 def genname(filename):
     p = re.compile(r'(.*\.cpp)')
     res = p.sub(r'._py++_\1', filename)
     return res
+
+def lineparser(cppline):
+    pyline = cppline
+    # seperate comment & non-comment part
+    comment_head = pyline.find('//')
+    pycmd, pycmt = pyline[:comment_head], pyline[comment_head:]
+    # process the comment section
+    pycmt = pycmt.replace('//', f'{color.END}{color.FAIL}#')
+    # process the command (non-comment) section
+    pycmd = cpp_kw.sub(f'\\1{color.GREEN}\\2{color.END}{color.BOLD}\\3', pycmd)
+    pycmd = namespace.sub(f'{color.CYAN}\\1{color.END}{color.BOLD}', pycmd)
+    pycmd = cpp_type.sub(f'\\1{color.RED}\\2{color.END}{color.BOLD}\\3', pycmd)
+    pycmd = pycmd.replace('"', r'\"')
+    pyline = pycmd + pycmt
+    # pycmd = escape.sub(pycmd[:-1], r'\\1') + '\n'
+    g_write = f'  std::cout << "\\n\033[1m>>>{pyline[1:-1]}\033[0m" << std::endl;\n{cppline}'
+    return g_write
 
 def gencpp(filename, src):
     main = re.compile(r"\s*int\s+main\s*\(.*\)\s*{")
@@ -19,9 +169,7 @@ def gencpp(filename, src):
             g.write("#include <iostream>\n")
             for line in f:
                 if main_found and line.strip(" \n"):
-                    pyline = line.replace('//', '#').replace('"', r'\"')
-                    # pyline = escape.sub(pyline[:-1], r'\\1') + '\n'
-                    g_write = f'  std::cout << "\\n\033[1m>>>{pyline[1:-1]}\033[0m" << std::endl;\n{line}'
+                    g_write = lineparser(line)
                 else:
                     g_write = f'{line}'
                 g.write(g_write)
@@ -49,23 +197,23 @@ def comp(filename, rootdir, src, exc, CXX="g++", append_to_CXXFLAGS=""):
 
 def pythonic_test(
         filename,
-        testdir='/Users/ryotaushio/numerical/numpy/test/',
-        rootdir='/Users/ryotaushio/numerical/numpy/',
-        run=True,
+        rootdir=os.getcwd(),
+        testdir=os.getcwd() + '/test',
         rm_exc=False
 ):
     if os.getcwd() != testdir:
         os.chdir(testdir)
     if not filename.endswith('.cpp'):
         filename += '.cpp'
+        
     print(f"\033[1m\033[95m"
           f"{filename}\033[0m\n"
           "\033[1m\033[32m[generating c++ source...", end='')
+    
     src = genname(filename)
     exc = src[:-4]
     gencpp(filename, src)
     print(" finished]")
-    time.sleep(.2)
     print(f"[Attempting compilation...]\033[0m")
     try:
         comp(filename, rootdir, src, exc)
@@ -88,16 +236,3 @@ if __name__ == '__main__':
         print("usage: py++ [basename of your c++ source]")
         sys.exit(1)
     pythonic_test(sys.argv[1])
-
-
-# こんな感じでシンタックスハイライト的なことも案外簡単にできそう。
-
-# In [1]: import re                                                                                           
-# In [2]: p = re.compile(r'\w+')                                                                             
-# In [3]: code = "template<class T> void func(const T& arg);"                                                 
-# In [4]: qualified = ["template", "class", "void", "const"]                                                  
-# In [5]: p.search(code)                                                                                      
-# Out[5]: <re.Match object; span=(0, 8), match='template'>
-
-# In [6]: p.findall(code)                                                                                     
-# Out[6]: ['template', 'class', 'T', 'void', 'func', 'const', 'T', 'arg']
