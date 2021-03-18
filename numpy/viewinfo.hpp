@@ -25,6 +25,8 @@ namespace numpy {
     size_type size;
     offset_type offset;
     stride_type stride;
+
+    array_view() = default;
     
     array_view(const shape_type& shape_, const stride_type& stride_, const offset_type& offset_=0)
       : shape(shape_), offset(offset_), stride(stride_) {
@@ -53,7 +55,7 @@ namespace numpy {
       swap(a.size, b.size);
       swap(a.offset, b.offset);
       swap(a.stride, b.stride);
-      std::cout << "array_view::swap is called" << std::endl;
+      // std::cout << "array_view::swap is called" << std::endl;
     }
     
     void set_shape(const shape_type& newshape) {
@@ -124,11 +126,11 @@ namespace numpy {
     std::string __repr__() const override {
       std::stringstream ss;
       ss << "array_view(";
-      ss << "shape=" << utils::str(shape);
+      ss << "shape=" << python::str(shape);
       ss << ", size=" << size;
       ss << ", ndim=" << ndim;
       ss << ", offset=" << offset;
-      ss << ", stride=" << utils::str(stride);
+      ss << ", stride=" << python::str(stride);
       ss << ")";
       return ss.str();
     }

@@ -5,14 +5,41 @@
 #include <utility> // forward
 #include <numpy/pyobject.hpp>
 #include <numpy/slice.hpp>
+#include <numpy/typename.hpp>
 
 namespace python {
   
-  template <class T> std::string str(const T& obj) {
+  std::string str(const object& obj) {
     return obj.__str__();
   }
+
+  template <typename T>
+  std::string str(const std::vector<T>& vec) {
+    std::stringstream ss;
+    bool first = true;
+    ss << "(";
+    for(const auto e : vec) {
+      if (first) {
+	first = false;
+      } else {
+	ss << ", ";
+      }
+      ss << e;
+    }
+    ss << ")";
+    return ss.str();
+  }
+
+  std::string str(const std::type_info& type) {
+    return getNameByTypeInfo(type);
+  }
+
+  template <typename T>
+  std::string str() {
+    return str(typeid(T));
+  }
   
-  template <class T> std::string repr(const T& obj) {
+  std::string repr(const object& obj) {
     return obj.__repr__();
   }
   

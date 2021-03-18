@@ -31,18 +31,18 @@ namespace numpy {
     return full(shape, dtype(1));
   }
   
-  template <class T>
-  ndarray<T> reshape(const ndarray<T>& a, const shape_type& newshape) {
+  template <class Dtype>
+  ndarray<Dtype> reshape(const ndarray<Dtype>& a, const shape_type& newshape) {
     return a.reshape(newshape);
   }
 
-  template <class T>
-  ndarray<T> transpose(const ndarray<T>& a, const std::vector<dim_type>& axes) {
+  template <class Dtype>
+  ndarray<Dtype> transpose(const ndarray<Dtype>& a, const axes_type& axes) {
     return a.transpose(axes);
   }
 
-  template <class T>
-  ndarray<T> transpose(const ndarray<T>& a) {
+  template <class Dtype>
+  ndarray<Dtype> transpose(const ndarray<Dtype>& a) {
     return a.transpose();
   }
 

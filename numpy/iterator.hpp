@@ -155,12 +155,12 @@ namespace numpy {
 
     std::string __repr__() const override {
       std::stringstream ss;
-      ss << "array_iterator<" << TYPENAME(T) << ">(";
+      ss << "array_iterator<" << python::str<T>() << ">(";
       ss << "view=" << repr(view);
       ss << ", memory_ptr=" << memory_ptr;
       ss << ", dataptr=" << &(*dataptr);
       ss << ", index=" << index;
-      ss << ", coord=" << utils::str(coord);
+      ss << ", coord=" << python::str(coord);
       ss << ")";
       return ss.str();
     }

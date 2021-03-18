@@ -22,45 +22,13 @@ namespace numpy {
       return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), init);
     }
     
-    // for debug
-    template <typename T>
-    std::string str(const std::vector<T>& vec) {
-      std::stringstream ss;
-      bool first = true;
-      ss << "(";
-      for(const auto e : vec) {
-	if (first) {
-	  first = false;
-	} else {
-	  ss << ", ";
-	}
-	ss << e;
-      }
-      ss << ")";
-      return ss.str();
-    }
-
-    std::string str(const std::type_info& type) {
-      return getNameByTypeInfo(type);
-    }
-
-    template <typename T>
-    std::string vector_to_str(const std::vector<T>& vec) {
-      return str(vec);
-    }
-    
-    template <typename T>
-    void print_vector(std::vector<T> vec) {
-      std::cout << vector_to_str(vec) << std::endl;
-    }  
-
     void line(int width=80) {
       std::cout << std::string(width, '-') << std::endl;
     }
   
     template <typename T>
     void test(ndarray<T>& a) {
-      std::cout << "dtype : " << str(a.dtype()) << std::endl;
+      std::cout << "dtype : " << python::str<T>() << std::endl;
       std::cout << "__repr__() : " << std::endl;;
       std::cout << a.__repr__() << std::endl;
       line();

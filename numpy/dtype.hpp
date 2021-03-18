@@ -53,6 +53,7 @@ namespace numpy {
   using shape_type = std::vector<shape_elem_type>;
   using dim_type = intp;
   using axis_type = dim_type;
+  using axes_type = std::vector<axis_type>;
   using stride_type = std::vector<intp>;
   using offset_type = intp;
   

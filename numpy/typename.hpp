@@ -20,4 +20,4 @@
     }
 #endif
  
-#define TYPENAME(dType) getNameByTypeInfo(typeid(dType))
+// #define TYPENAME(dType) getNameByTypeInfo(typeid(dType))

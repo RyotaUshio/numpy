@@ -57,7 +57,7 @@ namespace numpy {
     }
 
     static void manager() {
-      std::cout << "[memory manager of numpy::shared_memory<" << TYPENAME(T) << ">]\n"
+      std::cout << "[memory manager of numpy::shared_memory<" << python::str<T>() << ">]\n"
 		<<"Constructed: " << _constructed_count << " time(s)\n"
 		<< "Destruced  : " << _destructed_count << " time(s)\n"
 		<< "Remaining undestructed: "
