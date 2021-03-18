@@ -1,15 +1,29 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <stdexcept>
 #include <utility> // forward
+#include <type_traits>
 #include <numpy/pyobject.hpp>
 #include <numpy/slice.hpp>
 #include <numpy/typename.hpp>
+#include <numpy/dtype.hpp>
 
 namespace python {
   
-  std::string str(const object& obj) {
+  template <typename T>
+  std::string str(const T& obj) {
+    std::stringstream ss;
+    if constexpr (std::is_same_v<T, numpy::bool_>) {
+      return static_cast<bool>(obj) ? "False" : "True";
+    } else {
+      ss << obj;
+      return ss.str();
+    }
+  }  
+  
+  template <> std::string str<object>(const object& obj) {
     return obj.__str__();
   }
 
@@ -30,7 +44,8 @@ namespace python {
     return ss.str();
   }
 
-  std::string str(const std::type_info& type) {
+  template <>
+  std::string str<std::type_info>(const std::type_info& type) {
     return getNameByTypeInfo(type);
   }
 

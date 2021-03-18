@@ -9,7 +9,11 @@
 
 namespace numpy {
 
-  using bool_ = bool;			// Boolean (True or False) stored as a byte
+  
+  // (In the original NumPy, Booleans are represented in native bool type. But since std::vector<bool> is specialized and not able to be handled as vectors of other types, alternative representaion of Boolean values.) 
+  // using bool_ = bool;			// Boolean (True or False) stored as a byte
+
+  enum struct bool_ : char {False, True};
   using byte = signed char;		// Platform-defined
   using ubyte = unsigned char;		// Platform-defined
   using short_ = short;		        // Platform-defined (underscore is appended to make it unqualified-id)
@@ -30,13 +34,14 @@ namespace numpy {
   using clongdouble = std::complex<long double>;	 // Complex number, represented by two extended-precision floats (real and imaginary components).
   
   /******** fixed-size aliases ********/
-  using int8 =  int8_t;			   // Byte (-128 to 127)
-  using int16 =  int16_t;		   // Integer (-32768 to 32767)
-  using int32 = int32_t;		   // Integer (-2147483648 to 2147483647)
-  using int64 = int64_t;		   // Integer (-9223372036854775808 to 9223372036854775807)
-  using uint8 = uint8_t;		   // Unsigned integer (0 to 255)
-  using uint16 = uint16_t;		   // Unsigned integer (0 to 65535)
-  using uint32 = uint32_t;		   // Unsigned integer (0 to 4294967295)
+  using bool8 = bool_; // https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.bool8
+  using int8 =  std::int8_t;			   // Byte (-128 to 127)
+  using int16 =  std::int16_t;		   // Integer (-32768 to 32767)
+  using int32 = std::int32_t;		   // Integer (-2147483648 to 2147483647)
+  using int64 = std::int64_t;		   // Integer (-9223372036854775808 to 9223372036854775807)
+  using uint8 = std::uint8_t;		   // Unsigned integer (0 to 255)
+  using uint16 = std::uint16_t;		   // Unsigned integer (0 to 65535)
+  using uint32 = std::uint32_t;		   // Unsigned integer (0 to 4294967295)
   using uint64 = std::uint64_t;		   // Unsigned integer (0 to 18446744073709551615)
   using intp = std::intptr_t;		   // Integer used for indexing, typically the same as ssize_t
   using uintp = std::uintptr_t;		   // Integer large enough to hold a pointer

@@ -46,10 +46,32 @@ namespace numpy {
     return a.transpose();
   }
 
+  /* constants */
   constexpr double pi = M_PI;
   const double e = std::exp(1.0);
 
-  /******************** Explicit instantiation ********************/
+  /* explicit instantiation */
+  template class ndarray<byte>;
+  template class ndarray<ubyte>;
+  template class ndarray<short_>;
+  template class ndarray<ushort>;
+  template class ndarray<intc>;
+  template class ndarray<uintc>;
   template class ndarray<int_>;
-  
+  template class ndarray<uint>;
+  template class ndarray<longlong>;
+  template class ndarray<ulonglong>;
+  template class ndarray<single>;
+  template class ndarray<double_>;
+  template class ndarray<longdouble>;
+  template class ndarray<csingle>;
+  template class ndarray<cdouble>;
+  template class ndarray<clongdouble>;
+
+  /* specailization for bool_ */
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator+=(const ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator-=(const ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator*=(const ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator/=(const ndarray<bool_>& rhs) = delete;
+
 }
