@@ -37,6 +37,8 @@ namespace numpy {
     ndarray::viewinfo view;
     
   public:
+    ndarray::viewinfo view_transpose;
+    
     // accessors
     inline const shape_type& shape() const noexcept {
       return view.shape;
@@ -60,14 +62,15 @@ namespace numpy {
       return typeid(Dtype);
     }
 
-    array_transpose<Dtype> T;
+    inline ndarray<Dtype> T() const {
+      return ndarray<Dtype>(memory_ptr, view_transpose);
+    }
 
     // constructors
   private:
-    ndarray() = default;
     
     ndarray(const std::shared_ptr<shared_memory<Dtype>>& ptr, const viewinfo& view_)
-      : memory_ptr(ptr), view(view_), T(*this) {}
+      : memory_ptr(ptr), view(view_), view_transpose(view.transpose()) {}
 
     ndarray(shared_memory<Dtype> *ptr, const viewinfo& view_)
       : ndarray<Dtype>(std::shared_ptr<shared_memory<Dtype>>(ptr), view_) {}
@@ -84,28 +87,32 @@ namespace numpy {
 
     friend void swap(ndarray<Dtype>& first, ndarray<Dtype>& second) {
       using std::swap;
-      swap(first.memory_ptr, second.memory_ptr);
+      std::cout << "ndarray::swap is called" << std::endl;
+      first.memory_ptr.swap(second.memory_ptr);
       swap(first.view, second.view);
-      swap(first.T, second.T);
+      swap(first.view_transpose, second.view_transpose);
     }
 
     // Copy constructor & copy assignment operator
     // The copied object should refer to the same memory address, but newly generate its view object.
     ndarray(const ndarray<Dtype>& src)
-      : ndarray<Dtype>(src.memory_ptr, src.view) {}
+      : ndarray<Dtype>(src.memory_ptr, src.view) {
+      std::cout << "array_view::(copy constructor) is called" << std::endl;
+    }
 
-    // ndarray<Dtype>& operator=(ndarray<Dtype> rhs)
-    //   : ndarray<Dtype>() {
-    //   swap(*this, rhs);
-    //   return *this;
-    // }
+    ndarray<Dtype>& operator=(ndarray<Dtype> rhs) {
+      std::cout << "ndarray::(copy assignment operator) is called" << std::endl;
+      swap(*this, rhs);
+      return *this;
+    }
 
     // // Move constructor & move assignment operator
     // ndarray(ndarray<Dtype>&& src) {
     //   swap(*this, src);
     // }
       
-    // ndarray<Dtype>& operator=(ndarray<Dtype>&& rhs) {
+    // ndarray<Dtype>& operator=(ndarray<Dtype>&& rhs)
+    //   : ndarray<Dtype>() {
     //   swap(*this, rhs);
     //   return *this;
     // }
@@ -202,28 +209,6 @@ namespace numpy {
     // ndarray<Dtype> copy() {
     //   // return astype<Dtype>();
     // } 
-  };
-
-  
-  template <class Dtype>
-  class array_transpose {
-    
-    friend ndarray<Dtype>;
-    
-    const std::shared_ptr<shared_memory<Dtype>>& memory_ptr;
-    const typename ndarray<Dtype>::viewinfo view;
-    
-    array_transpose(const ndarray<Dtype>& origin)
-      : memory_ptr(origin.memory_ptr), view(origin.view.transpose()) {}
-
-  public:
-    typename ndarray<Dtype>::viewinfo& get_view() {
-      return view;
-    }
-
-    operator ndarray<Dtype>() const {
-      return ndarray<Dtype>(memory_ptr, view);
-    }
   };
   
 }

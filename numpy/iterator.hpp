@@ -47,7 +47,7 @@ namespace numpy {
 
   public:
     array_iter(const ndarray<T>& array)
-      : array_iter<T>(array, array.memory_ptr->data.begin() + array.view.offset, 0) {}
+      : array_iter<T>(array, array.memory_ptr->begin() + array.view.offset, 0) {}
 
   private:
     template <class... Args>
@@ -91,7 +91,7 @@ namespace numpy {
     }
 
     ptr coord_to_ptr(const coord_type& coord_) {
-      return memory_ptr->data.begin() + utils::dot(view.stride, coord_, view.offset);
+      return memory_ptr->begin() + utils::dot(view.stride, coord_, view.offset);
     }
 
     void go_to(const coord_type& dest) {

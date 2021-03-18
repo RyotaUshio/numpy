@@ -60,8 +60,8 @@ int main() {
 	    np::transpose(a, {2, 1, 0}),
 	    np::transpose(a));
 
-  print("\n<.T attribute>");
-  np::ndarray<int> a_T = a.T;
+  print("\n<.T() method>");
+  auto a_T = a.T();
   print(a_T);
   
   print("\n<full, zeros, ones>");

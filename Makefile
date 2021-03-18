@@ -1,10 +1,10 @@
 CXX = g++
 override CXXFLAGS += -std=c++17 -O3 -Wall -I . # -g
-HEADER = $(wildcard ./Numpy/*.hpp)
+HEADER = $(wildcard ./numpy/*.hpp)
 SRC = $(wildcard ./test/*.cpp)
 EXC = $(basename $(SRC))
 
-.PHONY: clean all run
+.PHONY: clean all run $(notdir $(EXC))
 
 all: $(EXC) run
 

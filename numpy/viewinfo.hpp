@@ -5,6 +5,7 @@
 #include <algorithm> // find
 #include <string>
 #include <sstream>
+#include <utility> // swap
 #include <numpy/pyobject.hpp>
 #include <numpy/dtype.hpp>
 #include <numpy/utils.hpp>
@@ -24,7 +25,7 @@ namespace numpy {
     size_type size;
     offset_type offset;
     stride_type stride;
-
+    
     array_view(const shape_type& shape_, const stride_type& stride_, const offset_type& offset_=0)
       : shape(shape_), offset(offset_), stride(stride_) {
       adjust_to_shape();
@@ -45,10 +46,16 @@ namespace numpy {
     array_view(const array_view& src)
       : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride) {}
 
-    template <class Dtype>
-    array_view(const array_view& src)
-      : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride) {}
-
+    friend void swap(array_view& a, array_view& b) {
+      using std::swap;
+      swap(a.shape, b.shape);
+      swap(a.ndim, b.ndim);
+      swap(a.size, b.size);
+      swap(a.offset, b.offset);
+      swap(a.stride, b.stride);
+      std::cout << "array_view::swap is called" << std::endl;
+    }
+    
     void set_shape(const shape_type& newshape) {
       shape = newshape;
       adjust_to_shape();

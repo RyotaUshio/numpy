@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <utility> // forward
 #include <numpy/pyobject.hpp>
 #include <numpy/slice.hpp>
 
@@ -25,22 +26,22 @@ namespace python {
   }
   
   template <class Head, class... Tail>
-  void _print_impl(bool first, std::string sep, const Head& head, const Tail&... tail) {
+  void _print_impl(bool first, std::string sep, Head&& head, Tail&&... tail) {
     if (not first)
       std::cout << sep;
     std::cout << head;
-    _print_impl(false, sep, tail...);
+    _print_impl(false, sep, std::forward<Tail>(tail)...);
   }
 
   template <class... Args>
-  void print_sep(std::string sep, Args... args) {
+  void print_sep(std::string sep, Args&&... args) {
     std::cout << std::boolalpha;
-    _print_impl(true, sep, args...);
+    _print_impl(true, sep, std::forward<Args>(args)...);
   }
 
   template <class... Args>
-  void print(Args... args) {
-    print_sep(" ", args...);
+  void print(Args&&... args) {
+    print_sep(" ", std::forward<Args>(args)...);
   }
   
 }
