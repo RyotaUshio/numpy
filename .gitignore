@@ -1,7 +1,7 @@
 *
-!*.*
+!*/
+!*.[ch]pp
 !Makefile
-*~
-*.o
-*.dSYM
-*#*
+!*.py
+!.gitignore
+!py++

@@ -7,7 +7,7 @@ import time
 
 def genname(filename):
     p = re.compile(r'(.*\.cpp)')
-    res = p.sub(r'_py++_\1', filename)
+    res = p.sub(r'._py++_\1', filename)
     return res
 
 def gencpp(filename, src):
@@ -19,7 +19,7 @@ def gencpp(filename, src):
             g.write("#include <iostream>\n")
             for line in f:
                 if main_found and line.strip(" \n"):
-                    pyline = line.replace('//', '#').replace('"', '\\"')
+                    pyline = line.replace('//', '#').replace('"', r'\"')
                     # pyline = escape.sub(pyline[:-1], r'\\1') + '\n'
                     g_write = f'  std::cout << "\\n\033[1m>>>{pyline[1:-1]}\033[0m" << std::endl;\n{line}'
                 else:
@@ -33,12 +33,17 @@ def gencpp(filename, src):
                         main_found = True
             if not main_found:
                 raise Exception("Cannot find main function")
-                    
-def comp(filename, rootdir, src, exc):
-    CXX = "g++"
-    CXXFLAGS = f"-std=c++17 -O3 -Wall -I {rootdir}"
-    
+
+class NoNeedToCompile(Exception):
+    pass
+        
+def comp(filename, rootdir, src, exc, CXX="g++", append_to_CXXFLAGS=""):
+    CXXFLAGS=f"-std=c++17 -O3 -Wall -I {rootdir} " + append_to_CXXFLAGS
     cmd = f"{CXX} {CXXFLAGS} -o {exc} {src}"
+    if exc in os.listdir():
+        file_time, exc_time = map(os.path.getmtime, [filename, exc])
+        if file_time < exc_time:
+            raise NoNeedToCompile("Executable is up-to-date, no need to compile")
     if os.system(cmd) % 256:
         raise Exception("Compilation failed")
 
@@ -47,21 +52,27 @@ def pythonic_test(
         testdir='/Users/ryotaushio/numerical/numpy/test/',
         rootdir='/Users/ryotaushio/numerical/numpy/',
         run=True,
-        rm_exc=True
+        rm_exc=False
 ):
     if os.getcwd() != testdir:
         os.chdir(testdir)
     if not filename.endswith('.cpp'):
         filename += '.cpp'
-    print(f"\033[1m\033[32m[generating c++ source...", end='')
+    print(f"\033[1m\033[95m"
+          f"{filename}\033[0m\n"
+          "\033[1m\033[32m[generating c++ source...", end='')
     src = genname(filename)
     exc = src[:-4]
     gencpp(filename, src)
     print(" finished]")
     time.sleep(.2)
-    print(f"[compiling...]\033[0m")
-    comp(filename, rootdir, src, exc)
-    print("\033[1m\033[32mcompilation finished]")
+    print(f"[Attempting compilation...]\033[0m")
+    try:
+        comp(filename, rootdir, src, exc)
+    except NoNeedToCompile as e:
+        print(f"\033[1m\033[32m[{e}]")
+    else:
+        print("\033[1m\033[32mcompilation finished]")
     print(f"[launching py++ test...]\033[0m")
     os.system(f'./{exc}')
     print(f"\033[1m\033[32m\n[py++ test finished]")
@@ -69,7 +80,7 @@ def pythonic_test(
     os.remove(src)
     if rm_exc:
         os.remove(exc)
-    print("]\033[0m")
+    print("finished]\033[0m")
 
 
 if __name__ == '__main__':
