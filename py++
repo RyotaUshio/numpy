@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+
+import re
+import os
+import sys
+import time
+
+def genname(filename):
+    p = re.compile(r'(.*\.cpp)')
+    res = p.sub(r'_py++_\1', filename)
+    return res
+
+def gencpp(filename, src):
+    main = re.compile(r"\s*int\s+main\s*\(.*\)\s*{")
+    # escape = re.compile(r"(\[abntfvr0])") ???
+    main_found = False
+    with open(filename, 'r') as f:
+        with open(src, mode='x') as g:
+            g.write("#include <iostream>\n")
+            for line in f:
+                if main_found and line.strip(" \n"):
+                    pyline = line.replace('//', '#').replace('"', '\\"')
+                    # pyline = escape.sub(pyline[:-1], r'\\1') + '\n'
+                    g_write = f'  std::cout << "\\n\033[1m>>>{pyline[1:-1]}\033[0m" << std::endl;\n{line}'
+                else:
+                    g_write = f'{line}'
+                g.write(g_write)
+                
+                m = main.search(line)
+                if not main_found:
+                    if m is not None:
+                        # g.write('  python::print("$ python\\nPython 3.7.3 (default, Mar 27 2019, 16:54:48) \\n[Clang 4.0.1 (tags/RELEASE_401/final)] :: Anaconda, Inc. on darwin\\nType \\"help\\", \\"copyright\\", \\"credits\\" or \\"license\\" for more information.");')
+                        main_found = True
+            if not main_found:
+                raise Exception("Cannot find main function")
+                    
+def comp(filename, rootdir, src, exc):
+    CXX = "g++"
+    CXXFLAGS = f"-std=c++17 -O3 -Wall -I {rootdir}"
+    
+    cmd = f"{CXX} {CXXFLAGS} -o {exc} {src}"
+    if os.system(cmd) % 256:
+        raise Exception("Compilation failed")
+
+def pythonic_test(
+        filename,
+        testdir='/Users/ryotaushio/numerical/numpy/test/',
+        rootdir='/Users/ryotaushio/numerical/numpy/',
+        run=True,
+        rm_exc=True
+):
+    if os.getcwd() != testdir:
+        os.chdir(testdir)
+    if not filename.endswith('.cpp'):
+        filename += '.cpp'
+    print(f"\033[1m\033[32m[generating c++ source...", end='')
+    src = genname(filename)
+    exc = src[:-4]
+    gencpp(filename, src)
+    print(" finished]")
+    time.sleep(.2)
+    print(f"[compiling...]\033[0m")
+    comp(filename, rootdir, src, exc)
+    print("\033[1m\033[32mcompilation finished]")
+    print(f"[launching py++ test...]\033[0m")
+    os.system(f'./{exc}')
+    print(f"\033[1m\033[32m\n[py++ test finished]")
+    print(f"[deleting garbage files...", end='')
+    os.remove(src)
+    if rm_exc:
+        os.remove(exc)
+    print("]\033[0m")
+
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("usage: py++ [basename of your c++ source]")
+        sys.exit(1)
+    pythonic_test(sys.argv[1])
+
+
+# こんな感じでシンタックスハイライト的なことも案外簡単にできそう。
+
+# In [1]: import re                                                                                           
+# In [2]: p = re.compile(r'\w+')                                                                             
+# In [3]: code = "template<class T> void func(const T& arg);"                                                 
+# In [4]: qualified = ["template", "class", "void", "const"]                                                  
+# In [5]: p.search(code)                                                                                      
+# Out[5]: <re.Match object; span=(0, 8), match='template'>
+
+# In [6]: p.findall(code)                                                                                     
+# Out[6]: ['template', 'class', 'T', 'void', 'func', 'const', 'T', 'arg']
