@@ -58,8 +58,8 @@ namespace numpy {
 
     static void manager() {
       std::cout << "\033[35m[memory manager of numpy::shared_memory<" << python::str<T>() << ">]\n"
-		<<"Constructed: " << _constructed_count << " time(s)\n"
-		<< "Destruced  : " << _destructed_count << " time(s)\n"
+		<< "Constructed: " << _constructed_count << " time(s)\n"
+		<< "Destructed  : " << _destructed_count << " time(s)\n"
 		<< "Remaining undestructed: \033[01m"
 		<< _constructed_count - _destructed_count
 		<< " object(s)\033[0m" << std::endl;
