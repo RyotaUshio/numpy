@@ -4,11 +4,7 @@ An attempt to imitate [NumPy](https://numpy.org/) in C++.
 
 This project provides not only an API for Python/NumPy-like array programming but also the `py++` tool, which enables you to see the execution outcome in a pretty Python-inpreter-like fashion, as shown below.
 
-For example, passing [this code](https://github.com/RyotaUshio/numpy/blob/main/test/test_copy_move.cpp) to `py++`:
-```
-$ ./py++ test_copy_move
-```
-will show you something like this:
+For example, if you have [this code](https://github.com/RyotaUshio/numpy/blob/main/test/test_copy_move.cpp),
 ```c++
 #include <utility>
 #include <numpy/python.hpp>
@@ -33,6 +29,11 @@ int main() {
   
 }
 ```
+just do:
+```
+$ ./py++ test_copy_move
+```
+`py++` will auto-generate & compile some codes, and then show you something like this:
 
 ![a](https://github.com/RyotaUshio/numpy/blob/main/fig/py++.png?raw=true)
 
