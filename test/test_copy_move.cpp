@@ -15,7 +15,7 @@ int main() {
   print(a);
   auto c = std::move(a); // this invokes the move constructor
   print(c);
-  // print(a); -> Segmentation Fault (`a` has already moved)
+  // print(a); -> Segmentation Fault (`a` has already been moved)
   c = b.reshape({4, 1}); // the move assignment operator is called
   print(c);
 }
