@@ -154,6 +154,7 @@ def lineparser(cppline):
     pycmd = cpp_kw.sub(f'\\1{color.GREEN}\\2{color.END}{color.BOLD}\\3', pycmd)
     pycmd = namespace.sub(f'{color.CYAN}\\1{color.END}{color.BOLD}', pycmd)
     pycmd = cpp_type.sub(f'\\1{color.RED}\\2{color.END}{color.BOLD}\\3', pycmd)
+    pycmd = pycmd.replace('\\', r'\\')
     pycmd = pycmd.replace('"', r'\"')
     pyline = pycmd + pycmt
     # pycmd = escape.sub(pycmd[:-1], r'\\1') + '\n'
