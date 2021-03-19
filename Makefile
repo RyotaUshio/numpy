@@ -20,7 +20,7 @@ run: $(CPPTEST)
 	for name in $(CPPTEST); do $$name; done
 
 py++:
-	for name in $(notdir $(PYTEST)); do ./py++ $$name; done
+	for name in $(notdir $(PYTEST)); do py++ $$name; done
 
 clean:
 	rm $(EXC) ./test/._py++_*

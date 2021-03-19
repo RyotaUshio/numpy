@@ -136,7 +136,8 @@ types = builtin_type + np_type
 cpp_kw_list = [kw for kw in cpp_kw_list if kw not in types]
 cpp_type = re.compile(r'(\W+)(' + '|'.join(types) + r')(\W+)')
 cpp_kw = re.compile(r'(\W+)(' + '|'.join(cpp_kw_list) + r')(\W+)')
-namespace = re.compile(r'(\w*::\w+)')
+namespace = re.compile(r'(\w*)(::)(\w+)')
+mainfunc = re.compile(r'.*int\s+main\s*\(.*\)\s*\{(.*)}', re.DOTALL)
 
 def genname(filename):
     p = re.compile(r'(.*\.cpp)')
@@ -149,16 +150,15 @@ def lineparser(cppline):
     comment_head = pyline.find('//')
     pycmd, pycmt = pyline[:comment_head], pyline[comment_head:]
     # process the comment section
-    pycmt = pycmt.replace('//', f'{color.END}{color.FAIL}#')
+    pycmt = f'{color.END}{color.FAIL}#' + pycmt[len('//'):]
     # process the command (non-comment) section
     pycmd = cpp_kw.sub(f'\\1{color.GREEN}\\2{color.END}{color.BOLD}\\3', pycmd)
-    pycmd = namespace.sub(f'{color.CYAN}\\1{color.END}{color.BOLD}', pycmd)
+    pycmd = namespace.sub(f'{color.CYAN}\\1\\2\\3{color.END}{color.BOLD}', pycmd)
     pycmd = cpp_type.sub(f'\\1{color.RED}\\2{color.END}{color.BOLD}\\3', pycmd)
     pycmd = pycmd.replace('\\', r'\\')
     pycmd = pycmd.replace('"', r'\"')
     pyline = pycmd + pycmt
-    # pycmd = escape.sub(pycmd[:-1], r'\\1') + '\n'
-    g_write = f'  std::cout << "\\n\033[1m>>>{pyline[1:-1]}\033[0m" << std::endl;\n{cppline}'
+    g_write = f'  std::cout << "\\n>>>\033[1m{pyline[1:-1]}\033[0m" << std::endl;\n{cppline}'
     return g_write
 
 def gencpp(filename, src):
@@ -185,22 +185,29 @@ def gencpp(filename, src):
 
 class NoNeedToCompile(Exception):
     pass
+
+class CompilationFailure(Exception):
+    pass
         
-def comp(filename, rootdir, src, exc, CXX="g++", append_to_CXXFLAGS=""):
+def comp(filename, rootdir, src, exc, CXX="g++", append_to_CXXFLAGS="", force=False):
     CXXFLAGS=f"-std=c++17 -O3 -Wall -I {rootdir} " + append_to_CXXFLAGS
     cmd = f"{CXX} {CXXFLAGS} -o {exc} {src}"
-    if exc in os.listdir():
+    if (not force) and (exc in os.listdir()):
         file_time, exc_time = map(os.path.getmtime, [filename, exc])
         if file_time < exc_time:
             raise NoNeedToCompile("executable is up-to-date, no need to compile")
-    if os.system(cmd) % 256:
-        raise Exception("Compilation failed")
+    if os.system(cmd) >> 8:
+        # ON UNIX, this is the exit code of the compiler
+        # if you are on Windows, this might be nonsense
+        # (https://stackoverflow.com/questions/6466711/what-is-the-return-value-of-os-system-in-python)
+        raise CompilationFailure("Compilation failed")
 
 def pythonic_test(
         filename,
         rootdir=os.getcwd(),
         testdir=os.getcwd() + '/test',
-        rm_exc=False
+        rm_exc=False,
+        force=False
 ):
     if os.getcwd() != testdir:
         os.chdir(testdir)
@@ -214,12 +221,16 @@ def pythonic_test(
     src = genname(filename)
     exc = src[:-4]
     gencpp(filename, src)
-    print(" finished]")
+    print("finished]")
     print(f"[attempting compilation...]\033[0m")
     try:
-        comp(filename, rootdir, src, exc)
+        comp(filename=filename, rootdir=rootdir, src=src, exc=exc, force=force)
     except NoNeedToCompile as e:
         print(f"\033[1m\033[32m[{e}]")
+    except CompilationFailure as e:
+        print(f"\033[1m{color.FAIL}[{e}]{color.END}")
+        os.remove(src)
+        sys.exit(1)
     else:
         print("\033[1m\033[32m[compilation finished]")
     print(f"[launching py++ test...]\033[0m")
@@ -233,7 +244,13 @@ def pythonic_test(
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
+    if not (2 <= len(sys.argv) <= 3):
         print("usage: py++ [basename of your c++ source]")
         sys.exit(1)
-    pythonic_test(sys.argv[1])
+    if len(sys.argv) == 3:
+        if sys.argv[2] not in ['-f', '--force', '--force-compile']:
+            raise Exception(f'Invalid option: {sys.argv[2]}')
+        force = True
+    else:
+        force = False
+    pythonic_test(sys.argv[1], force=force)
