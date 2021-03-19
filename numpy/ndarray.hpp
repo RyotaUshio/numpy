@@ -13,6 +13,7 @@
 #include <numpy/dtype.hpp>
 #include <numpy/memory.hpp>
 #include <numpy/viewinfo.hpp>
+#include <numpy/broadcast.hpp>
 #include <numpy/iterator.hpp>
 #include <numpy/utils.hpp>
 #include <numpy/typename.hpp>
@@ -28,6 +29,8 @@ namespace numpy {
     
     template <typename AnotherDtype> friend class ndarray;
     friend array_iter<Dtype>;
+    template <typename Dtype1, typename Dtype2>
+    friend void broadcast(ndarray<Dtype1>& lhs, ndarray<Dtype2>& rhs);
 
   private:
     std::shared_ptr<shared_memory<Dtype>> memory_ptr;
@@ -171,7 +174,7 @@ namespace numpy {
     
     template <class Operation>
     inline ndarray<Dtype>& comp_assign(const ndarray<Dtype>& rhs, Operation op) {
-      // broadcast(rhs); ...
+      broadcast(const_cast<ndarray<Dtype>&>(*this), const_cast<ndarray<Dtype>&>(rhs));
       std::transform(begin(), end(), rhs.begin(), begin(), op);
       return *this;
     }
@@ -251,3 +254,4 @@ namespace numpy {
   };
   
 }
+

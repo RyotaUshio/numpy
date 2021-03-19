@@ -19,6 +19,11 @@ namespace numpy {
     template <class Dtype> friend class ndarray;
     template <class Dtype> friend class array_transpose;
     template <class Dtype> friend class array_iter;
+
+    friend const shape_elem_type& broadcast_axis(const shape_elem_type& a, const shape_elem_type& b) noexcept(false);
+    friend shape_type get_broadcasted_shape(array_view& small, array_view& big);
+    template <typename Dtype1, typename Dtype2>
+    friend void broadcast(ndarray<Dtype1>& lhs, ndarray<Dtype2>& rhs);
     
     shape_type shape;
     dim_type ndim;
@@ -38,7 +43,7 @@ namespace numpy {
     array_view(const shape_type& shape_, const offset_type& offset_=0)
       : shape(shape_), offset(offset_) {
       adjust_to_shape();
-      stride = stride_type(shape.size());
+      stride = stride_type(ndim);
       stride[ndim-1] = 1;
       for(int i=ndim-2; i>=0; i--){
 	stride[i] = stride[i+1] * shape[i+1];
@@ -119,6 +124,15 @@ namespace numpy {
       for(int i=0; i<ndim; i++)
 	axes[i] = ndim - 1 - i;
       return transpose(axes);
+    }
+    
+    void broadcast_to(const shape_type& newshape) {
+      for(axis_type ax=0; ax<shape.size(); ax++)
+	if(shape[ax] != newshape[ax]) {
+	  shape[ax] = newshape[ax];
+	  stride[ax] = 0;
+	}
+      adjust_to_shape();
     }
 
   public:
