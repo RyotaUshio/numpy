@@ -43,11 +43,9 @@ namespace numpy {
     auto operator() (ndarray<Dtype>& x1, ndarray<Dtype>& x2, ndarray<Dtype>& out) -> decltype(x1) {
       
     }
-
-
+    
   };
-
-
-  
   
 }
+
+#include <numpy/ufunc_instances.hpp>
