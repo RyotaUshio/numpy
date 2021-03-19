@@ -17,6 +17,7 @@
 #include <numpy/iterator.hpp>
 #include <numpy/utils.hpp>
 #include <numpy/typename.hpp>
+#include <numpy/ufunc.hpp>
 
 namespace numpy {
   
