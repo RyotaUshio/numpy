@@ -5,7 +5,6 @@
 #include <stdexcept>
 #include <utility> // forward
 #include <type_traits>
-// #include <numpy/pyobject.hpp>
 #include <numpy/slice.hpp>
 #include <numpy/typename.hpp>
 #include <numpy/dtype.hpp>
@@ -27,10 +26,6 @@ namespace python {
       return ss.str();
     }
   }  
-  
-  // template <> std::string str<object>(const object& obj) {
-  //   return obj.__str__();
-  // }
 
   template <typename T>
   std::string str(const std::vector<T>& vec) {
@@ -63,19 +58,12 @@ namespace python {
   auto repr(const T& obj) -> decltype(std::declval<T>().__repr__()) {
     return obj.__repr__();
   }
-  // std::string repr(const object& obj) {
-  //   return obj.__repr__();
-  // }
 
   template <typename T>
   auto operator<<(std::ostream& os, const T& a) -> decltype(a.__repr__(), os) {
     os << a.__repr__();
     return os;
   }
-  // std::ostream& operator<<(std::ostream& os, const object& a) {
-  //   os << a.__repr__();
-  //   return os;
-  // }
 
   void _print_impl(bool first, std::string sep) {
     std::cout << std::endl;

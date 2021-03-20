@@ -8,7 +8,7 @@ PYTEST = $(filter-out $(addprefix %/, $(NOTPYTEST)), $(EXC))
 CPPTEST = $(filter-out $(PYTEST), $(EXC))
 override pypp += 
 
-.PHONY: clean all run py++
+.PHONY: clean all run py++ ufunc
 
 all: test
 
@@ -23,9 +23,9 @@ run: $(CPPTEST)
 py++:
 	for name in $(notdir $(PYTEST)); do py++ $$name $(pypp) ; done
 
-ufunc := numpy/ufunc_instances.hpp
-
-ufunc: ufunc_generate.py ufunc.txt
+UFUNC := numpy/ufunc_instances.hpp
+ufunc: $(UFUNC)
+$(UFUNC): ufunc_generate.py ufunc.txt
 	python $^ $@
 
 clean:

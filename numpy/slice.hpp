@@ -6,11 +6,10 @@
 #include <regex>
 #include <limits>
 #include <stdexcept>
-// #include <numpy/pyobject.hpp>
 
 namespace python {
 
-  class slice // : public object 
+  class slice
   {
     
     static std::string _r_int, _r_colon_int;

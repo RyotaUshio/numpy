@@ -13,7 +13,7 @@ namespace numpy {
    * https://numpy.org/doc/stable/reference/ufuncs.html 
    * https://numpy.org/doc/stable/reference/generated/numpy.ufunc.html
    **/
-  public:
+    
     /**
      * Attributes
      * ----------
@@ -32,6 +32,7 @@ namespace numpy {
      * types
      *   Returns a list with types grouped input->output.
      **/
+  public:
     std::size_t nargs;
     std::size_t nin;
     std::size_t nout;
@@ -72,19 +73,23 @@ namespace numpy {
     
   };
 
-  
+
+  template <typename Dtype>
   class ufunc_binary : public ufunc {
+  private:
+    std::function<Dtype(const Dtype&, const Dtype&)> op;
     
   public:
-    template <typename Dtype1, typename Dtype2>
-    auto operator() (ndarray<Dtype1>& x1, ndarray<Dtype2>& x2) -> decltype(x1) {
-      
+    // ...
+    // template <typename Dtype>
+    auto operator() (ndarray<Dtype>& x1, ndarray<Dtype>& x2, ndarray<Dtype>& out) -> decltype(x1) {
+      broadcast(x1, x2);
+      std::transform(x1.begin(), x2.end(), x2.begin(), out.begin(), op);
     }
 
-    // ...
-    template <typename Dtype>
-    auto operator() (ndarray<Dtype>& x1, ndarray<Dtype>& x2, ndarray<Dtype>& out) -> decltype(x1) {
-      
+    // template <typename Dtype>
+    auto operator() (ndarray<Dtype>& x1, ndarray<Dtype>& x2) -> decltype(x1) {
+
     }
     
   };

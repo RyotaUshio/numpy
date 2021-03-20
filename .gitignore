@@ -1,10 +1,9 @@
 *
+!+.*
 !*/
-!*.[ch]pp
-!Makefile
-!*.py
 !.gitignore
+!Makefile
 !py++
-!fig/*.*
-!README.md
-!ufunc.txt
+*#*
+*~
+*.o

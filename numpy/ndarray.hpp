@@ -31,17 +31,16 @@ namespace numpy {
     
     template <typename AnotherDtype> friend class ndarray;
     friend array_iter<Dtype>;
-    template <typename Dtype1, typename Dtype2>
-    friend void broadcast(ndarray<Dtype1>& lhs, ndarray<Dtype2>& rhs);
+    friend ufunc_binary<Dtype>;
+    template <typename Dtype1, typename Dtype2> friend void broadcast(ndarray<Dtype1>& lhs, ndarray<Dtype2>& rhs);
 
   private:
     std::shared_ptr<shared_memory<Dtype>> memory_ptr;
     ndarray::viewinfo view;
-    
-  public:
     ndarray::viewinfo view_transpose;
     
-    // accessors
+  public:
+    // acfgcessors
     inline const shape_type& shape() const noexcept {
       return view.shape;
     }
@@ -247,7 +246,7 @@ namespace numpy {
     }
 
     template <class AnotherDtype>
-    ndarray<AnotherDtype> astype() {
+    ndarray<AnotherDtype> astype() const {
       // なんでだめ?
       // return ndarray<AnotherDtype>(std::vector<AnotherDtype>(begin(), end()), viewinfo<AnotherDtype>(view));
       std::vector<AnotherDtype> newdata(view.size);
@@ -255,9 +254,27 @@ namespace numpy {
       return ndarray<AnotherDtype>(newdata, viewinfo(view));
     }
 
-    // ndarray<Dtype> copy() {
-    //   // return astype<Dtype>();
-    // } 
+    ndarray<Dtype> copy() const {
+      // ndarray<Dtype> tmp;
+      // std::copy(begin(), end(), std::back_inserter(tmp))
+      std::vector<Dtype> tmp(size());
+      std::copy(begin(), end(), tmp.begin());
+      ndarray<Dtype> copied(tmp, shape());
+      return copied;
+    }
+
+    viewinfo get_view() const {
+      return view;
+    }
+
+    std::string memory_info() const {
+      std::stringstream ss;
+      ss << "<shared_memory at ";
+      ss << memory_ptr;
+      ss << ">";
+      return ss.str();
+    }
+    
   };
   
 }

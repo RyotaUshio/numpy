@@ -18,4 +18,8 @@ int main() {
   // print(a); -> Segmentation Fault (`a` has already been moved)
   c = b.reshape({4, 1}); // the move assignment operator is called
   print(c);
+  auto d = c.copy(); // this allocates memory and copies the contents of `c`
+  print(d);
+  print(c.get_view(), c.memory_info());
+  print(d.get_view(), d.memory_info());
 }
