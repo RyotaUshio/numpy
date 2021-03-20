@@ -28,7 +28,7 @@ namespace numpy {
   
     template <typename T>
     void test(ndarray<T>& a) {
-      std::cout << "dtype : " << python::str<T>() << std::endl;
+      std::cout << "dtype : " << python::str(typeid(T)) << std::endl;
       std::cout << "__repr__() : " << std::endl;;
       std::cout << a.__repr__() << std::endl;
       line();

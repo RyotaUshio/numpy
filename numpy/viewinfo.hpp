@@ -6,7 +6,6 @@
 #include <string>
 #include <sstream>
 #include <utility> // swap
-// #include <numpy/pyobject.hpp>
 #include <numpy/dtype.hpp>
 #include <numpy/utils.hpp>
 #include <numpy/python.hpp>
@@ -14,8 +13,7 @@
 
 namespace numpy {
   
-  class array_view // : public python::object
-  {
+  class array_view {
     
     template <class Dtype> friend class ndarray;
     template <class Dtype> friend class array_transpose;

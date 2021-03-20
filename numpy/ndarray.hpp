@@ -22,8 +22,7 @@
 namespace numpy {
   
   template <typename Dtype>
-  class ndarray // : public python::object
-  {
+  class ndarray {
     
   public:
     using iterator = array_iter<Dtype>;
@@ -31,7 +30,8 @@ namespace numpy {
     
     template <typename AnotherDtype> friend class ndarray;
     friend array_iter<Dtype>;
-    friend ufunc_binary<Dtype>;
+    template <template <class> class UnaryOperation> friend struct ufunc_unary;
+    template <template <class, class> class BinaryOperation> friend struct ufunc_binary;
     template <typename Dtype1, typename Dtype2> friend void broadcast(ndarray<Dtype1>& lhs, ndarray<Dtype2>& rhs);
 
   private:
@@ -175,6 +175,10 @@ namespace numpy {
 
     // https://numpy.org/doc/stable/reference/ufuncs.html
     // Some of these ufuncs are called automatically on arrays when the relevant infix notation is used (e.g., add(a, b) is called internally when a + b is written and a or b is an ndarray).
+
+    // ndarray<Dtype> operator+(const ndarray<Dtype>& rhs) {
+    //   return add<Dtype>(*this, rhs);
+    // }
     
     template <class Operation>
     inline ndarray<Dtype>& comp_assign(const ndarray<Dtype>& rhs, Operation op) {
@@ -185,18 +189,22 @@ namespace numpy {
 
     ndarray<Dtype>& operator+=(const ndarray<Dtype>& rhs) {
       return comp_assign(rhs, std::plus<Dtype>());
+      // add(*this, rhs, *this);
     }
 
     ndarray<Dtype>& operator-=(const ndarray<Dtype>& rhs) {
       return comp_assign(rhs, std::minus<Dtype>());
+      // subtract(*this, rhs, *this);
     }
 
     ndarray<Dtype>& operator*=(const ndarray<Dtype>& rhs) {
       return comp_assign(rhs, std::multiplies<Dtype>());
+      // multiply(*this, rhs, *this);
     }
 
     ndarray<Dtype>& operator/=(const ndarray<Dtype>& rhs) {
       return comp_assign(rhs, std::divides<Dtype>());
+      // divide(*this, rhs, *this);
     }
     
     array_iter<Dtype> begin() const {
@@ -214,7 +222,37 @@ namespace numpy {
       return ndarray<Dtype>(memory_ptr, newview);
     }    
 
-    // other methods
+    template <class AnotherDtype>
+    ndarray<AnotherDtype> astype() const {
+      // なんでだめ?
+      // return ndarray<AnotherDtype>(std::vector<AnotherDtype>(begin(), end()), viewinfo<AnotherDtype>(view));
+      std::vector<AnotherDtype> newdata(view.size);
+      std::transform(begin(), end(), newdata.begin(), [](Dtype e){return static_cast<AnotherDtype>(e);});
+      return ndarray<AnotherDtype>(newdata, viewinfo(view));
+    }
+
+    ndarray<Dtype> copy() const {
+      // ndarray<Dtype> tmp;
+      // std::copy(begin(), end(), std::back_inserter(tmp))
+      std::vector<Dtype> tmp(size());
+      std::copy(begin(), end(), tmp.begin());
+      ndarray<Dtype> copied(tmp, shape());
+      return copied;
+    }
+
+    viewinfo get_view() const {
+      return view;
+    }
+
+    std::string memory_info() const {
+      std::stringstream ss;
+      ss << "<shared_memory at ";
+      ss << memory_ptr;
+      ss << ">";
+      return ss.str();
+    }
+
+    // methods relevant to Python's built-in functions
     std::string __repr__() const // override
     {
       return "array(" + _str_rec(',') + ")";
@@ -245,34 +283,8 @@ namespace numpy {
       return ss.str();
     }
 
-    template <class AnotherDtype>
-    ndarray<AnotherDtype> astype() const {
-      // なんでだめ?
-      // return ndarray<AnotherDtype>(std::vector<AnotherDtype>(begin(), end()), viewinfo<AnotherDtype>(view));
-      std::vector<AnotherDtype> newdata(view.size);
-      std::transform(begin(), end(), newdata.begin(), [](Dtype e){return static_cast<AnotherDtype>(e);});
-      return ndarray<AnotherDtype>(newdata, viewinfo(view));
-    }
-
-    ndarray<Dtype> copy() const {
-      // ndarray<Dtype> tmp;
-      // std::copy(begin(), end(), std::back_inserter(tmp))
-      std::vector<Dtype> tmp(size());
-      std::copy(begin(), end(), tmp.begin());
-      ndarray<Dtype> copied(tmp, shape());
-      return copied;
-    }
-
-    viewinfo get_view() const {
-      return view;
-    }
-
-    std::string memory_info() const {
-      std::stringstream ss;
-      ss << "<shared_memory at ";
-      ss << memory_ptr;
-      ss << ">";
-      return ss.str();
+    shape_elem_type __len__() const {
+      return shape(0);
     }
     
   };

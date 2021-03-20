@@ -1,14 +1,16 @@
 #pragma once
 
-#include <algorithm>
+#include <functional>
+#include <algorithm> // transform
+#include <utility> // move
+#include <type_traits> // is_same
 
 namespace numpy {
 
   template <class Dtype> class ndarray;
 
 
-  class ufunc // : public python::object
-  {
+  class ufunc {
   /**
    * https://numpy.org/doc/stable/reference/ufuncs.html 
    * https://numpy.org/doc/stable/reference/generated/numpy.ufunc.html
@@ -55,45 +57,59 @@ namespace numpy {
     **/
   };
 
-  class ufunc_unary : public ufunc {
+  template <template <class> class UnaryOperation>
+  struct ufunc_unary {
 
-    // the default out=None for uninitialized outputs to be allocated by the ufunc
-  public:
-    template <typename Dtype>
-    ndarray<Dtype> operator() (ndarray<Dtype>& x) {
+    // template <class Type>
+    // auto operator()(const ndarray<Type>& x)
+    //   -> ndarray<decltype(UnaryOperation<Type>()(x))> {
       
-    }
+    //   ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> out;
+    //   return operator()(x1, x2, out);
+    // }
 
-    template <typename Dtype>
-    ndarray<Dtype>& operator() (ndarray<Dtype>& x, ndarray<Dtype>& out) {
-      // broadcast(x);
-      // std::transform(x.begin(), x.end(), rhs.begin(), begin(), op);
-      // 戻す
-    }
-    
+    // template <class Type, class OutType>
+    // auto operator()(const ndarray<Type>& x, const ndarray<OutType>& out)
+    //   -> ndarray<decltype(BinaryOperation<Type>()(x))> {
+      
+    //   auto x1_copy = x1.view;
+    //   auto x2_copy = x2.view;
+    //   broadcast(x1, x2);
+    //   static_assert(std::is_same_v<OutType, decltype(BinaryOperation<Type1, Type2>()(x1, x2))>, "output type invalid");
+    //   std::transform(x1.begin(), x2.end(), x2.begin(), out.begin(), BinaryOperation<Type1, Type2>());
+    //   x1.view = std::move(x1_copy);
+    //   x2.view = std::move(x2_copy);
+    //   return out;
+    // }
+
   };
 
+  template <template <class, class> class BinaryOperation>
+  struct ufunc_binary {
 
-  template <typename Dtype>
-  class ufunc_binary : public ufunc {
-  private:
-    std::function<Dtype(const Dtype&, const Dtype&)> op;
-    
-  public:
-    // ...
-    // template <typename Dtype>
-    auto operator() (ndarray<Dtype>& x1, ndarray<Dtype>& x2, ndarray<Dtype>& out) -> decltype(x1) {
-      broadcast(x1, x2);
-      std::transform(x1.begin(), x2.end(), x2.begin(), out.begin(), op);
+    template <class Type1, class Type2>
+    auto operator()(const ndarray<Type1>& x1, const ndarray<Type2>& x2)
+      -> ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> {
+      
+      ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> out;
+      return operator()(x1, x2, out);
     }
 
-    // template <typename Dtype>
-    auto operator() (ndarray<Dtype>& x1, ndarray<Dtype>& x2) -> decltype(x1) {
-
-    }
-    
-  };
+    template <class Type1, class Type2, class OutType>
+    auto operator()(const ndarray<Type1>& x1, const ndarray<Type2>& x2, const ndarray<OutType>& out)
+      -> ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> {
   
+      auto x1_copy = x1.view;
+      auto x2_copy = x2.view;
+      broadcast(x1, x2);
+      static_assert(std::is_same_v<OutType, decltype(BinaryOperation<Type1, Type2>()(x1, x2))>, "output type invalid");
+      std::transform(x1.begin(), x2.end(), x2.begin(), out.begin(), BinaryOperation<Type1, Type2>());
+      x1.view = std::move(x1_copy);
+      x2.view = std::move(x2_copy);
+      return out;
+    }
+    
+  };
 }
 
 #include <numpy/ufunc_instances.hpp>

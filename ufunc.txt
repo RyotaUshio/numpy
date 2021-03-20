@@ -1,150 +1,150 @@
 Math operations
 add(x1, x2, /[, out, where, casting, order, …])
-
+cpp[x1 + x2]
 Add arguments element-wise.
 
 subtract(x1, x2, /[, out, where, casting, …])
-
+cpp[x1 - x2]
 Subtract arguments, element-wise.
 
 multiply(x1, x2, /[, out, where, casting, …])
-
+cpp[x1 * x2]
 Multiply arguments element-wise.
 
-matmul(x1, x2, /[, out, casting, order, …])
+# matmul(x1, x2, /[, out, casting, order, …])
 
-Matrix product of two arrays.
+# Matrix product of two arrays.
 
 divide(x1, x2, /[, out, where, casting, …])
-
+cpp[double(x1) / double(x2)]
 Returns a true division of the inputs, element-wise.
 
 logaddexp(x1, x2, /[, out, where, casting, …])
-
+cpp[std::log(std::exp(x1) + std::exp(x2))]
 Logarithm of the sum of exponentiations of the inputs.
 
 logaddexp2(x1, x2, /[, out, where, casting, …])
-
+cpp[std::log2(std::exp2(x1) + std::exp2(x2))]
 Logarithm of the sum of exponentiations of the inputs in base-2.
 
 true_divide(x1, x2, /[, out, where, …])
-
+cpp[double(x1) / double(x2)]
 Returns a true division of the inputs, element-wise.
 
 floor_divide(x1, x2, /[, out, where, …])
-
+cpp[long(x1) / long(x2)]
 Return the largest integer smaller or equal to the division of the inputs.
 
 negative(x, /[, out, where, casting, order, …])
-
+cpp[-x]
 Numerical negative, element-wise.
 
 positive(x, /[, out, where, casting, order, …])
-
+cpp[+x]
 Numerical positive, element-wise.
 
 power(x1, x2, /[, out, where, casting, …])
-
+cpp[std::pow(x1, x2)]
 First array elements raised to powers from second array, element-wise.
 
 float_power(x1, x2, /[, out, where, …])
-
+cpp[std::pow(x1, x2)]
 First array elements raised to powers from second array, element-wise.
 
-remainder(x1, x2, /[, out, where, casting, …])
+# remainder(x1, x2, /[, out, where, casting, …])
+# cpp[x1 % x2]
+# Return element-wise remainder of division.
 
-Return element-wise remainder of division.
-
-mod(x1, x2, /[, out, where, casting, order, …])
-
-Return element-wise remainder of division.
+# mod(x1, x2, /[, out, where, casting, order, …])
+# cpp[x1 % x2]
+# Return element-wise remainder of division.
 
 fmod(x1, x2, /[, out, where, casting, …])
-
+cpp[std::fmod(x1, x2)]
 Return the element-wise remainder of division.
 
-divmod(x1, x2[, out1, out2], / [[, out, …])
+# divmod(x1, x2[, out1, out2], / [[, out, …])
 
-Return element-wise quotient and remainder simultaneously.
+# Return element-wise quotient and remainder simultaneously.
 
 absolute(x, /[, out, where, casting, order, …])
-
+cpp[std::abs(x)]
 Calculate the absolute value element-wise.
 
 fabs(x, /[, out, where, casting, order, …])
-
+cpp[std::fabs(x)]
 Compute the absolute values element-wise.
 
 rint(x, /[, out, where, casting, order, …])
-
+cpp[std::round(x)]
 Round elements of the array to the nearest integer.
 
 sign(x, /[, out, where, casting, order, …])
-
+cpp[(Type(0) < x) - (x < Type(0))]
 Returns an element-wise indication of the sign of a number.
 
 heaviside(x1, x2, /[, out, where, casting, …])
-
+cpp[std::max(x1, 0)]
 Compute the Heaviside step function.
 
 conj(x, /[, out, where, casting, order, …])
-
+cpp[std::conj(x)]
 Return the complex conjugate, element-wise.
 
 conjugate(x, /[, out, where, casting, …])
-
+cpp[std::conj(x)]
 Return the complex conjugate, element-wise.
 
 exp(x, /[, out, where, casting, order, …])
-
+cpp[std::exp(x)]
 Calculate the exponential of all elements in the input array.
 
 exp2(x, /[, out, where, casting, order, …])
-
+cpp[std::exp2(x)]
 Calculate 2**p for all p in the input array.
 
 log(x, /[, out, where, casting, order, …])
-
+cpp[std::log(x)]
 Natural logarithm, element-wise.
 
 log2(x, /[, out, where, casting, order, …])
-
+cpp[std::log2(x)]
 Base-2 logarithm of x.
 
 log10(x, /[, out, where, casting, order, …])
-
+cpp[std::log10(x)]
 Return the base 10 logarithm of the input array, element-wise.
 
 expm1(x, /[, out, where, casting, order, …])
-
+cpp[std::expm1(x)]
 Calculate exp(x) - 1 for all elements in the array.
 
 log1p(x, /[, out, where, casting, order, …])
-
+cpp[std::log1p(x)]
 Return the natural logarithm of one plus the input array, element-wise.
 
 sqrt(x, /[, out, where, casting, order, …])
-
+cpp[std::sqrt(x)]
 Return the non-negative square-root of an array, element-wise.
 
 square(x, /[, out, where, casting, order, …])
-
+cpp[x * x]
 Return the element-wise square of the input.
 
 cbrt(x, /[, out, where, casting, order, …])
-
+cpp[std::cbrt(x)]
 Return the cube-root of an array, element-wise.
 
 reciprocal(x, /[, out, where, casting, …])
-
+cpp[std::pow(x, -1)]
 Return the reciprocal of the argument, element-wise.
 
 gcd(x1, x2, /[, out, where, casting, order, …])
-
+cpp[std::gcd(x1, x2)]
 Returns the greatest common divisor of |x1| and |x2|
 
 lcm(x1, x2, /[, out, where, casting, order, …])
-
+cpp[std::lcm(x1, x2)]
 Returns the lowest common multiple of |x1| and |x2|
 
 Tip
@@ -155,240 +155,240 @@ Trigonometric functions
 All trigonometric functions use radians when an angle is called for. The ratio of degrees to radians is 180^{\circ}/\pi.
 
 sin(x, /[, out, where, casting, order, …])
-
+cpp[std::sin(x)]
 Trigonometric sine, element-wise.
 
 cos(x, /[, out, where, casting, order, …])
-
+cpp[std::cos(x)]
 Cosine element-wise.
 
 tan(x, /[, out, where, casting, order, …])
-
+cpp[std::tan(x)]
 Compute tangent element-wise.
 
 arcsin(x, /[, out, where, casting, order, …])
-
+cpp[std::asin(x)]
 Inverse sine, element-wise.
 
 arccos(x, /[, out, where, casting, order, …])
-
+cpp[std::acos(x)]
 Trigonometric inverse cosine, element-wise.
 
 arctan(x, /[, out, where, casting, order, …])
-
+cpp[std::atan(x)]
 Trigonometric inverse tangent, element-wise.
 
 arctan2(x1, x2, /[, out, where, casting, …])
-
+cpp[std::atan(x1, x2)]
 Element-wise arc tangent of x1/x2 choosing the quadrant correctly.
 
 hypot(x1, x2, /[, out, where, casting, …])
-
+cpp[std::hypot(x1, x2)]
 Given the “legs” of a right triangle, return its hypotenuse.
 
 sinh(x, /[, out, where, casting, order, …])
-
+cpp[std::sinh(x)]
 Hyperbolic sine, element-wise.
 
 cosh(x, /[, out, where, casting, order, …])
-
+cpp[std::cosh(x)]
 Hyperbolic cosine, element-wise.
 
 tanh(x, /[, out, where, casting, order, …])
-
+cpp[std::tanh(x)]
 Compute hyperbolic tangent element-wise.
 
 arcsinh(x, /[, out, where, casting, order, …])
-
+cpp[std::asinh(x)]
 Inverse hyperbolic sine element-wise.
 
 arccosh(x, /[, out, where, casting, order, …])
-
+cpp[std::acosh(x)]
 Inverse hyperbolic cosine, element-wise.
 
 arctanh(x, /[, out, where, casting, order, …])
-
+cpp[std::acosh(x)]
 Inverse hyperbolic tangent element-wise.
 
 degrees(x, /[, out, where, casting, order, …])
-
+cpp[double(x) * 180.0 / M_PI]
 Convert angles from radians to degrees.
 
 radians(x, /[, out, where, casting, order, …])
-
+cpp[double(x) * M_PI / 180.0]
 Convert angles from degrees to radians.
 
 deg2rad(x, /[, out, where, casting, order, …])
-
+eq[radians]
 Convert angles from degrees to radians.
 
 rad2deg(x, /[, out, where, casting, order, …])
-
+eq[degrees]
 Convert angles from radians to degrees.
 
-Bit-twiddling functions
-These function all require integer arguments and they manipulate the bit-pattern of those arguments.
+# Bit-twiddling functions
+# These function all require integer arguments and they manipulate the bit-pattern of those arguments.
 
-bitwise_and(x1, x2, /[, out, where, …])
+# bitwise_and(x1, x2, /[, out, where, …])
 
-Compute the bit-wise AND of two arrays element-wise.
+# Compute the bit-wise AND of two arrays element-wise.
 
-bitwise_or(x1, x2, /[, out, where, casting, …])
+# bitwise_or(x1, x2, /[, out, where, casting, …])
 
-Compute the bit-wise OR of two arrays element-wise.
+# Compute the bit-wise OR of two arrays element-wise.
 
-bitwise_xor(x1, x2, /[, out, where, …])
+# bitwise_xor(x1, x2, /[, out, where, …])
 
-Compute the bit-wise XOR of two arrays element-wise.
+# Compute the bit-wise XOR of two arrays element-wise.
 
-invert(x, /[, out, where, casting, order, …])
+# invert(x, /[, out, where, casting, order, …])
 
-Compute bit-wise inversion, or bit-wise NOT, element-wise.
+# Compute bit-wise inversion, or bit-wise NOT, element-wise.
 
-left_shift(x1, x2, /[, out, where, casting, …])
+# left_shift(x1, x2, /[, out, where, casting, …])
 
-Shift the bits of an integer to the left.
+# Shift the bits of an integer to the left.
 
-right_shift(x1, x2, /[, out, where, …])
+# right_shift(x1, x2, /[, out, where, …])
 
-Shift the bits of an integer to the right.
+# Shift the bits of an integer to the right.
 
-Comparison functions
-greater(x1, x2, /[, out, where, casting, …])
+# Comparison functions
+# greater(x1, x2, /[, out, where, casting, …])
 
-Return the truth value of (x1 > x2) element-wise.
+# Return the truth value of (x1 > x2) element-wise.
 
-greater_equal(x1, x2, /[, out, where, …])
+# greater_equal(x1, x2, /[, out, where, …])
 
-Return the truth value of (x1 >= x2) element-wise.
+# Return the truth value of (x1 >= x2) element-wise.
 
-less(x1, x2, /[, out, where, casting, …])
+# less(x1, x2, /[, out, where, casting, …])
 
-Return the truth value of (x1 < x2) element-wise.
+# Return the truth value of (x1 < x2) element-wise.
 
-less_equal(x1, x2, /[, out, where, casting, …])
+# less_equal(x1, x2, /[, out, where, casting, …])
 
-Return the truth value of (x1 <= x2) element-wise.
+# Return the truth value of (x1 <= x2) element-wise.
 
-not_equal(x1, x2, /[, out, where, casting, …])
+# not_equal(x1, x2, /[, out, where, casting, …])
 
-Return (x1 != x2) element-wise.
+# Return (x1 != x2) element-wise.
 
-equal(x1, x2, /[, out, where, casting, …])
+# equal(x1, x2, /[, out, where, casting, …])
 
-Return (x1 == x2) element-wise.
+# Return (x1 == x2) element-wise.
 
-Warning
+# Warning
 
-Do not use the Python keywords and and or to combine logical array expressions. These keywords will test the truth value of the entire array (not element-by-element as you might expect). Use the bitwise operators & and | instead.
+# Do not use the Python keywords and and or to combine logical array expressions. These keywords will test the truth value of the entire array (not element-by-element as you might expect). Use the bitwise operators & and | instead.
 
-logical_and(x1, x2, /[, out, where, …])
+# logical_and(x1, x2, /[, out, where, …])
 
-Compute the truth value of x1 AND x2 element-wise.
+# Compute the truth value of x1 AND x2 element-wise.
 
-logical_or(x1, x2, /[, out, where, casting, …])
+# logical_or(x1, x2, /[, out, where, casting, …])
 
-Compute the truth value of x1 OR x2 element-wise.
+# Compute the truth value of x1 OR x2 element-wise.
 
-logical_xor(x1, x2, /[, out, where, …])
+# logical_xor(x1, x2, /[, out, where, …])
 
-Compute the truth value of x1 XOR x2, element-wise.
+# Compute the truth value of x1 XOR x2, element-wise.
 
-logical_not(x, /[, out, where, casting, …])
+# logical_not(x, /[, out, where, casting, …])
 
-Compute the truth value of NOT x element-wise.
+# Compute the truth value of NOT x element-wise.
 
-Warning
+# Warning
 
-The bit-wise operators & and | are the proper way to perform element-by-element array comparisons. Be sure you understand the operator precedence: (a > 2) & (a < 5) is the proper syntax because a > 2 & a < 5 will result in an error due to the fact that 2 & a is evaluated first.
+# The bit-wise operators & and | are the proper way to perform element-by-element array comparisons. Be sure you understand the operator precedence: (a > 2) & (a < 5) is the proper syntax because a > 2 & a < 5 will result in an error due to the fact that 2 & a is evaluated first.
 
-maximum(x1, x2, /[, out, where, casting, …])
+# maximum(x1, x2, /[, out, where, casting, …])
 
-Element-wise maximum of array elements.
+# Element-wise maximum of array elements.
 
-Tip
+# Tip
 
-The Python function max() will find the maximum over a one-dimensional array, but it will do so using a slower sequence interface. The reduce method of the maximum ufunc is much faster. Also, the max() method will not give answers you might expect for arrays with greater than one dimension. The reduce method of minimum also allows you to compute a total minimum over an array.
+# The Python function max() will find the maximum over a one-dimensional array, but it will do so using a slower sequence interface. The reduce method of the maximum ufunc is much faster. Also, the max() method will not give answers you might expect for arrays with greater than one dimension. The reduce method of minimum also allows you to compute a total minimum over an array.
 
-minimum(x1, x2, /[, out, where, casting, …])
+# minimum(x1, x2, /[, out, where, casting, …])
 
-Element-wise minimum of array elements.
+# Element-wise minimum of array elements.
 
-Warning
+# Warning
 
-the behavior of maximum(a, b) is different than that of max(a, b). As a ufunc, maximum(a, b) performs an element-by-element comparison of a and b and chooses each element of the result according to which element in the two arrays is larger. In contrast, max(a, b) treats the objects a and b as a whole, looks at the (total) truth value of a > b and uses it to return either a or b (as a whole). A similar difference exists between minimum(a, b) and min(a, b).
+# the behavior of maximum(a, b) is different than that of max(a, b). As a ufunc, maximum(a, b) performs an element-by-element comparison of a and b and chooses each element of the result according to which element in the two arrays is larger. In contrast, max(a, b) treats the objects a and b as a whole, looks at the (total) truth value of a > b and uses it to return either a or b (as a whole). A similar difference exists between minimum(a, b) and min(a, b).
 
-fmax(x1, x2, /[, out, where, casting, …])
+# fmax(x1, x2, /[, out, where, casting, …])
 
-Element-wise maximum of array elements.
+# Element-wise maximum of array elements.
 
-fmin(x1, x2, /[, out, where, casting, …])
+# fmin(x1, x2, /[, out, where, casting, …])
 
-Element-wise minimum of array elements.
+# Element-wise minimum of array elements.
 
-Floating functions
-Recall that all of these functions work element-by-element over an array, returning an array output. The description details only a single operation.
+# Floating functions
+# Recall that all of these functions work element-by-element over an array, returning an array output. The description details only a single operation.
 
-isfinite(x, /[, out, where, casting, order, …])
+# isfinite(x, /[, out, where, casting, order, …])
 
-Test element-wise for finiteness (not infinity or not Not a Number).
+# Test element-wise for finiteness (not infinity or not Not a Number).
 
-isinf(x, /[, out, where, casting, order, …])
+# isinf(x, /[, out, where, casting, order, …])
 
-Test element-wise for positive or negative infinity.
+# Test element-wise for positive or negative infinity.
 
-isnan(x, /[, out, where, casting, order, …])
+# isnan(x, /[, out, where, casting, order, …])
 
-Test element-wise for NaN and return result as a boolean array.
+# Test element-wise for NaN and return result as a boolean array.
 
-isnat(x, /[, out, where, casting, order, …])
+# isnat(x, /[, out, where, casting, order, …])
 
-Test element-wise for NaT (not a time) and return result as a boolean array.
+# Test element-wise for NaT (not a time) and return result as a boolean array.
 
-fabs(x, /[, out, where, casting, order, …])
+# fabs(x, /[, out, where, casting, order, …])
 
-Compute the absolute values element-wise.
+# Compute the absolute values element-wise.
 
-signbit(x, /[, out, where, casting, order, …])
+# signbit(x, /[, out, where, casting, order, …])
 
-Returns element-wise True where signbit is set (less than zero).
+# Returns element-wise True where signbit is set (less than zero).
 
-copysign(x1, x2, /[, out, where, casting, …])
+# copysign(x1, x2, /[, out, where, casting, …])
 
-Change the sign of x1 to that of x2, element-wise.
+# Change the sign of x1 to that of x2, element-wise.
 
-nextafter(x1, x2, /[, out, where, casting, …])
+# nextafter(x1, x2, /[, out, where, casting, …])
 
-Return the next floating-point value after x1 towards x2, element-wise.
+# Return the next floating-point value after x1 towards x2, element-wise.
 
-spacing(x, /[, out, where, casting, order, …])
+# spacing(x, /[, out, where, casting, order, …])
 
-Return the distance between x and the nearest adjacent number.
+# Return the distance between x and the nearest adjacent number.
 
-modf(x[, out1, out2], / [[, out, where, …])
+# modf(x[, out1, out2], / [[, out, where, …])
 
-Return the fractional and integral parts of an array, element-wise.
+# Return the fractional and integral parts of an array, element-wise.
 
-ldexp(x1, x2, /[, out, where, casting, …])
+# ldexp(x1, x2, /[, out, where, casting, …])
 
-Returns x1 * 2**x2, element-wise.
+# Returns x1 * 2**x2, element-wise.
 
-frexp(x[, out1, out2], / [[, out, where, …])
+# frexp(x[, out1, out2], / [[, out, where, …])
 
-Decompose the elements of x into mantissa and twos exponent.
+# Decompose the elements of x into mantissa and twos exponent.
 
-fmod(x1, x2, /[, out, where, casting, …])
+# fmod(x1, x2, /[, out, where, casting, …])
 
-Return the element-wise remainder of division.
+# Return the element-wise remainder of division.
 
-floor(x, /[, out, where, casting, order, …])
+# floor(x, /[, out, where, casting, order, …])
 
-Return the floor of the input, element-wise.
+# Return the floor of the input, element-wise.
 
-ceil(x, /[, out, where, casting, order, …])
+# ceil(x, /[, out, where, casting, order, …])
 
-Return the ceiling of the input, element-wise.
+# Return the ceiling of the input, element-wise.
 
-trunc(x, /[, out, where, casting, order, …])
+# trunc(x, /[, out, where, casting, order, …])
 
-Return the truncated value of the input, element-wise.
+# Return the truncated value of the input, element-wise.
