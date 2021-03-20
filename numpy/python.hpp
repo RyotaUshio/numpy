@@ -7,6 +7,7 @@
 #include <typeinfo>
 #include <type_traits>
 #include <numpy/slice.hpp>
+#include <numpy/range.hpp>
 #include <numpy/typename.hpp>
 #include <numpy/dtype.hpp>
 

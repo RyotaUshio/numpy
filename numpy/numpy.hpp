@@ -1,34 +1,37 @@
 #pragma once
 #include <numpy/ndarray.hpp>
 #include <cmath>
-
+#include <vector>
 
 namespace numpy {
 
-  // template <class dtype, class array_like>
-  // ndarray<dtype> array(const array_like& object, dim_type ndmin=0, const array_like& like=None) {
-  //   /**
-  //    * The original parameters: 
-  //    *     object, dtype=None, *, copy=True, order='K', subok=False, ndmin=0, like=None
-  //    * `copy` will be supported before long. `order` and `subok` will not for now.
-  //    */
-  //   np.ndarray<dtype> out(object, 
-  //   return out;
-  // }
-
-  template <class dtype>
-  ndarray<dtype> full(const shape_type& shape, dtype fill_value) {
-    return ndarray<dtype>(std::vector<dtype>(utils::product(shape), fill_value), shape);
+  template <class array_like>
+  auto array(const array_like& object) -> decltype(object.begin(), object.end(), ndarray<decltype(*(object.begin()))>()) {
+    /**
+     * The original parameters: 
+     *     object, Dtype=None, *, copy=True, order='K', subok=False, ndmin=0, like=None
+     * `copy` will be supported before long. `order` and `subok` will not for now.
+     */
+    using Dtype = decltype(*(object.begin()));
+    std::vector<Dtype> tmp;
+    std::copy(object.begin(), object.end(), std::back_inserter(tmp));
+    ndarray<Dtype> out(tmp, std::vector<shape_elem_type>(1, tmp.size()));
+    return out;
   }
 
-  template <class dtype=float64>
-  ndarray<dtype> zeros(const shape_type& shape) {
-    return full(shape, dtype(0));
+  template <class Dtype>
+  ndarray<Dtype> full(const shape_type& shape, Dtype fill_value) {
+    return ndarray<Dtype>(std::vector<Dtype>(utils::product(shape), fill_value), shape);
   }
 
-  template <class dtype=float64>
-  ndarray<dtype> ones(const shape_type& shape) {
-    return full(shape, dtype(1));
+  template <class Dtype=float64>
+  ndarray<Dtype> zeros(const shape_type& shape) {
+    return full(shape, Dtype(0));
+  }
+
+  template <class Dtype=float64>
+  ndarray<Dtype> ones(const shape_type& shape) {
+    return full(shape, Dtype(1));
   }
   
   template <class Dtype>

@@ -88,7 +88,7 @@ namespace numpy {
   struct ufunc_binary {
 
     template <class Type1, class Type2>
-    auto operator()(const ndarray<Type1>& x1, const ndarray<Type2>& x2)
+    auto operator()(ndarray<Type1>& x1, ndarray<Type2>& x2)
       -> ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> {
       
       ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> out;
@@ -96,7 +96,7 @@ namespace numpy {
     }
 
     template <class Type1, class Type2, class OutType>
-    auto operator()(const ndarray<Type1>& x1, const ndarray<Type2>& x2, const ndarray<OutType>& out)
+    auto operator()(ndarray<Type1>& x1, ndarray<Type2>& x2, ndarray<OutType>& out)
       -> ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> {
   
       auto x1_copy = x1.view;

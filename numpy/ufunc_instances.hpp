@@ -397,59 +397,59 @@ namespace numpy {
     }
   };
 
-  ufunc_binary<_add> add;	// Add arguments element-wise.
-  ufunc_binary<_subtract> subtract;	// Subtract arguments, element-wise.
-  ufunc_binary<_multiply> multiply;	// Multiply arguments element-wise.
-  ufunc_binary<_divide> divide;	// Returns a true division of the inputs, element-wise.
-  ufunc_binary<_logaddexp> logaddexp;	// Logarithm of the sum of exponentiations of the inputs.
-  ufunc_binary<_logaddexp2> logaddexp2;	// Logarithm of the sum of exponentiations of the inputs in base-2.
-  ufunc_binary<_true_divide> true_divide;	// Returns a true division of the inputs, element-wise.
-  ufunc_binary<_floor_divide> floor_divide;	// Return the largest integer smaller or equal to the division of the inputs.
-  ufunc_unary<_negative> negative;	// Numerical negative, element-wise.
-  ufunc_unary<_positive> positive;	// Numerical positive, element-wise.
-  ufunc_binary<_power> power;	// First array elements raised to powers from second array, element-wise.
-  ufunc_binary<_float_power> float_power;	// First array elements raised to powers from second array, element-wise.
-  ufunc_binary<_fmod> fmod;	// Return the element-wise remainder of division.
-  ufunc_unary<_absolute> absolute;	// Calculate the absolute value element-wise.
-  ufunc_unary<_fabs> fabs;	// Compute the absolute values element-wise.
-  ufunc_unary<_rint> rint;	// Round elements of the array to the nearest integer.
-  ufunc_unary<_sign> sign;	// Returns an element-wise indication of the sign of a number.
-  ufunc_binary<_heaviside> heaviside;	// Compute the Heaviside step function.
-  ufunc_unary<_conj> conj;	// Return the complex conjugate, element-wise.
-  ufunc_unary<_conjugate> conjugate;	// Return the complex conjugate, element-wise.
-  ufunc_unary<_exp> exp;	// Calculate the exponential of all elements in the input array.
-  ufunc_unary<_exp2> exp2;	// Calculate 2**p for all p in the input array.
-  ufunc_unary<_log> log;	// Natural logarithm, element-wise.
-  ufunc_unary<_log2> log2;	// Base-2 logarithm of x.
-  ufunc_unary<_log10> log10;	// Return the base 10 logarithm of the input array, element-wise.
-  ufunc_unary<_expm1> expm1;	// Calculate exp(x) - 1 for all elements in the array.
-  ufunc_unary<_log1p> log1p;	// Return the natural logarithm of one plus the input array, element-wise.
-  ufunc_unary<_sqrt> sqrt;	// Return the non-negative square-root of an array, element-wise.
-  ufunc_unary<_square> square;	// Return the element-wise square of the input.
-  ufunc_unary<_cbrt> cbrt;	// Return the cube-root of an array, element-wise.
-  ufunc_unary<_reciprocal> reciprocal;	// Return the reciprocal of the argument, element-wise.
-  ufunc_binary<_gcd> gcd;  ufunc_binary<_lcm> lcm;
+  const ufunc_binary<_add> add;	// Add arguments element-wise.
+  const ufunc_binary<_subtract> subtract;	// Subtract arguments, element-wise.
+  const ufunc_binary<_multiply> multiply;	// Multiply arguments element-wise.
+  const ufunc_binary<_divide> divide;	// Returns a true division of the inputs, element-wise.
+  const ufunc_binary<_logaddexp> logaddexp;	// Logarithm of the sum of exponentiations of the inputs.
+  const ufunc_binary<_logaddexp2> logaddexp2;	// Logarithm of the sum of exponentiations of the inputs in base-2.
+  const ufunc_binary<_true_divide> true_divide;	// Returns a true division of the inputs, element-wise.
+  const ufunc_binary<_floor_divide> floor_divide;	// Return the largest integer smaller or equal to the division of the inputs.
+  const ufunc_unary<_negative> negative;	// Numerical negative, element-wise.
+  const ufunc_unary<_positive> positive;	// Numerical positive, element-wise.
+  const ufunc_binary<_power> power;	// First array elements raised to powers from second array, element-wise.
+  const ufunc_binary<_float_power> float_power;	// First array elements raised to powers from second array, element-wise.
+  const ufunc_binary<_fmod> fmod;	// Return the element-wise remainder of division.
+  const ufunc_unary<_absolute> absolute;	// Calculate the absolute value element-wise.
+  const ufunc_unary<_fabs> fabs;	// Compute the absolute values element-wise.
+  const ufunc_unary<_rint> rint;	// Round elements of the array to the nearest integer.
+  const ufunc_unary<_sign> sign;	// Returns an element-wise indication of the sign of a number.
+  const ufunc_binary<_heaviside> heaviside;	// Compute the Heaviside step function.
+  const ufunc_unary<_conj> conj;	// Return the complex conjugate, element-wise.
+  const ufunc_unary<_conjugate> conjugate;	// Return the complex conjugate, element-wise.
+  const ufunc_unary<_exp> exp;	// Calculate the exponential of all elements in the input array.
+  const ufunc_unary<_exp2> exp2;	// Calculate 2**p for all p in the input array.
+  const ufunc_unary<_log> log;	// Natural logarithm, element-wise.
+  const ufunc_unary<_log2> log2;	// Base-2 logarithm of x.
+  const ufunc_unary<_log10> log10;	// Return the base 10 logarithm of the input array, element-wise.
+  const ufunc_unary<_expm1> expm1;	// Calculate exp(x) - 1 for all elements in the array.
+  const ufunc_unary<_log1p> log1p;	// Return the natural logarithm of one plus the input array, element-wise.
+  const ufunc_unary<_sqrt> sqrt;	// Return the non-negative square-root of an array, element-wise.
+  const ufunc_unary<_square> square;	// Return the element-wise square of the input.
+  const ufunc_unary<_cbrt> cbrt;	// Return the cube-root of an array, element-wise.
+  const ufunc_unary<_reciprocal> reciprocal;	// Return the reciprocal of the argument, element-wise.
+  const ufunc_binary<_gcd> gcd;  const ufunc_binary<_lcm> lcm;
 
   /************************************* Tip **************************************/
 	// The optional output arguments can be used to help you save memory for large calculations. If your arrays are large, complicated expressions can take longer than absolutely necessary due to the creation and (later) destruction of temporary calculation spaces. For example, the expression G = a * b + c is equivalent to t1 = A * B; G = T1 + C; del t1. It will be more quickly executed as G = A * B; add(G, C, G) which is the same as G = A * B; G += C.
 	// All trigonometric functions use radians when an angle is called for. The ratio of degrees to radians is 180^{\circ}/\pi.
-  ufunc_unary<_sin> sin;	// Trigonometric sine, element-wise.
-  ufunc_unary<_cos> cos;	// Cosine element-wise.
-  ufunc_unary<_tan> tan;	// Compute tangent element-wise.
-  ufunc_unary<_arcsin> arcsin;	// Inverse sine, element-wise.
-  ufunc_unary<_arccos> arccos;	// Trigonometric inverse cosine, element-wise.
-  ufunc_unary<_arctan> arctan;	// Trigonometric inverse tangent, element-wise.
-  ufunc_binary<_arctan2> arctan2;	// Element-wise arc tangent of x1/x2 choosing the quadrant correctly.
-  ufunc_binary<_hypot> hypot;	// Given the “legs” of a right triangle, return its hypotenuse.
-  ufunc_unary<_sinh> sinh;	// Hyperbolic sine, element-wise.
-  ufunc_unary<_cosh> cosh;	// Hyperbolic cosine, element-wise.
-  ufunc_unary<_tanh> tanh;	// Compute hyperbolic tangent element-wise.
-  ufunc_unary<_arcsinh> arcsinh;	// Inverse hyperbolic sine element-wise.
-  ufunc_unary<_arccosh> arccosh;	// Inverse hyperbolic cosine, element-wise.
-  ufunc_unary<_arctanh> arctanh;	// Inverse hyperbolic tangent element-wise.
-  ufunc_unary<_degrees> degrees;	// Convert angles from radians to degrees.
-  ufunc_unary<_radians> radians;	// Convert angles from degrees to radians.
-  auto deg2rad = radians;	// Convert angles from degrees to radians.
-  auto rad2deg = degrees;	// Convert angles from radians to degrees.
+  const ufunc_unary<_sin> sin;	// Trigonometric sine, element-wise.
+  const ufunc_unary<_cos> cos;	// Cosine element-wise.
+  const ufunc_unary<_tan> tan;	// Compute tangent element-wise.
+  const ufunc_unary<_arcsin> arcsin;	// Inverse sine, element-wise.
+  const ufunc_unary<_arccos> arccos;	// Trigonometric inverse cosine, element-wise.
+  const ufunc_unary<_arctan> arctan;	// Trigonometric inverse tangent, element-wise.
+  const ufunc_binary<_arctan2> arctan2;	// Element-wise arc tangent of x1/x2 choosing the quadrant correctly.
+  const ufunc_binary<_hypot> hypot;	// Given the “legs” of a right triangle, return its hypotenuse.
+  const ufunc_unary<_sinh> sinh;	// Hyperbolic sine, element-wise.
+  const ufunc_unary<_cosh> cosh;	// Hyperbolic cosine, element-wise.
+  const ufunc_unary<_tanh> tanh;	// Compute hyperbolic tangent element-wise.
+  const ufunc_unary<_arcsinh> arcsinh;	// Inverse hyperbolic sine element-wise.
+  const ufunc_unary<_arccosh> arccosh;	// Inverse hyperbolic cosine, element-wise.
+  const ufunc_unary<_arctanh> arctanh;	// Inverse hyperbolic tangent element-wise.
+  const ufunc_unary<_degrees> degrees;	// Convert angles from radians to degrees.
+  const ufunc_unary<_radians> radians;	// Convert angles from degrees to radians.
+  const auto deg2rad = radians;	// Convert angles from degrees to radians.
+  const auto rad2deg = degrees;	// Convert angles from radians to degrees.
 
 }

@@ -31,9 +31,9 @@ def main(source, target):
                 unary = not binary and 'x' in args
 
                 if unary:
-                    decls += [f'  ufunc_unary<_{name}> {name};']
+                    decls += [f'  const ufunc_unary<_{name}> {name};']
                 elif binary:
-                    decls += [f'  ufunc_binary<_{name}> {name};']
+                    decls += [f'  const ufunc_binary<_{name}> {name};']
                 else:
                     raise Exception(f'{name} is neither unary or binary?')
 
@@ -61,7 +61,7 @@ def main(source, target):
                     ]))
 
             elif eq:
-                decls[-1] = f"  auto {name} = {eq.groups()[0]};"
+                decls[-1] = f"  const auto {name} = {eq.groups()[0]};"
                     
             elif des:
                 decls += ['\t// ' + des.group() + '\n']

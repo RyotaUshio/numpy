@@ -1,9 +1,11 @@
 *
-!+.*
 !*/
+!?*.*
 !.gitignore
 !Makefile
 !py++
 *#*
 *~
 *.o
+*.dSYM
+__pycache__/
