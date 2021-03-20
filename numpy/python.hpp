@@ -11,6 +11,11 @@
 #include <numpy/dtype.hpp>
 
 namespace python {
+
+  template <typename T>
+  auto str(const T& obj) -> decltype(obj.__str__()) {
+    return obj.__str__();
+  }
   
   template <typename T>
   std::string str(const T& obj) {
@@ -23,9 +28,9 @@ namespace python {
     }
   }  
   
-  template <> std::string str<object>(const object& obj) {
-    return obj.__str__();
-  }
+  // template <> std::string str<object>(const object& obj) {
+  //   return obj.__str__();
+  // }
 
   template <typename T>
   std::string str(const std::vector<T>& vec) {
@@ -54,14 +59,23 @@ namespace python {
     return str(typeid(T));
   }
   
-  std::string repr(const object& obj) {
+  template <typename T>
+  auto repr(const T& obj) -> decltype(std::declval<T>().__repr__()) {
     return obj.__repr__();
   }
-  
-  std::ostream& operator<<(std::ostream& os, const object& a) {
+  // std::string repr(const object& obj) {
+  //   return obj.__repr__();
+  // }
+
+  template <typename T>
+  auto operator<<(std::ostream& os, const T& a) -> decltype(a.__repr__(), os) {
     os << a.__repr__();
     return os;
   }
+  // std::ostream& operator<<(std::ostream& os, const object& a) {
+  //   os << a.__repr__();
+  //   return os;
+  // }
 
   void _print_impl(bool first, std::string sep) {
     std::cout << std::endl;

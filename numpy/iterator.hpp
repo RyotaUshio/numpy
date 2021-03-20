@@ -18,7 +18,8 @@ namespace numpy {
   template <typename T> class ndarray;
   
   template <typename T>
-  class array_iter : public python::object {
+  class array_iter // : public python::object
+  {
     
     using coord_type = std::vector<dim_type>;
     using ptr = typename std::vector<T>::iterator;
@@ -153,7 +154,8 @@ namespace numpy {
       return not (dataptr != rhs.dataptr);
     }
 
-    std::string __repr__() const override {
+    std::string __repr__() const // override
+    {
       std::stringstream ss;
       ss << "array_iterator<" << python::str<T>() << ">(";
       ss << "view=" << repr(view);

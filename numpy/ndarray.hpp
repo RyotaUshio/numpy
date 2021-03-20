@@ -22,7 +22,8 @@
 namespace numpy {
   
   template <typename Dtype>
-  class ndarray : public python::object {
+  class ndarray // : public python::object
+  {
     
   public:
     using iterator = array_iter<Dtype>;
@@ -172,6 +173,9 @@ namespace numpy {
     }
     
     /* operators */
+
+    // https://numpy.org/doc/stable/reference/ufuncs.html
+    // Some of these ufuncs are called automatically on arrays when the relevant infix notation is used (e.g., add(a, b) is called internally when a + b is written and a or b is an ndarray).
     
     template <class Operation>
     inline ndarray<Dtype>& comp_assign(const ndarray<Dtype>& rhs, Operation op) {
@@ -212,11 +216,13 @@ namespace numpy {
     }    
 
     // other methods
-    std::string __repr__() const override {
+    std::string __repr__() const // override
+    {
       return "array(" + _str_rec(',') + ")";
     }
 
-    std::string __str__() const override {
+    std::string __str__() const // override
+    {
       return _str_rec('\0');
     }
     

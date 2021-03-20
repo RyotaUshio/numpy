@@ -14,7 +14,8 @@
 
 namespace numpy {
   
-  class array_view : public python::object {
+  class array_view // : public python::object
+  {
     
     template <class Dtype> friend class ndarray;
     template <class Dtype> friend class array_transpose;
@@ -137,7 +138,8 @@ namespace numpy {
 
   public:
     // for debug
-    std::string __repr__() const override {
+    std::string __repr__() const // override
+    {
       std::stringstream ss;
       ss << "array_view(";
       ss << "shape=" << python::str(shape);
