@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 #include <utility> // swap
-#include <numpy/pyobject.hpp>
+// #include <numpy/pyobject.hpp>
 #include <numpy/dtype.hpp>
 #include <numpy/utils.hpp>
 #include <numpy/python.hpp>

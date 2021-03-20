@@ -6,11 +6,12 @@
 #include <regex>
 #include <limits>
 #include <stdexcept>
-#include <numpy/pyobject.hpp>
+// #include <numpy/pyobject.hpp>
 
 namespace python {
 
-  class slice : public object {
+  class slice // : public object 
+  {
     
     static std::string _r_int, _r_colon_int;
     static std::regex re;
@@ -80,9 +81,7 @@ namespace python {
     std::string __str__() const {
       return __repr__();
     }
-    void print() const {
-      std::cout << __repr__() << std::endl;
-    }
+
   };
 
   std::string slice::_r_int = "[+-]?[1-9]\\d*|[+-]?0*";

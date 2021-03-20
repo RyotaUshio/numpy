@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <utility> // forward
 #include <type_traits>
-#include <numpy/pyobject.hpp>
+// #include <numpy/pyobject.hpp>
 #include <numpy/slice.hpp>
 #include <numpy/typename.hpp>
 #include <numpy/dtype.hpp>
