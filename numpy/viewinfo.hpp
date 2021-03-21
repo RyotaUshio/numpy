@@ -18,7 +18,8 @@ namespace numpy {
     template <class Dtype> friend class ndarray;
     template <class Dtype> friend class array_transpose;
     template <class Dtype> friend class array_iter;
-
+    template <template <class, class> class BinaryOperation> friend struct ufunc_binary;
+    
     friend const shape_elem_type& broadcast_axis(const shape_elem_type& a, const shape_elem_type& b) noexcept(false);
     friend shape_type get_broadcasted_shape(array_view& small, array_view& big);
     template <typename Dtype1, typename Dtype2>

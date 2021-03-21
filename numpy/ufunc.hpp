@@ -8,7 +8,8 @@
 namespace numpy {
 
   template <class Dtype> class ndarray;
-
+  template <class Dtype> ndarray<Dtype> empty(const shape_type& shape);
+  
 
   class ufunc {
   /**
@@ -57,8 +58,6 @@ namespace numpy {
     **/
   };
 
-  template <template <class> class UnaryOperation>
-  struct ufunc_unary {
 
     // template <class Type>
     // auto operator()(const ndarray<Type>& x)
@@ -82,31 +81,56 @@ namespace numpy {
     //   return out;
     // }
 
+
+  template <template <class> class UnaryOperation>
+  struct ufunc_unary {
+
+    template <class Type>
+    auto operator()(ndarray<Type>& x)
+      -> ndarray<decltype(UnaryOperation<Type>()(Type()))> {
+
+      auto out = empty<decltype(UnaryOperation<Type>()(Type()))>(x.shape());
+      return operator()(x, out);
+    }
+    
+    template <class Type, class OutputType>
+    auto operator()(ndarray<Type>& x, ndarray<OutputType>& out)
+      -> ndarray<decltype(UnaryOperation<Type>()(Type()))> {
+
+      static_assert(std::is_same_v<OutputType, decltype(UnaryOperation<Type>()(Type()))>, "output operand of invalid type");
+      std::transform(x.begin(), x.end(), out.begin(), UnaryOperation<Type>());
+      return out;
+    }
+    
   };
+  
+
 
   template <template <class, class> class BinaryOperation>
   struct ufunc_binary {
 
     template <class Type1, class Type2>
     auto operator()(ndarray<Type1>& x1, ndarray<Type2>& x2)
-      -> ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> {
-      
-      ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> out;
+      -> ndarray<decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))> {
+
+      auto out = empty<decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>(x1.shape());
       return operator()(x1, x2, out);
     }
+    
+    template <class Type1, class Type2, class OutputType>
+    auto operator()(ndarray<Type1>& x1, ndarray<Type2>& x2, ndarray<OutputType>& out)
+      -> ndarray<decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))> {
 
-    template <class Type1, class Type2, class OutType>
-    auto operator()(ndarray<Type1>& x1, ndarray<Type2>& x2, ndarray<OutType>& out)
-      -> ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> {
-  
       auto x1_copy = x1.view;
       auto x2_copy = x2.view;
       broadcast(x1, x2);
-      static_assert(std::is_same_v<OutType, decltype(BinaryOperation<Type1, Type2>()(x1, x2))>, "output type invalid");
-      std::transform(x1.begin(), x2.end(), x2.begin(), out.begin(), BinaryOperation<Type1, Type2>());
+      static_assert(std::is_same_v<OutputType, decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>, "output operand of invalid type");
+      std::transform(x1.begin(), x1.end(), x2.begin(), out.begin(), BinaryOperation<Type1, Type2>());
       x1.view = std::move(x1_copy);
       x2.view = std::move(x2_copy);
       return out;
+
+      
     }
     
   };

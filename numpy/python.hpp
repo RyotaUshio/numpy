@@ -71,27 +71,44 @@ namespace python {
     return obj.__repr__();
   }
 
-  void _print_impl(bool first, std::string sep) {
-    std::cout << std::endl;
-  }
-  
-  template <class Head, class... Tail>
-  void _print_impl(bool first, std::string sep, Head&& head, Tail&&... tail) {
-    if (not first)
-      std::cout << sep;
-    std::cout << str(head);
-    _print_impl(false, sep, std::forward<Tail>(tail)...);
-  }
+  /**
+   * `print_sep` can be writen concisely without recursion with C++17 Fold expression! 
+   */
 
+  /* Former implementation with recursion */
+  
+  // void _print_impl(bool first, std::string sep) {
+  //   std::cout << std::endl;
+  // }
+  
+  // template <class Head, class... Tail>
+  // void _print_impl(bool first, std::string sep, Head&& head, Tail&&... tail) {
+  //   if (not first)
+  //     std::cout << sep;
+  //   std::cout << str(head);
+  //   _print_impl(false, sep, std::forward<Tail>(tail)...);
+  // }
+
+  // template <class... Args>
+  // void print_sep(std::string sep, Args&&... args) {
+  //   std::cout << std::boolalpha;
+  //   _print_impl(true, sep, std::forward<Args>(args)...);
+  // }
+
+  /* New implementation with the fold expression (& generic lambda) */
+  
   template <class... Args>
   void print_sep(std::string sep, Args&&... args) {
-    std::cout << std::boolalpha;
-    _print_impl(true, sep, std::forward<Args>(args)...);
+    bool first = true;
+    (std::cout << ... << [sep, &first](auto&& arg){
+			   if (first) {first = false; return str(arg);}
+			   else return sep + str(arg);}(args));
+    std::cout << std::endl;
   }
 
   template <class... Args>
   void print(Args&&... args) {
     print_sep(" ", std::forward<Args>(args)...);
   }
-  
+
 }
