@@ -19,11 +19,16 @@ namespace numpy {
     template <class Dtype> friend class array_transpose;
     template <class Dtype> friend class array_iter;
     template <template <class, class> class BinaryOperation> friend struct ufunc_binary;
-    
-    friend const shape_elem_type& broadcast_axis(const shape_elem_type& a, const shape_elem_type& b) noexcept(false);
-    friend shape_type get_broadcasted_shape(array_view& small, array_view& big);
-    template <typename Dtype1, typename Dtype2>
-    friend void broadcast(ndarray<Dtype1>& lhs, ndarray<Dtype2>& rhs);
+
+    template <class ArrayViewHead, class... ArrayViewTail>
+    friend void broadcast(ArrayViewHead out_view, ArrayViewTail&... views);
+    friend const shape_elem_type& broadcast_axis(const shape_elem_type& a, const shape_elem_type& b) noexcept(false);    
+    template <class ArrayViewHead, class... ArrayViewTail>
+    friend void get_broadcasted_shape_impl(shape_type& newshape,
+				     const ArrayViewHead& head, const ArrayViewTail&... tail);
+    template <class... ArrayView> friend dim_type max_ndim(const ArrayView&... views);
+    template <class... ArrayView> friend bool is_same_shape(const ArrayView&... views);
+    template <class ArrayView> friend void adjust_views(dim_type ndim, ArrayView& view);
     
     shape_type shape;
     dim_type ndim;
@@ -31,6 +36,7 @@ namespace numpy {
     offset_type offset;
     stride_type stride;
 
+  public:
     array_view() = default;
     
     array_view(const shape_type& shape_, const stride_type& stride_, const offset_type& offset_=0)
@@ -49,10 +55,11 @@ namespace numpy {
 	stride[i] = stride[i+1] * shape[i+1];
       }
     }
-    
+
     array_view(const array_view& src)
       : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride) {}
 
+  private:
     friend void swap(array_view& a, array_view& b) {
       using std::swap;
       swap(a.shape, b.shape);
