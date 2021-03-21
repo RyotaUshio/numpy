@@ -77,9 +77,13 @@ namespace numpy {
   // template class ndarray<clongdouble>;
 
   /* specailization for bool_ */
-  template<> inline ndarray<bool_>& ndarray<bool_>::operator+=(const ndarray<bool_>& rhs) = delete;
-  template<> inline ndarray<bool_>& ndarray<bool_>::operator-=(const ndarray<bool_>& rhs) = delete;
-  template<> inline ndarray<bool_>& ndarray<bool_>::operator*=(const ndarray<bool_>& rhs) = delete;
-  template<> inline ndarray<bool_>& ndarray<bool_>::operator/=(const ndarray<bool_>& rhs) = delete;
+  // template<> inline ndarray<bool_>& ndarray<bool_>::operator+(ndarray<bool_>& rhs) = delete;
+  // template<> inline ndarray<bool_>& ndarray<bool_>::operator-(ndarray<bool_>& rhs) = delete;
+  // template<> inline ndarray<bool_>& ndarray<bool_>::operator*(ndarray<bool_>& rhs) = delete;
+  // template<> inline ndarray<bool_>& ndarray<bool_>::operator/(ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator+=(ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator-=(ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator*=(ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator/=(ndarray<bool_>& rhs) = delete;
 
 }

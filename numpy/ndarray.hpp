@@ -176,35 +176,40 @@ namespace numpy {
     // https://numpy.org/doc/stable/reference/ufuncs.html
     // Some of these ufuncs are called automatically on arrays when the relevant infix notation is used (e.g., add(a, b) is called internally when a + b is written and a or b is an ndarray).
 
-    // ndarray<Dtype> operator+(const ndarray<Dtype>& rhs) {
-    //   return add<Dtype>(*this, rhs);
-    // }
+    template <class Dtype2>
+    auto operator+(ndarray<Dtype2>& rhs) {
+      return add(*this, rhs);
+    }
     
-    template <class Operation>
-    inline ndarray<Dtype>& comp_assign(const ndarray<Dtype>& rhs, Operation op) {
-      broadcast(const_cast<ndarray<Dtype>&>(*this), const_cast<ndarray<Dtype>&>(rhs));
-      std::transform(begin(), end(), rhs.begin(), begin(), op);
-      return *this;
+    template <class Dtype2>
+    auto operator-(ndarray<Dtype2>& rhs) {
+      return subtract(*this, rhs);
     }
 
-    ndarray<Dtype>& operator+=(const ndarray<Dtype>& rhs) {
-      return comp_assign(rhs, std::plus<Dtype>());
-      // add(*this, rhs, *this);
+    template <class Dtype2>
+    auto operator*(ndarray<Dtype2>& rhs) {
+      return multiply(*this, rhs);
     }
 
-    ndarray<Dtype>& operator-=(const ndarray<Dtype>& rhs) {
-      return comp_assign(rhs, std::minus<Dtype>());
-      // subtract(*this, rhs, *this);
+    template <class Dtype2>
+    auto operator/(ndarray<Dtype2>& rhs) {
+      return divide(*this, rhs);
     }
 
-    ndarray<Dtype>& operator*=(const ndarray<Dtype>& rhs) {
-      return comp_assign(rhs, std::multiplies<Dtype>());
-      // multiply(*this, rhs, *this);
+    ndarray<Dtype>& operator+=(ndarray<Dtype>& rhs) {
+      return add(*this, rhs, *this);
     }
 
-    ndarray<Dtype>& operator/=(const ndarray<Dtype>& rhs) {
-      return comp_assign(rhs, std::divides<Dtype>());
-      // divide(*this, rhs, *this);
+    ndarray<Dtype>& operator-=(ndarray<Dtype>& rhs) {
+      return subtract(*this, rhs, *this);
+    }
+
+    ndarray<Dtype>& operator*=(ndarray<Dtype>& rhs) {
+      return multiply(*this, rhs, *this);
+    }
+
+    ndarray<Dtype>& operator/=(ndarray<Dtype>& rhs) {
+      return divide(*this, rhs, *this);
     }
     
     array_iter<Dtype> begin() const {

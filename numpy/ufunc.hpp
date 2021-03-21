@@ -97,7 +97,7 @@ namespace numpy {
     
     template <class Type, class OutputType>
     auto operator()(ndarray<Type>& x, ndarray<OutputType>& out) const
-      -> ndarray<decltype(UnaryOperation<Type>()(Type()))> {
+      -> ndarray<decltype(UnaryOperation<Type>()(Type()))>& {
 
       static_assert(std::is_same_v<OutputType, decltype(UnaryOperation<Type>()(Type()))>, "output operand of invalid type");
       auto x_copy = x.view;
@@ -126,7 +126,7 @@ namespace numpy {
     
     template <class Type1, class Type2, class OutputType>
     auto operator()(ndarray<Type1>& x1, ndarray<Type2>& x2, ndarray<OutputType>& out) const
-      -> ndarray<decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))> {
+      -> ndarray<decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>& {
 
       static_assert(std::is_same_v<OutputType, decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>, "output operand of invalid type");
       

@@ -9,6 +9,7 @@ namespace np = numpy;
 
 int main() {
   // <initialization from a std::vector>
+  // equivalent to `auto a = np::array(range(24)).reshape({2, 3, 4});`, which is more concise.
   std::vector<int> src;
   for(int i=0; i<24; i++) src.push_back(i);
   np::ndarray<int> a(src, {2, 3, 4});
