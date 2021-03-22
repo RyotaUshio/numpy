@@ -14,23 +14,23 @@
 
 namespace numpy {
   
-  template <typename T> class ndarray;
+  template <typename Dtype> class ndarray;
   
-  template <typename T>
+  template <typename Dtype>
   class array_iter // : public python::object
   {
     
     using coord_type = std::vector<dim_type>;
-    using ptr = typename std::vector<T>::iterator;
+    using ptr = typename std::vector<Dtype>::iterator;
 
     const array_view& view;
-    const std::shared_ptr<shared_memory<T>>& memory_ptr;
+    const std::shared_ptr<shared_memory<Dtype>>& memory_ptr;
     ptr dataptr;
     int index; // current 1-d index
     coord_type coord; // current N-d index
 
     array_iter(const array_view& view_,
-	       const std::shared_ptr<shared_memory<T>>& memory_ptr_,
+	       const std::shared_ptr<shared_memory<Dtype>>& memory_ptr_,
 	       const ptr& dataptr_,
 	       const coord_type& coord_)
       : view(view_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
@@ -38,7 +38,7 @@ namespace numpy {
     }
 
     array_iter(const array_view& view_,
-	       const std::shared_ptr<shared_memory<T>>& memory_ptr_,
+	       const std::shared_ptr<shared_memory<Dtype>>& memory_ptr_,
 	       const ptr& dataptr_,
 	       const int index_)
       : view(view_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
@@ -46,13 +46,13 @@ namespace numpy {
     }
 
   public:
-    array_iter(const ndarray<T>& array)
-      : array_iter<T>(array, array.memory_ptr->begin() + array.view.offset, 0) {}
+    array_iter(const ndarray<Dtype>& array)
+      : array_iter<Dtype>(array, array.memory_ptr->begin() + array.view.offset, 0) {}
 
   private:
     template <class... Args>
-    array_iter(const ndarray<T>& array, const Args&... rest)
-      : array_iter<T>(array.view, array.memory_ptr, rest...) {}
+    array_iter(const ndarray<Dtype>& array, const Args&... rest)
+      : array_iter<Dtype>(array.view, array.memory_ptr, rest...) {}
      
     void coord_to_index() {
       int unit = 1;
@@ -108,55 +108,55 @@ namespace numpy {
 
   public:
 
-    T& operator*() {
+    Dtype& operator*() {
       return *dataptr;
     }
 
-    T operator*() const {
+    Dtype operator*() const {
       return *dataptr;
     }
 
-    array_iter<T>& operator+=(const int n) {
+    array_iter<Dtype>& operator+=(const int n) {
       go_to(index + n);
       return *this;
     }
 
-    array_iter<T> operator+(const int n) const {
-      array_iter<T> tmp(*this);
+    array_iter<Dtype> operator+(const int n) const {
+      array_iter<Dtype> tmp(*this);
       return tmp += n;
     }
     
-    array_iter<T>& operator++() { // pre-increment
+    array_iter<Dtype>& operator++() { // pre-increment
       *this += 1;
       return *this;
     }
     
-    array_iter<T> operator++(int) { // post-increment: takes a dummy parameter of int
-      array_iter<T> tmp(*this);
+    array_iter<Dtype> operator++(int) { // post-increment: takes a dummy parameter of int
+      array_iter<Dtype> tmp(*this);
       operator++();
       return tmp;
     }
 
-    array_iter<T>& operator-=(const int n) {
+    array_iter<Dtype>& operator-=(const int n) {
       return *this += -n; 
     }
 
-    array_iter<T> operator-(const int n) const {
+    array_iter<Dtype> operator-(const int n) const {
       return *this + (-n);
     }
     
-    bool operator!=(const array_iter<T>& rhs) const {
+    bool operator!=(const array_iter<Dtype>& rhs) const {
       return dataptr != rhs.dataptr;
     }
     
-    bool operator==(const array_iter<T>& rhs) const {
+    bool operator==(const array_iter<Dtype>& rhs) const {
       return not (dataptr != rhs.dataptr);
     }
 
     std::string __repr__() const // override
     {
       std::stringstream ss;
-      ss << "array_iterator<" << python::str(typeid(T)) << ">(";
+      ss << "array_iterator<" << python::str(typeid(Dtype)) << ">(";
       ss << "view=" << repr(view);
       ss << ", memory_ptr=" << memory_ptr;
       ss << ", dataptr=" << &(*dataptr);
