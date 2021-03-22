@@ -11,9 +11,27 @@ int main() {
 
   print(x1);
   print(x2);
-  x1 += x2;
+  print(np::may_share_memory(x1, x2));
+
+  auto x3 = x1 + x2;
+  print(x3); // OK
+  print(np::may_share_memory(x1, x3));
+  x1 = x3; // OK
+  print(np::may_share_memory(x1, x3));
   print(x1);
   print(x2);
+  print(np::may_share_memory(x1, x2));
+
+  auto x = np::array(range(9)).reshape({3, 3});
+  auto y = x.T();
+
+  print(x);
+  print(y);
+  print(np::may_share_memory(x, y));
+  x += y; // Not working
+  print(x);
+  print(y);
+  print(np::may_share_memory(x, y));
 
   // problems regarding broadcasting
   // これはよくわからないが、broadcastを伴わない例では起こらない問題なのでbroadcastと関係がありそう

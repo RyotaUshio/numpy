@@ -34,9 +34,13 @@ namespace python {
   // auto str(const T& obj) -> decltype(obj.__str__()) {
   //   return obj.__str__();
   // }
+
+  std::string str(const bool obj) {
+    return obj ? "True" : "False";
+  }
   
   std::string str(const numpy::bool_& obj) {
-    return static_cast<bool>(obj) ? "False" : "True";
+    return str(static_cast<bool>(obj));
   }
   
   template <typename T>

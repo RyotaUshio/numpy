@@ -4,6 +4,7 @@
 #include <algorithm> // transform
 #include <utility> // move
 #include <type_traits> // is_same
+#include <numpy/shares_memory.hpp>
 
 namespace numpy {
 
@@ -103,8 +104,6 @@ namespace numpy {
 
       static_assert(std::is_same_v<OutputType, decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>, "output operand of invalid type");
 
-      python::print(&x1.base);
-      python::print(&out.base);
       
       auto x1_copy = x1.view;
       auto x2_copy = x2.view;
