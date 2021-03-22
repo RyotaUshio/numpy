@@ -42,8 +42,7 @@ int main() {
   b = a; // this calls the copy assignment operator, but it does not copy the contents of the array.
   // Just as in Python, `b` now refers to the same location of memory as `a`.
   print(np::may_share_memory(a, b)); // -> True
-  // this calls the move assignment operator
-  a = a + b;
+  a = a + b; // this calls the move assignment operator
   print(a);
   
 }
