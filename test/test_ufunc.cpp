@@ -25,6 +25,6 @@ int main() {
   // unary ufuncs
   print(np::exp(x1));
   print(np::log1p(x1));
-  
+
 }
 
