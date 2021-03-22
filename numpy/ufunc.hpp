@@ -102,6 +102,16 @@ namespace numpy {
 
       static_assert(std::is_same_v<OutputType, decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>, "output operand of invalid type");
 
+      // avoid the memory overlap problem (issue #13)
+      if (may_share_memory(x1, out)) {
+	auto tmp = x1.copy();
+	return operator()(tmp, x2, out);
+      }
+
+      if (may_share_memory(x2, out)) {
+	auto tmp = x2.copy();
+	return operator()(x1, tmp, out);
+      }
       
       auto x1_copy = x1.view;
       auto x2_copy = x2.view;
