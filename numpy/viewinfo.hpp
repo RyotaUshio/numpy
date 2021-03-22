@@ -24,8 +24,7 @@ namespace numpy {
     friend void broadcast(ArrayViewHead out_view, ArrayViewTail&... views);
     friend const shape_elem_type& broadcast_axis(const shape_elem_type& a, const shape_elem_type& b) noexcept(false);    
     template <class ArrayViewHead, class... ArrayViewTail>
-    friend void get_broadcasted_shape_impl(shape_type& newshape,
-				     const ArrayViewHead& head, const ArrayViewTail&... tail);
+    friend void get_broadcasted_shape_impl(shape_type& newshape, const ArrayViewHead& head, const ArrayViewTail&... tail);
     template <class... ArrayView> friend dim_type max_ndim(const ArrayView&... views);
     template <class... ArrayView> friend bool is_same_shape(const ArrayView&... views);
     template <class ArrayView> friend void adjust_views(dim_type ndim, ArrayView& view);
@@ -84,6 +83,7 @@ namespace numpy {
     
     template <class... Tail>
     void _indexer_inplace_impl(dim_type axis, python::slice head, Tail... tail) {
+      python::print(head);
       offset += head.abs_start(shape[axis]) * stride[axis];
       shape[axis] = head.size(shape[axis]);
       stride[axis] *= head.step;
@@ -92,7 +92,7 @@ namespace numpy {
 
     template <class... Tail>
     void _indexer_inplace_impl(dim_type axis, int head, Tail... tail) {
-      offset += head * stride[axis];
+      offset += python::slice::abs_index(shape[axis], head) * stride[axis];
       shape.erase(shape.begin() + axis);
       stride.erase(stride.begin() + axis);
       _indexer_inplace_impl(axis, tail...);
@@ -114,7 +114,7 @@ namespace numpy {
       return newview;
     }
 
-    array_view transpose(const std::vector<dim_type>& axes) const {
+    array_view transpose(const axes_type& axes) const {
       if (axes.size() != ndim)
 	throw std::invalid_argument("ValueError: axes don't match array");
       shape_type newshape;

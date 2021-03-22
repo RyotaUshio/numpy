@@ -1,5 +1,5 @@
 CXX = g++
-override CXXFLAGS += -std=c++17 -O3 -Wall -I . # -g
+override CXXFLAGS += -std=c++2a -O3 -Wall -I . # -g
 HEADER = $(wildcard ./numpy/*.hpp)
 SRC = $(wildcard ./test/*.cpp)
 EXC = $(basename $(SRC))
@@ -21,7 +21,7 @@ run: $(CPPTEST)
 	for name in $(CPPTEST); do $$name; done
 
 py++:
-	for name in $(notdir $(PYTEST)); do py++ $$name $(pypp) ; done
+	for name in $(notdir $(PYTEST)); do ./py++ $$name $(pypp) ; done
 
 UFUNC := numpy/ufunc_instances.hpp
 ufunc: $(UFUNC)

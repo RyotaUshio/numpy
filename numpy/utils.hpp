@@ -7,6 +7,9 @@
 #include <sstream>
 #include <numpy/typename.hpp>
 
+namespace python {
+  std::string str(const std::type_info& dtype);
+}    
 
 namespace numpy {
   template <typename T> class ndarray;
@@ -21,11 +24,26 @@ namespace numpy {
     T dot(const std::vector<T>& lhs, const std::vector<T>& rhs, T init=0) {
       return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), init);
     }
+     
+    template <typename T>
+    std::string vector_to_string(const std::vector<T>& vec, std::string prefix="", std::string suffix="") {
+      std::stringstream ss;
+      bool first = true;
+      ss << prefix;
+      for(const auto e : vec) {
+	if (not first) 
+	  ss << ", ";
+	ss << e;
+	first = false;
+      }
+      ss << suffix;
+      return ss.str();
+    }
     
     void line(int width=80) {
       std::cout << std::string(width, '-') << std::endl;
     }
-  
+
     template <typename T>
     void test(ndarray<T>& a) {
       std::cout << "dtype : " << python::str(typeid(T)) << std::endl;

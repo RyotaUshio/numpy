@@ -245,7 +245,7 @@ namespace numpy {
       return copied;
     }
 
-    viewinfo get_view() const {
+    const viewinfo& get_view() const {
       return view;
     }
 

@@ -15,7 +15,7 @@ int main() {
   np::ndarray<int> a(src, {2, 3, 4});
 
   // <slice & indexing 1>
-  auto b = a(":", 0, ":-1");
+  auto b = a(":", -1, "::-1");
   auto c = a(0, ":", 1);
   auto d = c(1);
   auto e = a("+00000000000000:", "1:2:", 1);

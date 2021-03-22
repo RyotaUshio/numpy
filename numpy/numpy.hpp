@@ -6,7 +6,8 @@
 namespace numpy {
 
   template <class array_like>
-  auto array(const array_like& object) -> decltype(object.begin(), object.end(), ndarray<decltype(*(object.begin()))>()) {
+  auto array(const array_like& object)
+    -> decltype(object.begin(), object.end(), ndarray<decltype(*(object.begin()))>()) {
     /**
      * The original parameters: 
      *     object, Dtype=None, *, copy=True, order='K', subok=False, ndmin=0, like=None

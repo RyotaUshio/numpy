@@ -10,6 +10,7 @@
 #include <numpy/range.hpp>
 #include <numpy/typename.hpp>
 #include <numpy/dtype.hpp>
+#include <numpy/utils.hpp>
 
 namespace python {
 
@@ -44,23 +45,24 @@ namespace python {
     ss << obj;
     return ss.str();
   }  
- 
+  
+  template <typename T>
+  std::string vector_as_python_list(const std::vector<T>& vec) {
+    return numpy::utils::vector_to_string(vec, "[", "]");
+  }
+
+  template <typename T>
+  std::string vector_as_python_tuple(const std::vector<T>& vec) {
+    if (vec.size() > 1)
+      return numpy::utils::vector_to_string(vec, "(", ")");
+    return numpy::utils::vector_to_string(vec, "(", ",)");
+  }
+
   template <typename T>
   std::string str(const std::vector<T>& vec) {
-    std::stringstream ss;
-    bool first = true;
-    ss << "(";
-    for(const auto e : vec) {
-      if (first) {
-	first = false;
-      } else {
-	ss << ", ";
-      }
-      ss << e;
-    }
-    ss << ")";
-    return ss.str();
+    return vector_as_python_tuple(vec);
   }
+
 
   std::string str(const std::type_info& type) {
     return getNameByTypeInfo(type);

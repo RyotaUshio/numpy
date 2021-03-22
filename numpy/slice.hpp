@@ -33,15 +33,25 @@ namespace python {
     slice(const char* str) { // ":"とか"1:-1"とか
       std::cmatch m;
       if (std::regex_match(str, m, re)) {
-	start = (m[1].str().empty()) ? 0 : std::stoi(m[1]);
-	if (m[3].str().empty()) {
+	bool start_empty = m[1].str().empty();
+	bool stop_empty = m[3].str().empty();
+	bool step_empty = m[5].str().empty();
+
+	if (stop_empty and step_empty) {
+	  throw std::invalid_argument("It is forbidden to express a non-slice index (i.e. a mere integer) by a string in order to eliminate ambiguity; use an integer type instead.");
+	}
+	
+	// check step first!!
+	step = (step_empty) ? 1 : std::stoi(m[5]);
+	start = (start_empty) ? ( (step < 0) ? -1: 0) : std::stoi(m[1]);
+	if (stop_empty) {
 	  stop_is_None = true;
 	  stop = std::numeric_limits<int>::max();
 	} else {
 	  stop_is_None = false;
 	  stop = std::stoi(m[3]);
 	}
-	step = (m[5].str().empty()) ? 1 : std::stoi(m[5]);
+
       }
       else
 	throw std::invalid_argument("SyntaxError: invalid syntax while initializing slice: \"" + std::string(str) + "\"");
@@ -55,17 +65,20 @@ namespace python {
       return (ret > 0) ? ret : 0;
     }
 
-    int abs_start(int length) const {
+    inline int abs_start(int length) const {
       return (start < 0) ? length + start : start;
     }
 
-    int abs_stop(int length) const {
-      if (stop_is_None)
-	return length;
-      return (stop < 0) ? length + stop : stop;
+    static int abs_index(int length, int index)  {
+      return (index < 0) ? length + index : index;
     }
 
-    // for debug
+    inline int abs_stop(int length) const {
+      if (stop_is_None)
+	return (step > 0) ? length : -1;
+      return (stop < 0) ? length + stop : stop;
+    }
+ 
     std::string __repr__() const {
       std::stringstream ss;
       ss << "slice(" << start << ", ";
@@ -86,5 +99,5 @@ namespace python {
   std::string slice::_r_int = "[+-]?[1-9]\\d*|[+-]?0*";
   std::string slice::_r_colon_int = ":(" + slice::_r_int + ")?";
   std::regex slice::re("(" + slice::_r_int + ")?(" + slice::_r_colon_int + ")?(" + slice::_r_colon_int + ")?");
-  
+
 }
