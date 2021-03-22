@@ -235,7 +235,20 @@ namespace numpy {
     ndarray<Dtype> operator()(Indexer... indices) const {
       viewinfo newview = view.indexer(indices...);
       return ndarray<Dtype>(memory_ptr, newview, base_ptr);
-    }    
+    }
+
+    // // yields compilation error
+    // template <typename... Indexer>
+    // auto operator()(Indexer... indices) const
+    //   -> typename std::conditional<sizeof...(indices) == view.ndim, Dtype, ndarray<Dtype>>::type {
+    //   viewinfo newview = view.indexer(indices...);
+    //   auto result = ndarray<Dtype>(memory_ptr, newview, base_ptr);
+    //   if constexpr(sizeof...(indices) == view.ndim) {
+    // 	return *result.begin();
+    //   } else {
+    //     return result;
+    //   }
+    // }
 
     template <class AnotherDtype>
     ndarray<AnotherDtype> astype() const {
@@ -268,6 +281,11 @@ namespace numpy {
     }
 
     // methods relevant to Python's built-in functions
+
+    shape_elem_type __len__() const {
+      return shape(0);
+    }
+    
     std::string __repr__() const // override
     {
       return "array(" + _str_rec(',') + ")";
@@ -283,12 +301,11 @@ namespace numpy {
 	return python::str(memory_ptr->data[view.offset]);
       std::stringstream ss;
       ss << "[";
-      long len = static_cast<long>(view.shape[0]);
-      for (long i=0; i<len; i++) {
+      for (int i=0; i<__len__(); i++) {
 	if (i >= 1)
 	  ss << "\t";
-	ss << (*this)(i)._str_rec(delimiter);
-	if (i < len - 1) {
+	ss << operator()(i)._str_rec(delimiter);
+	if (i < __len__() - 1) {
 	  ss << delimiter;
 	  if (view.ndim >= 2)
 	    ss << "\n";
@@ -296,10 +313,6 @@ namespace numpy {
       }
       ss << "]";
       return ss.str();
-    }
-
-    shape_elem_type __len__() const {
-      return shape(0);
     }
     
   };
