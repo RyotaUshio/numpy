@@ -48,7 +48,11 @@ namespace python {
     std::stringstream ss;
     ss << obj;
     return ss.str();
-  }  
+  }
+
+  std::string str(const std::exception& e) {
+    return e.what();
+  }
   
   template <typename T>
   std::string vector_as_python_list(const std::vector<T>& vec) {

@@ -119,7 +119,7 @@ namespace numpy {
       std::transform(x1.begin(), x1.end(), x2.begin(), out.begin(), BinaryOperation<Type1, Type2>());
       x1.view = std::move(x1_copy);
       x2.view = std::move(x2_copy);
-      return out;      
+      return out;
     }
     
   };

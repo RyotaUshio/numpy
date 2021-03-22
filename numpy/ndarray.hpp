@@ -16,6 +16,7 @@
 #include <numpy/utils.hpp>
 #include <numpy/typename.hpp>
 #include <numpy/ufunc.hpp>
+#include <numpy/debug.hpp>
 
 namespace numpy {
   
@@ -31,6 +32,8 @@ namespace numpy {
     template <template <class> class UnaryOperation> friend struct ufunc_unary;
     template <template <class, class> class BinaryOperation> friend struct ufunc_binary;
     template <class Type> friend bool may_share_memory(const ndarray<Type>& a, const ndarray<Type>& b);
+    template <class Dtype1, class Dtype2> friend void debug::broadcast(ndarray<Dtype1>& a, ndarray<Dtype2>& b);
+
 
   private:
     std::shared_ptr<shared_memory<Dtype>> memory_ptr;

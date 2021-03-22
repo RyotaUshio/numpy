@@ -3,20 +3,26 @@ using namespace python;
 namespace np = numpy;
 
 int main() {
-  auto a = np::ndarray<np::float64>({1, 2, 3, 4}, {4, 1});
-  auto b = np::ndarray<np::float64>({1, 2, 3}, {1, 3});
-
-  // before broadcasting
-  print(a);
-  print(b);
-
-  for(const auto e : a) std::cout << e << " "; std::cout << std::endl;
-  for(const auto e : b) std::cout << e << " "; std::cout << std::endl;
-
-  a = a + b;
   
-  print(a);
+  try {
+    auto a = np::array(range(1, 5)).reshape({4, 1});
+    auto b = np::array(range(1, 4)).reshape({1, 3});
 
-  print(type(a));
-  
+    // before broadcasting
+    print(a);
+    print(b);
+    for(const auto e : a) print(e);
+    for(const auto e : b) print(e);
+
+    np::debug::broadcast(a, b);
+
+    // after broadcasting
+    print(a);
+    print(b);
+    for(const auto e : a) print(e);
+    for(const auto e : b) print(e);
+    
+  } catch (const std::exception& e) {
+    print(e);
+  }
 }
