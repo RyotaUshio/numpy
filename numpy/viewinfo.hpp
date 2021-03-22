@@ -1,4 +1,5 @@
 #pragma once
+
 #include <typeinfo> // for dtype
 #include <vector>
 #include <stdexcept> // invalid_argument
@@ -74,7 +75,6 @@ namespace numpy {
     
     template <class... Tail>
     void _indexer_inplace_impl(dim_type axis, python::slice head, Tail... tail) {
-      python::print(head);
       offset += head.abs_start(shape[axis]) * stride[axis];
       shape[axis] = head.size(shape[axis]);
       stride[axis] *= head.step;

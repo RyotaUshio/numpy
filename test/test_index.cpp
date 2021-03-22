@@ -25,7 +25,9 @@ int main() {
     print(e);
     print(e.get_view());
 
-    auto C = a(-1, "-2");
+    a(1, ":"); // this is OK
+
+    auto C = a(-1, "-2"); // this is invalid
     print(C);
     print(C.get_view());
 

@@ -37,9 +37,8 @@ namespace python {
 	bool stop_empty = m[3].str().empty();
 	bool step_empty = m[5].str().empty();
 
-	if (stop_empty and step_empty) {
+	if (stop_empty and step_empty and (not start_empty))
 	  throw std::invalid_argument("It is forbidden to express a non-slice index (i.e. a mere integer) by a string in order to eliminate ambiguity; use an integer type instead.");
-	}
 	
 	// check step first!!
 	step = (step_empty) ? 1 : std::stoi(m[5]);
