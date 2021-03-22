@@ -35,10 +35,6 @@ namespace numpy {
      * types
      *   Returns a list with types grouped input->output.
      **/
-  public:
-    std::size_t nargs;
-    std::size_t nin;
-    std::size_t nout;
 
     /**
      * Methods
@@ -59,31 +55,8 @@ namespace numpy {
   };
 
 
-    // template <class Type>
-    // auto operator()(const ndarray<Type>& x)
-    //   -> ndarray<decltype(UnaryOperation<Type>()(x))> {
-      
-    //   ndarray<decltype(BinaryOperation<Type1, Type2>()(x1, x2))> out;
-    //   return operator()(x1, x2, out);
-    // }
-
-    // template <class Type, class OutType>
-    // auto operator()(const ndarray<Type>& x, const ndarray<OutType>& out)
-    //   -> ndarray<decltype(BinaryOperation<Type>()(x))> {
-      
-    //   auto x1_copy = x1.view;
-    //   auto x2_copy = x2.view;
-    //   broadcast(x1, x2);
-    //   static_assert(std::is_same_v<OutType, decltype(BinaryOperation<Type1, Type2>()(x1, x2))>, "output type invalid");
-    //   std::transform(x1.begin(), x2.end(), x2.begin(), out.begin(), BinaryOperation<Type1, Type2>());
-    //   x1.view = std::move(x1_copy);
-    //   x2.view = std::move(x2_copy);
-    //   return out;
-    // }
-
-
   template <template <class> class UnaryOperation>
-  struct ufunc_unary {
+  struct ufunc_unary: public ufunc {
 
     constexpr ufunc_unary() = default;
     
@@ -111,7 +84,7 @@ namespace numpy {
   
 
   template <template <class, class> class BinaryOperation>
-  struct ufunc_binary {
+  struct ufunc_binary: public ufunc {
 
     constexpr ufunc_binary() = default;
 
@@ -129,6 +102,9 @@ namespace numpy {
       -> ndarray<decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>& {
 
       static_assert(std::is_same_v<OutputType, decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>, "output operand of invalid type");
+
+      python::print(&x1.base);
+      python::print(&out.base);
       
       auto x1_copy = x1.view;
       auto x2_copy = x2.view;

@@ -8,7 +8,6 @@
 #include <typeinfo>
 #include <memory>
 #include <utility>
-#include <functional>
 #include <numpy/python.hpp>
 #include <numpy/dtype.hpp>
 #include <numpy/memory.hpp>
@@ -40,7 +39,9 @@ namespace numpy {
     ndarray::viewinfo view_transpose;
     
   public:
-    // acfgcessors
+    const ndarray<Dtype>& base;
+    
+    // accessors
     inline const shape_type& shape() const noexcept {
       return view.shape;
     }
@@ -64,21 +65,21 @@ namespace numpy {
     }
 
     inline ndarray<Dtype> T() const {
-      return ndarray<Dtype>(memory_ptr, view_transpose);
+      return ndarray<Dtype>(memory_ptr, view_transpose, base);
     }
     
     /* Constructors */
-    ndarray() = default;
+    ndarray(): base(*this) {}
     
   private:
-    ndarray(const std::shared_ptr<shared_memory<Dtype>>& ptr, const viewinfo& view_)
-      : memory_ptr(ptr), view(view_), view_transpose(view.transpose()) {}
+    ndarray(const std::shared_ptr<shared_memory<Dtype>>& ptr, const viewinfo& view_, const ndarray<Dtype>& base_)
+      : memory_ptr(ptr), view(view_), view_transpose(view.transpose()), base(base_) {}
 
-    ndarray(shared_memory<Dtype> *ptr, const viewinfo& view_)
-      : ndarray<Dtype>(std::shared_ptr<shared_memory<Dtype>>(ptr), view_) {}
+    ndarray(shared_memory<Dtype> *ptr, const viewinfo& view_, const ndarray<Dtype>& base_)
+      : ndarray<Dtype>(std::shared_ptr<shared_memory<Dtype>>(ptr), view_, base_) {}
 
     ndarray(const std::vector<Dtype>& data, const viewinfo& view_)
-      : ndarray<Dtype>(new shared_memory<Dtype>(data), view_) {}
+      : ndarray<Dtype>(new shared_memory<Dtype>(data), view_, *this) {}
     
   public:
     ndarray(const std::vector<Dtype>& data, const shape_type& shape_)
@@ -102,7 +103,7 @@ namespace numpy {
      */
     
     ndarray(const ndarray<Dtype>& src)
-      : ndarray<Dtype>(src.memory_ptr, src.view) {
+      : ndarray<Dtype>(src.memory_ptr, src.view, src.base) {
       // std::cout << "ndarray::(copy constructor) is called" << std::endl;
     }
 
@@ -160,11 +161,11 @@ namespace numpy {
     }
     
     ndarray<Dtype> reshape(const shape_type& newshape) const {
-      return ndarray<Dtype>(memory_ptr, viewinfo(newshape));
+      return ndarray<Dtype>(memory_ptr, viewinfo(newshape), base);
     }
 
     ndarray<Dtype> transpose(const std::vector<dim_type>& axes) const {
-      return ndarray<Dtype>(memory_ptr, view.transpose(axes));
+      return ndarray<Dtype>(memory_ptr, view.transpose(axes), base);
     }
     
     ndarray<Dtype> transpose() const {
@@ -224,7 +225,7 @@ namespace numpy {
     template <class... Indexer>
     ndarray<Dtype> operator()(Indexer... indices) const {
       viewinfo newview = view.indexer(indices...);
-      return ndarray<Dtype>(memory_ptr, newview);
+      return ndarray<Dtype>(memory_ptr, newview, base);
     }    
 
     template <class AnotherDtype>
@@ -295,4 +296,3 @@ namespace numpy {
   };
   
 }
-
