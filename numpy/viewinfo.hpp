@@ -16,18 +16,9 @@ namespace numpy {
   class array_view {
     
     template <class Dtype> friend class ndarray;
-    template <class Dtype> friend class array_transpose;
     template <class Dtype> friend class array_iter;
+    template <template <class> class UnaryOperation> friend struct ufunc_unary;
     template <template <class, class> class BinaryOperation> friend struct ufunc_binary;
-
-    template <class ArrayViewHead, class... ArrayViewTail>
-    friend void broadcast(ArrayViewHead out_view, ArrayViewTail&... views);
-    friend const shape_elem_type& broadcast_axis(const shape_elem_type& a, const shape_elem_type& b) noexcept(false);    
-    template <class ArrayViewHead, class... ArrayViewTail>
-    friend void get_broadcasted_shape_impl(shape_type& newshape, const ArrayViewHead& head, const ArrayViewTail&... tail);
-    template <class... ArrayView> friend dim_type max_ndim(const ArrayView&... views);
-    template <class... ArrayView> friend bool is_same_shape(const ArrayView&... views);
-    template <class ArrayView> friend void adjust_views(dim_type ndim, ArrayView& view);
     
     shape_type shape;
     dim_type ndim;
@@ -143,7 +134,6 @@ namespace numpy {
     }
 
   public:
-    // for debug
     std::string __repr__() const // override
     {
       std::stringstream ss;
@@ -156,6 +146,82 @@ namespace numpy {
       ss << ")";
       return ss.str();
     }
+    
+    
+    /** static methods for broadcasting **/
+    
+    template <class... ArrayView>
+    static inline bool is_same_shape(const ArrayView&... views) {
+      return (views.ndim == ...);
+    }
+  
+    template <class... ArrayView>
+    static inline dim_type max_ndim(const ArrayView&... views) {
+      auto view_with_max_ndim = std::max({views...}, [](const auto& a, const auto& b){return a.ndim < b.ndim;});
+      return view_with_max_ndim.ndim;
+    }
+
+    template <class ArrayView>
+    static inline void adjust_views(dim_type ndim, ArrayView& view) {
+      view.shape.insert(view.shape.begin(), ndim - view.ndim, 1);
+    }
+
+    static const shape_elem_type& broadcast_axis(const shape_elem_type& a, const shape_elem_type& b) noexcept(false) {
+      if (a == b)
+	return a;
+      if (a == 1)
+	return b;
+      if (b == 1)
+	return a;
+      throw std::invalid_argument("hoge");
+    }
+
+    template <class ArrayViewHead, class... ArrayViewTail>
+    static inline void get_broadcasted_shape_impl(shape_type& newshape,
+						  const ArrayViewHead& head, const ArrayViewTail&... tail) {
+      try {
+	std::transform(newshape.begin(), newshape.end(),
+		       head.shape.begin(), newshape.begin(),
+		       broadcast_axis);
+      } catch (const std::invalid_argument& e) {
+	throw std::invalid_argument("ValueError: operands could not be broadcast together");
+      }
+ 
+      if constexpr (sizeof...(tail) > 0) {
+	  get_broadcasted_shape_impl(newshape, tail...);
+	}
+    }
+
+    template <class... ArrayView>
+    static shape_type get_broadcasted_shape(ArrayView... views) {
+      auto ndim = max_ndim(views...);
+
+      // swallow
+      // https://qiita.com/_EnumHack/items/677363eec054d70b298d#swallow
+      using swallow = std::initializer_list<int>;
+      (void)swallow{ (adjust_views(ndim, views), 0)... };
+
+      shape_type newshape(ndim, 1);
+      get_broadcasted_shape_impl(newshape, views...);
+      return newshape;
+    }
+
+    template <class ArrayViewHead, class... ArrayViewTail>
+    static void broadcast(ArrayViewHead out_view, ArrayViewTail&... views) {
+      if (is_same_shape(out_view, views...)) // no need to broadcast
+	return;	
+      auto newshape = get_broadcasted_shape(out_view, views...);
+      if (newshape != out_view.shape) {
+	throw std::invalid_argument("ValueError: non-broadcastable output operand with shape "
+				    + python::str(out_view.shape)
+				    + " doesn't match the broadcast shape "
+				    + python::str(newshape));
+      }
+      using swallow = std::initializer_list<int>;
+      (void)swallow{(views.broadcast_to(newshape), 0)...};
+    }
+
   };
   
 }
+

@@ -75,7 +75,7 @@ namespace numpy {
 
       static_assert(std::is_same_v<OutputType, decltype(UnaryOperation<Type>()(Type()))>, "output operand of invalid type");
       auto x_copy = x.view;
-      broadcast(out.view, x.view);
+      array_view::broadcast(out.view, x.view);
       std::transform(x.begin(), x.end(), out.begin(), UnaryOperation<Type>());
       x.view = std::move(x_copy);
       return out;
@@ -93,7 +93,7 @@ namespace numpy {
     auto operator()(ndarray<Type1>& x1, ndarray<Type2>& x2) const
       -> ndarray<decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))> {
 
-      auto outshape = get_broadcasted_shape(x1.view, x2.view);
+      auto outshape = array_view::get_broadcasted_shape(x1.view, x2.view);
       auto out = empty<decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>(outshape);
       return operator()(x1, x2, out);
     }
@@ -107,7 +107,7 @@ namespace numpy {
       
       auto x1_copy = x1.view;
       auto x2_copy = x2.view;
-      broadcast(out.view, x1.view, x2.view);
+      array_view::broadcast(out.view, x1.view, x2.view);
       std::transform(x1.begin(), x1.end(), x2.begin(), out.begin(), BinaryOperation<Type1, Type2>());
       x1.view = std::move(x1_copy);
       x2.view = std::move(x2_copy);

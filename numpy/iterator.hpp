@@ -7,7 +7,6 @@
 #include <string>
 #include <sstream>
 #include <memory>
-// #include <numpy/pyobject.hpp>
 #include <numpy/dtype.hpp>
 #include <numpy/utils.hpp>
 #include <numpy/viewinfo.hpp>
