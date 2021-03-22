@@ -57,7 +57,7 @@ int main() {
 }
 ```
 
-All you have to do to see the result is only type the following command.
+All you have to do is just type the following command.
 ```
 $ ./py++ example
 ```
