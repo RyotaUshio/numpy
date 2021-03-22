@@ -40,7 +40,7 @@ def main(source, target):
                     raise Exception(f'{name} is neither unary or binary?')
 
             elif cpp:
-                cppexp = cpp.groups()[0]
+                cppexp, = cpp.groups()
                 if unary:
                     g.write("\n".join([
                          "    template <class Type>",
