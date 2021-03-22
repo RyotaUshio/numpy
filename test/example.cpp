@@ -15,10 +15,10 @@ int main() {
   print(x.T());
   print(np::may_share_memory(x, x.T())); // transposition is just a new "view"
   
-  // Indexing % Slicing
+  // Indexing & Slicing
   print(x[-1]);
   print(x(-1)); // equivalent to the above
-  print(x(1,"::-1")); // you can't do `x[2,"::-1"]` due to the C++ language specification
+  print(x(1,"::-1")); // you can't do `x[1,"::-1"]` due to the C++ language specification
   // indexing is done without copying
   print(np::may_share_memory(x, x[-1])); // -> True
   print(np::may_share_memory(x, x(1, "::-1"))); // -> True
