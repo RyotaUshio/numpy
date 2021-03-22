@@ -4,13 +4,11 @@
 #include <algorithm> // transform
 #include <utility> // move
 #include <type_traits> // is_same
-#include <numpy/shares_memory.hpp>
 
 namespace numpy {
 
   template <class Dtype> class ndarray;
   template <class Dtype> ndarray<Dtype> empty(const shape_type& shape);
-  
 
   class ufunc {
   /**

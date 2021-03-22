@@ -12,7 +12,6 @@
 #include <numpy/dtype.hpp>
 #include <numpy/memory.hpp>
 #include <numpy/viewinfo.hpp>
-#include <numpy/broadcast.hpp>
 #include <numpy/iterator.hpp>
 #include <numpy/utils.hpp>
 #include <numpy/typename.hpp>
@@ -31,15 +30,15 @@ namespace numpy {
     friend array_iter<Dtype>;
     template <template <class> class UnaryOperation> friend struct ufunc_unary;
     template <template <class, class> class BinaryOperation> friend struct ufunc_binary;
-    template <typename Dtype1, typename Dtype2> friend void broadcast(ndarray<Dtype1>& lhs, ndarray<Dtype2>& rhs);
+    template <class Type> friend bool may_share_memory(const ndarray<Type>& a, const ndarray<Type>& b);
 
   private:
     std::shared_ptr<shared_memory<Dtype>> memory_ptr;
     ndarray::viewinfo view;
     ndarray::viewinfo view_transpose;
+    ndarray<Dtype>* base_ptr;
     
   public:
-    const ndarray<Dtype>& base;
     
     // accessors
     inline const shape_type& shape() const noexcept {
@@ -65,21 +64,25 @@ namespace numpy {
     }
 
     inline ndarray<Dtype> T() const {
-      return ndarray<Dtype>(memory_ptr, view_transpose, base);
+      return ndarray<Dtype>(memory_ptr, view_transpose, base_ptr);
+    }
+
+    inline const ndarray<Dtype>& base() const noexcept {
+      return *base_ptr;
     }
     
     /* Constructors */
-    ndarray(): base(*this) {}
+    ndarray(): base_ptr(this) {}
     
   private:
-    ndarray(const std::shared_ptr<shared_memory<Dtype>>& ptr, const viewinfo& view_, const ndarray<Dtype>& base_)
-      : memory_ptr(ptr), view(view_), view_transpose(view.transpose()), base(base_) {}
+    ndarray(const std::shared_ptr<shared_memory<Dtype>>& ptr, const viewinfo& view_, ndarray<Dtype>* base)
+      : memory_ptr(ptr), view(view_), view_transpose(view.transpose()), base_ptr(base) {}
 
-    ndarray(shared_memory<Dtype> *ptr, const viewinfo& view_, const ndarray<Dtype>& base_)
+    ndarray(shared_memory<Dtype> *ptr, const viewinfo& view_, ndarray<Dtype>* base_)
       : ndarray<Dtype>(std::shared_ptr<shared_memory<Dtype>>(ptr), view_, base_) {}
 
     ndarray(const std::vector<Dtype>& data, const viewinfo& view_)
-      : ndarray<Dtype>(new shared_memory<Dtype>(data), view_, *this) {}
+      : ndarray<Dtype>(new shared_memory<Dtype>(data), view_, this) {}
     
   public:
     ndarray(const std::vector<Dtype>& data, const shape_type& shape_)
@@ -94,6 +97,9 @@ namespace numpy {
       first.memory_ptr.swap(second.memory_ptr);
       swap(first.view, second.view);
       swap(first.view_transpose, second.view_transpose);
+      auto tmp = first.base_ptr;
+      first.base_ptr = second.base_ptr;
+      second.base_ptr = tmp;
     }
 
     /**
@@ -103,7 +109,7 @@ namespace numpy {
      */
     
     ndarray(const ndarray<Dtype>& src)
-      : ndarray<Dtype>(src.memory_ptr, src.view, src.base) {
+      : ndarray<Dtype>(src.memory_ptr, src.view, src.base_ptr) {
       // std::cout << "ndarray::(copy constructor) is called" << std::endl;
     }
 
@@ -161,11 +167,11 @@ namespace numpy {
     }
     
     ndarray<Dtype> reshape(const shape_type& newshape) const {
-      return ndarray<Dtype>(memory_ptr, viewinfo(newshape), base);
+      return ndarray<Dtype>(memory_ptr, viewinfo(newshape), base_ptr);
     }
 
     ndarray<Dtype> transpose(const std::vector<dim_type>& axes) const {
-      return ndarray<Dtype>(memory_ptr, view.transpose(axes), base);
+      return ndarray<Dtype>(memory_ptr, view.transpose(axes), base_ptr);
     }
     
     ndarray<Dtype> transpose() const {
@@ -225,7 +231,7 @@ namespace numpy {
     template <class... Indexer>
     ndarray<Dtype> operator()(Indexer... indices) const {
       viewinfo newview = view.indexer(indices...);
-      return ndarray<Dtype>(memory_ptr, newview, base);
+      return ndarray<Dtype>(memory_ptr, newview, base_ptr);
     }    
 
     template <class AnotherDtype>
@@ -295,4 +301,26 @@ namespace numpy {
     
   };
   
+  template <class Dtype>
+  bool may_share_memory(const ndarray<Dtype>& a, const ndarray<Dtype>& b) {
+    if (a.memory_ptr != b.memory_ptr)
+      return false;
+    
+    auto a_begin = &(*a.begin());
+    auto a_end = &(*a.end());
+    auto b_begin = &(*b.begin());
+    auto b_end = &(*b.end());
+
+    // stride がすべて正のときは正しい
+    
+    if (a_begin >= b_end)
+      return false;
+   
+    if (a_end <= b_begin)
+      return false;
+    
+    return true;
+  }
+  
 }
+
