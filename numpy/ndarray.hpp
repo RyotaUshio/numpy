@@ -255,7 +255,8 @@ namespace numpy {
     //   }
     // }
 
-    ndarray<Dtype> operator[](shape_elem_type index) const {
+    template <class Index>
+    ndarray<Dtype> operator[](Index index) const {
       return operator()(index);
     }
 
