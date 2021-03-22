@@ -2,21 +2,23 @@
 #include <numpy/ndarray.hpp>
 #include <cmath>
 #include <vector>
+#include <type_traits>
 
 namespace numpy {
 
-  template <class array_like>
+  template <class Dtype=void, class array_like=void>
   auto array(const array_like& object)
-    -> decltype(object.begin(), object.end(), ndarray<decltype(*(object.begin()))>()) {
+    -> decltype(object.begin(), object.end(),
+		ndarray<typename std::conditional<std::is_same<Dtype, void>::value, decltype(*(object.begin())), Dtype>::type>()) {
     /**
      * The original parameters: 
      *     object, Dtype=None, *, copy=True, order='K', subok=False, ndmin=0, like=None
      * `copy` will be supported before long. `order` and `subok` will not for now.
      */
-    using Dtype = decltype(*(object.begin()));
-    std::vector<Dtype> tmp;
+    using Type = typename std::conditional<std::is_same<Dtype, void>::value, decltype(*(object.begin())), Dtype>::type;
+    std::vector<Type> tmp;
     std::copy(object.begin(), object.end(), std::back_inserter(tmp));
-    ndarray<Dtype> out(tmp, std::vector<shape_elem_type>(1, tmp.size()));
+    ndarray<Type> out(tmp, std::vector<shape_elem_type>(1, tmp.size()));
     return out;
   }
 
