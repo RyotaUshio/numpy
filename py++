@@ -151,12 +151,13 @@ def lineparser(cppline):
     pycmd, pycmt = pyline[:comment_head], pyline[comment_head:]
     # process the comment section
     pycmt = f'{color.END}{color.FAIL}#' + pycmt[len('//'):]
+    pycmt = pycmt.replace('"', '\\"')
     # process the command (non-comment) section
     pycmd = cpp_kw.sub(f'\\1{color.GREEN}\\2{color.END}{color.BOLD}\\3', pycmd)
     pycmd = namespace.sub(f'{color.CYAN}\\1\\2\\3{color.END}{color.BOLD}', pycmd)
     pycmd = cpp_type.sub(f'\\1{color.RED}\\2{color.END}{color.BOLD}\\3', pycmd)
     pycmd = pycmd.replace('\\', r'\\')
-    pycmd = pycmd.replace('"', r'\"')
+    pycmd = pycmd.replace('"', '\\"')
     pyline = pycmd + pycmt
     g_write = f'  std::cout << "\\n>>>\033[1m{pyline[1:-1]}\033[0m" << std::endl;\n{cppline}'
     return g_write
