@@ -6,16 +6,16 @@
 
 namespace numpy {
 
-  template <class Dtype=void, class array_like=void>
+  template <class dtype=void, class array_like>
   auto array(const array_like& object)
     -> decltype(object.begin(), object.end(),
-		ndarray<typename std::conditional<std::is_same<Dtype, void>::value, decltype(*(object.begin())), Dtype>::type>()) {
+		ndarray<typename std::conditional<std::is_same<dtype, void>::value, decltype(*(object.begin())), dtype>::type>()) {
     /**
      * The original parameters: 
      *     object, Dtype=None, *, copy=True, order='K', subok=False, ndmin=0, like=None
      * `copy` will be supported before long. `order` and `subok` will not for now.
      */
-    using Type = typename std::conditional<std::is_same<Dtype, void>::value, decltype(*(object.begin())), Dtype>::type;
+    using Type = typename std::conditional<std::is_same<dtype, void>::value, decltype(*(object.begin())), dtype>::type;
     std::vector<Type> tmp;
     std::copy(object.begin(), object.end(), std::back_inserter(tmp));
     ndarray<Type> out(tmp, std::vector<shape_elem_type>(1, tmp.size()));
