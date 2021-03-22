@@ -76,3 +76,17 @@ $ ./py++ example
 ![](https://github.com/RyotaUshio/numpy/blob/main/fig/py++2.png?raw=true)
 ![](https://github.com/RyotaUshio/numpy/blob/main/fig/py++3.png?raw=true)
 ![](https://github.com/RyotaUshio/numpy/blob/main/fig/py++4.png?raw=true)
+
+Of course, you can compile that code with a C++ compiler as usual:
+
+```
+g++ -std=c++17 -O3 -Wall -I .  -o test/example test/example.cpp
+```
+
+or
+
+```
+make test/example
+```
+
+Note that C++17 or later is required.

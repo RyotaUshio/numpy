@@ -1,5 +1,5 @@
 CXX = g++
-override CXXFLAGS += -std=c++2a -O3 -Wall -I . # -g
+override CXXFLAGS += -std=c++17 -O3 -Wall -I . # -g
 HEADER = $(wildcard ./numpy/*.hpp)
 SRC = $(wildcard ./test/*.cpp)
 EXC = $(basename $(SRC))
