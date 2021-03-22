@@ -72,10 +72,9 @@ namespace numpy {
 
       for (i=0; i<view.ndim; i++)
 	coord[i] = q * view.shape[i];
-     
+
       for (i=view.ndim - 1; i>=0; i--) {
 	coord[i] += r % view.shape[i];
-	r -= coord[i];
 	r /= view.shape[i];
       }
     }
@@ -107,6 +106,10 @@ namespace numpy {
     }
 
   public:
+
+    inline const Dtype* raw_ptr() const noexcept {
+      return &(*dataptr);
+    }
 
     Dtype& operator*() {
       return *dataptr;
@@ -157,9 +160,9 @@ namespace numpy {
     {
       std::stringstream ss;
       ss << "array_iterator<" << python::str(typeid(Dtype)) << ">(";
-      ss << "view=" << repr(view);
+      ss << "view=" << python::repr(view);
       ss << ", memory_ptr=" << memory_ptr;
-      ss << ", dataptr=" << &(*dataptr);
+      ss << ", dataptr=" << raw_ptr();
       ss << ", index=" << index;
       ss << ", coord=" << python::str(coord);
       ss << ")";

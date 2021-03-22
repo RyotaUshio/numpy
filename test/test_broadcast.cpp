@@ -10,16 +10,16 @@ int main() {
 
     // before broadcasting
     print(a);
-    print(b);
     for(const auto e : a) print(e);
+    print(b);
     for(const auto e : b) print(e);
 
     np::debug::broadcast(a, b);
 
     // after broadcasting
     print(a);
-    print(b);
     for(const auto e : a) print(e);
+    print(b);
     for(const auto e : b) print(e);
     
   } catch (const std::exception& e) {

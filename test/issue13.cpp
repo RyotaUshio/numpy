@@ -29,7 +29,7 @@ int main() {
     print(x);
     print(y);
     print(np::may_share_memory(x, y));
-    x += y; // Not working
+    x += y; // not working -> PROBLEM SOLVED!!
     print(x);
     print(y);
     print(np::may_share_memory(x, y));
@@ -42,13 +42,13 @@ int main() {
     print(a);
     print(b);
 
-    auto c = a + b;
+    auto c = a + b; // not working -> PROBLEM SOLVED!!
   
     print(a);
     print(b);
     print(c);
 
-    a += b; // this is invalid
+    a += b; // This is invalid. An exception is thrown.
   
   } catch (const std::exception& e) {
     print(e);
