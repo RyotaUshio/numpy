@@ -72,7 +72,7 @@ All you have to do is just type the following command.
 ```
 $ ./py++ example
 ```
-`py++` will auto-generate & compile some codes, and then show you something like this:
+`py++` will auto-generate some codes and & compile it, and then show you something like this:
 
 ![](https://github.com/RyotaUshio/numpy/blob/main/fig/py++1.png?raw=true)
 ![](https://github.com/RyotaUshio/numpy/blob/main/fig/py++2.png?raw=true)
