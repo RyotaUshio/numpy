@@ -1,3 +1,5 @@
+// THIS ISSUE'S ALREADY SOLVED.
+
 #include <numpy/numpy.hpp>
 using namespace python;
 namespace np = numpy;
@@ -35,7 +37,6 @@ int main() {
     print(np::may_share_memory(x, y));
 
     // problems regarding broadcasting
-    // これはよくわからないが、broadcastを伴わない例では起こらない問題なのでbroadcastと関係がありそう
     auto a = np::array(range(1, 5)).reshape({4, 1});
     auto b = np::array(range(1, 4)).reshape({1, 3});
 
