@@ -7,7 +7,6 @@ This project provides not only an API for Python/NumPy-like array programming bu
 For example, let us suppose you have [this code](https://github.com/RyotaUshio/numpy/blob/main/test/example.cpp).
 
 ```c++:test/example.cpp
-
 ```
 
 All you have to do to see the result is only type the following command.
