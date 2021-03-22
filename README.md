@@ -7,6 +7,8 @@ This project provides not only an API for Python/NumPy-like array programming bu
 For example, let us suppose you have [this code](https://github.com/RyotaUshio/numpy/blob/main/test/example.cpp).
 
 ```c++
+// test/example.cpp
+
 #include <numpy/numpy.hpp>
 using namespace python;
 namespace np = numpy;
