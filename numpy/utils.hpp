@@ -24,7 +24,7 @@ namespace numpy {
     T dot(const std::vector<T>& lhs, const std::vector<T>& rhs, T init=0) {
       return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), init);
     }
-     
+
     template <typename T>
     std::string vector_to_string(const std::vector<T>& vec, std::string prefix="", std::string suffix="") {
       std::stringstream ss;

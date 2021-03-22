@@ -42,9 +42,9 @@ namespace numpy {
     return ndarray<Dtype>(std::vector<Dtype>(utils::product(shape)), shape);
   }
 
-  template <class Dtype>
-  ndarray<Dtype> reshape(const ndarray<Dtype>& a, const shape_type& newshape) {
-    return a.reshape(newshape);
+  template <class Dtype, class Arg>
+  ndarray<Dtype> reshape(const ndarray<Dtype>& a, const Arg& arg) {
+    return a.reshape(arg);
   }
 
   template <class Dtype>

@@ -173,6 +173,11 @@ namespace numpy {
       return ndarray<Dtype>(memory_ptr, viewinfo(newshape), base_ptr);
     }
 
+    template <class... Integer>
+    ndarray<Dtype> reshape(int head, Integer... tail) const {
+      return reshape(shape_type({head, tail...}));
+    }
+
     ndarray<Dtype> transpose(const std::vector<dim_type>& axes) const {
       return ndarray<Dtype>(memory_ptr, view.transpose(axes), base_ptr);
     }
@@ -249,6 +254,10 @@ namespace numpy {
     //     return result;
     //   }
     // }
+
+    ndarray<Dtype> operator[](shape_elem_type index) const {
+      return operator()(index);
+    }
 
     template <class AnotherDtype>
     ndarray<AnotherDtype> astype() const {
