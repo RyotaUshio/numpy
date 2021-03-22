@@ -18,10 +18,12 @@ int main() {
   // Indexing & Slicing
   print(x[-1]);
   print(x(-1)); // equivalent to the above
+  print(x("1:3","2::")); // slice is also available
   print(x(1,"::-1")); // you can't do `x[1,"::-1"]` due to the C++ language specification
   // indexing is done without copying
   print(np::may_share_memory(x, x[-1])); // -> True
-  print(np::may_share_memory(x, x(1, "::-1"))); // -> True
+  print(np::may_share_memory(x, x("1:3","2::"))); // -> True
+  print(np::may_share_memory(x, x(1,"::-1"))); // -> True
 
   // Broadcasting & Ufuncs
   auto a = np::array(range(5)).reshape(4, 1);
@@ -33,7 +35,7 @@ int main() {
   print(a + b); // `a` & `b` is broadcasted to the common shape (4, 3) in the internal of `np::add()`
   print(np::add(a, b)); // equivalent to the above
 
-  auto out = np::empty<np::int32>({4, 3}); // and `out` parameter is also available, just as the original NumPy!
+  auto out = np::empty<np::int32>({4, 3}); // `out` parameter is also available, just as the original NumPy!
   np::add(a, b, out);
   print(out);
 

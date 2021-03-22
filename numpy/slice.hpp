@@ -30,15 +30,15 @@ namespace python {
     constexpr explicit slice(int stop)
       : slice(0, stop, 1) {}
     
-    slice(const char* str) { // ":"とか"1:-1"とか
-      std::cmatch m;
+    slice(std::string str) { // ":"とか"1:-1"とか
+      if (str.find(":") == std::string::npos)
+	throw std::invalid_argument("It is forbidden to express a non-slice index (i.e. a mere integer) by a string in order to eliminate ambiguity; use an integer type instead.");
+      
+      std::smatch m;
       if (std::regex_match(str, m, re)) {
 	bool start_empty = m[1].str().empty();
 	bool stop_empty = m[3].str().empty();
 	bool step_empty = m[5].str().empty();
-
-	if (stop_empty and step_empty and (not start_empty))
-	  throw std::invalid_argument("It is forbidden to express a non-slice index (i.e. a mere integer) by a string in order to eliminate ambiguity; use an integer type instead.");
 	
 	// check step first!!
 	step = (step_empty) ? 1 : std::stoi(m[5]);
@@ -56,8 +56,7 @@ namespace python {
 	throw std::invalid_argument("SyntaxError: invalid syntax while initializing slice: \"" + std::string(str) + "\"");
     }
     
-    slice(const std::string& str)
-      : slice(str.c_str()) {}
+    slice(const char* str): slice(std::string(str)) {}
 
     int size(int length) const {
       int ret =  (abs_stop(length) - abs_start(length)) / step;
