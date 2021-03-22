@@ -327,25 +327,36 @@ namespace numpy {
   };
   
   template <class Dtype>
+  inline bool _may_share_memory_impl(const Dtype* a_begin, const Dtype* a_end,
+				     const Dtype* b_begin, const Dtype* b_end) {
+    if (a_begin >= b_end)
+      return false;
+    if (a_end <= b_begin)
+      return false;
+    return true;
+  }
+
+  template <class Dtype>
   bool may_share_memory(const ndarray<Dtype>& a, const ndarray<Dtype>& b) {
     if (a.memory_ptr != b.memory_ptr)
       return false;
-    
+
     auto a_begin = &(*a.begin());
     auto a_end = &(*a.end());
     auto b_begin = &(*b.begin());
     auto b_end = &(*b.end());
 
-    // stride がすべて正のときは正しい
-    
-    if (a_begin >= b_end)
-      return false;
-   
-    if (a_end <= b_begin)
-      return false;
-    
-    return true;
+    if (a_begin < a_end) {
+      if (b_begin < b_end)
+	return _may_share_memory_impl(a_begin, a_end, b_begin, b_end);
+      else
+	return _may_share_memory_impl(a_begin, a_end, b_end, b_begin);
+    } else {
+      if (b_begin < b_end)
+	return _may_share_memory_impl(a_end, a_begin, b_begin, b_end);
+      else
+	return _may_share_memory_impl(a_end, a_begin, b_end, b_begin);
+    }
   }
-  
+     
 }
-

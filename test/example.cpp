@@ -37,6 +37,12 @@ int main() {
   np::add(a, b, out);
   print(out);
 
+  // Handling Overlapping Memories
+  x = np::array(range(9)).reshape(3, 3);
+  print(x);
+  print(x.T());
+  print(x.T() + x); // just fine!
+
   // Copy & Move Assignment
   print(np::may_share_memory(a, b)); // -> False
   b = a; // this calls the copy assignment operator, but it does not copy the contents of the array.
