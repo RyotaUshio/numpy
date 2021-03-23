@@ -13,7 +13,7 @@ namespace numpy {
   // (In the original NumPy, Booleans are represented in native bool type. But since std::vector<bool> is specialized and not able to be handled as vectors of other types, alternative representaion of Boolean values.) 
   // using bool_ = bool;			// Boolean (True or False) stored as a byte
 
-  enum struct bool_ : char {False, True};
+  enum bool_ : char {False, True};
   using byte = signed char;		// Platform-defined
   using ubyte = unsigned char;		// Platform-defined
   using short_ = short;		        // Platform-defined (underscore is appended to make it unqualified-id)

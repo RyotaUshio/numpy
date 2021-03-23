@@ -5,6 +5,9 @@
 #include <algorithm>
 #include <type_traits>
 
+using numpy::True;
+using numpy::False;
+
 namespace numpy {
 
   template <class dtype=void, class array_like>
@@ -73,7 +76,6 @@ namespace numpy {
     return arange<Dtype>(0, stop, 1);
   }
 
-  //numpy.linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None, axis=0)
   template <class Dtype>
   ndarray<Dtype> linspace(Dtype start, Dtype stop, intp num=50, bool endpoint=true) {
     if (endpoint) {
