@@ -237,7 +237,7 @@ namespace numpy {
     }
     
     array_iter<Dtype> begin() const {
-      return array_iter<Dtype>(*this);
+      return array_iter<Dtype>(this);
     };
     
     array_iter<Dtype> end() const {
@@ -333,7 +333,7 @@ namespace numpy {
       ss << "]";
       return ss.str();
     }
-    
+
   };
   
   template <class Dtype>

@@ -17,65 +17,56 @@ namespace numpy {
   template <typename Dtype> class ndarray;
   
   template <typename Dtype>
-  class array_iter // : public python::object
-  {
+  class array_iter {
     
     using coord_type = std::vector<dim_type>;
     using ptr = typename std::vector<Dtype>::iterator;
 
-    const array_view& view;
-    const std::shared_ptr<shared_memory<Dtype>>& memory_ptr;
+    const ndarray<Dtype>* array;
     ptr dataptr;
     int index; // current 1-d index
     coord_type coord; // current N-d index
 
-    array_iter(const array_view& view_,
-	       const std::shared_ptr<shared_memory<Dtype>>& memory_ptr_,
+    array_iter(const ndarray<Dtype>* array_,
 	       const ptr& dataptr_,
 	       const coord_type& coord_)
-      : view(view_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
+      : array(array_), dataptr(dataptr_) {
       set_coord(coord_);
     }
 
-    array_iter(const array_view& view_,
-	       const std::shared_ptr<shared_memory<Dtype>>& memory_ptr_,
+    array_iter(const ndarray<Dtype>* array_,
 	       const ptr& dataptr_,
 	       const int index_)
-      : view(view_), memory_ptr(memory_ptr_), dataptr(dataptr_) {
+      : array(array_), dataptr(dataptr_) {
       set_index(index_);
     }
 
   public:
-    array_iter(const ndarray<Dtype>& array)
-      : array_iter<Dtype>(array, array.memory_ptr->begin() + array.view.offset, 0) {}
-
-  private:
-    template <class... Args>
-    array_iter(const ndarray<Dtype>& array, const Args&... rest)
-      : array_iter<Dtype>(array.view, array.memory_ptr, rest...) {}
+    array_iter(const ndarray<Dtype>* array_)
+      : array_iter<Dtype>(array_, array_->memory_ptr->begin() + array_->view.offset, 0) {}
      
     void coord_to_index() {
       int unit = 1;
       index = 0;
-      for (int i=view.ndim - 1; i>=0; i--) {
+      for (int i=array->view.ndim - 1; i>=0; i--) {
 	index += coord[i] * unit;
-	unit *= view.shape[i];
+	unit *= array->view.shape[i];
       }
     }
 
     void index_to_coord() {
-      coord.resize(view.ndim);
+      coord.resize(array->view.ndim);
       int q, r;
-      q = index / view.size;
-      r = index % view.size;
+      q = index / array->view.size;
+      r = index % array->view.size;
       int i;
 
-      for (i=0; i<view.ndim; i++)
-	coord[i] = q * view.shape[i];
+      for (i=0; i<array->view.ndim; i++)
+	coord[i] = q * array->view.shape[i];
 
-      for (i=view.ndim - 1; i>=0; i--) {
-	coord[i] += r % view.shape[i];
-	r /= view.shape[i];
+      for (i=array->view.ndim - 1; i>=0; i--) {
+	coord[i] += r % array->view.shape[i];
+	r /= array->view.shape[i];
       }
     }
 
@@ -90,7 +81,7 @@ namespace numpy {
     }
 
     ptr coord_to_ptr(const coord_type& coord_) {
-      return memory_ptr->begin() + utils::dot(view.stride, coord_, view.offset);
+      return array->memory_ptr->begin() + utils::dot(array->view.stride, coord_, array->view.offset);
     }
 
     void go_to(const coord_type& dest) {
@@ -149,7 +140,7 @@ namespace numpy {
     }
     
     bool operator!=(const array_iter<Dtype>& rhs) const {
-      return dataptr != rhs.dataptr;
+      return (array != rhs.array) or (index != rhs.index);
     }
     
     bool operator==(const array_iter<Dtype>& rhs) const {
@@ -160,8 +151,8 @@ namespace numpy {
     {
       std::stringstream ss;
       ss << "array_iterator<" << python::str(typeid(Dtype)) << ">(";
-      ss << "view=" << python::repr(view);
-      ss << ", memory_ptr=" << memory_ptr;
+      ss << "array->view=" << python::repr(array->view);
+      ss << ", array->memory_ptr=" << array->memory_ptr;
       ss << ", dataptr=" << raw_ptr();
       ss << ", index=" << index;
       ss << ", coord=" << python::str(coord);
