@@ -81,12 +81,21 @@ namespace numpy {
     ndarray(const std::shared_ptr<shared_memory<Dtype>>& ptr, const viewinfo& view_, ndarray<Dtype>* base)
       : memory_ptr(ptr), view(view_), view_transpose(view.transpose()), base_ptr(base) {}
 
+    ndarray(const std::shared_ptr<shared_memory<Dtype>>& ptr, viewinfo&& view_, ndarray<Dtype>* base)
+      : memory_ptr(ptr), view(view_), view_transpose(view.transpose()), base_ptr(base) {}
+
     ndarray(shared_memory<Dtype> *ptr, const viewinfo& view_, ndarray<Dtype>* base_)
+      : ndarray<Dtype>(std::shared_ptr<shared_memory<Dtype>>(ptr), view_, base_) {}
+
+    ndarray(shared_memory<Dtype> *ptr, viewinfo&& view_, ndarray<Dtype>* base_)
       : ndarray<Dtype>(std::shared_ptr<shared_memory<Dtype>>(ptr), view_, base_) {}
 
     ndarray(const std::vector<Dtype>& data, const viewinfo& view_)
       : ndarray<Dtype>(new shared_memory<Dtype>(data), view_, this) {}
-    
+
+    ndarray(const std::vector<Dtype>& data, viewinfo&& view_)
+      : ndarray<Dtype>(new shared_memory<Dtype>(data), view_, this) {}
+
   public:
     ndarray(const std::vector<Dtype>& data, const shape_type& shape_)
       : ndarray<Dtype>(data, viewinfo(shape_)) {}

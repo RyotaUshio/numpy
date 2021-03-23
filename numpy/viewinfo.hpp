@@ -27,6 +27,15 @@ namespace numpy {
     offset_type offset;
     stride_type stride;
 
+    friend void swap(array_view& a, array_view& b) {
+      using std::swap;
+      swap(a.shape, b.shape);
+      swap(a.ndim, b.ndim);
+      swap(a.size, b.size);
+      swap(a.offset, b.offset);
+      swap(a.stride, b.stride);
+    }
+
   public:
     array_view() = default;
     
@@ -37,9 +46,7 @@ namespace numpy {
 	throw std::invalid_argument("Stride and shape must have the same length.");
     }
 
-    array_view(const shape_type& shape_, const offset_type& offset_=0)
-      : shape(shape_), offset(offset_) {
-      adjust_to_shape();
+    inline void shape_to_stride() {
       stride = stride_type(ndim);
       stride[ndim-1] = 1;
       for(int i=ndim-2; i>=0; i--){
@@ -47,20 +54,41 @@ namespace numpy {
       }
     }
 
-    array_view(const array_view& src)
-      : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride) {}
-
-  private:
-    friend void swap(array_view& a, array_view& b) {
-      using std::swap;
-      swap(a.shape, b.shape);
-      swap(a.ndim, b.ndim);
-      swap(a.size, b.size);
-      swap(a.offset, b.offset);
-      swap(a.stride, b.stride);
-      // std::cout << "array_view::swap is called" << std::endl;
+    array_view(const shape_type& shape_, const offset_type offset_=0)
+      : shape(shape_), offset(offset_) {
+      adjust_to_shape();
+      shape_to_stride();
     }
+
+    array_view(shape_type&& shape_, const offset_type offset_=0)
+      : shape(shape_), offset(offset_) {
+      adjust_to_shape();
+      shape_to_stride();
+    }
+
+    array_view(const array_view& src)
+      : shape(src.shape), ndim(src.ndim), size(src.size), offset(src.offset), stride(src.stride) {
+    }
+
+    array_view& operator=(const array_view& rhs) {
+      array_view tmp(rhs);
+      swap(*this, tmp);
+      return *this;
+    }
+ 
+    /* Move constructor & move assignment operator */
     
+    array_view(array_view&& src) noexcept
+      : array_view() {
+      swap(*this, src);
+    }
+      
+    array_view& operator=(array_view&& rhs) noexcept {
+      swap(*this, rhs);
+      return *this;
+    }
+
+  private:    
     void set_shape(const shape_type& newshape) {
       shape = newshape;
       adjust_to_shape();

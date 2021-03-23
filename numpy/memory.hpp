@@ -18,7 +18,12 @@ namespace numpy {
     
     std::vector<T> data;
 
-    shared_memory(std::vector<T> vec)
+    shared_memory(const std::vector<T>& vec)
+      : data(vec) {
+      _constructed_count++;
+    }
+
+    shared_memory(std::vector<T>&& vec)
       : data(vec) {
       _constructed_count++;
     }
