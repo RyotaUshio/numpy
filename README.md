@@ -37,8 +37,8 @@ int main() {
   print(np::may_share_memory(x, x(1,"::-1"))); // -> True
 
   // Broadcasting & Ufuncs
-  auto a = np::array(range(5)).reshape(4, 1);
-  auto b = np::array(range(4)).reshape(1, 3);
+  auto a = np::array(range(4)).reshape(4, 1);
+  auto b = np::array(range(3)).reshape(1, 3);
   print(a);
   print(b);
 
