@@ -10,6 +10,12 @@ int main() {
   print(x); // some of Python's built-in functions, including `print()`, are supported
   print(y);
 
+  print(np::arange(0.0, 1.0, 0.05));
+  print(np::arange(3, 7));
+  print(np::arange(5));
+  print(np::linspace(0.0, 1.0, 11));
+  print(np::linspace(0.0, 1.1, 11, false));
+
   // Array's Attribute Accessors
   print(x.shape());
   print(x.T());

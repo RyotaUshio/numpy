@@ -2,6 +2,7 @@
 #include <numpy/ndarray.hpp>
 #include <cmath>
 #include <vector>
+#include <algorithm>
 #include <type_traits>
 
 namespace numpy {
@@ -56,6 +57,35 @@ namespace numpy {
   ndarray<Dtype> transpose(const ndarray<Dtype>& a) {
     return a.transpose();
   }
+
+  template <class Dtype>
+  ndarray<Dtype> arange(Dtype start, Dtype stop, Dtype step=Dtype(1)) {
+    shape_elem_type size = std::ceil((stop - start) / step);
+    auto result = empty<Dtype>({size});
+    Dtype n = start;
+    std::generate(result.begin(), result.end(),
+		  [&n, step](){auto tmp = n; n += step; return tmp;});
+    return result;
+  }
+
+  template <class Dtype>
+  ndarray<Dtype> arange(Dtype stop) {
+    return arange<Dtype>(0, stop, 1);
+  }
+
+  //numpy.linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None, axis=0)
+  template <class Dtype>
+  ndarray<Dtype> linspace(Dtype start, Dtype stop, intp num=50, bool endpoint=true) {
+    if (endpoint) {
+      auto result = empty<Dtype>({num});
+      intp i = 0;
+      std::generate(result.begin(), result.end(),
+		    [&i, start, stop, num](){return i++ * (stop - start) / static_cast<Dtype>(num - 1);});
+      return result;
+    }
+    return linspace(start, stop, num + 1, true)[":-1"];
+  }
+  
 
   /* constants */
   constexpr double pi = M_PI;
