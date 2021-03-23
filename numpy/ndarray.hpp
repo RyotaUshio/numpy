@@ -201,38 +201,38 @@ namespace numpy {
     // Some of these ufuncs are called automatically on arrays when the relevant infix notation is used (e.g., add(a, b) is called internally when a + b is written and a or b is an ndarray).
 
     template <class Dtype2>
-    auto operator+(ndarray<Dtype2>& rhs) {
+    auto operator+(const ndarray<Dtype2>& rhs) {
       return add(*this, rhs);
     }
     
     template <class Dtype2>
-    auto operator-(ndarray<Dtype2>& rhs) {
+    auto operator-(const ndarray<Dtype2>& rhs) {
       return subtract(*this, rhs);
     }
 
     template <class Dtype2>
-    auto operator*(ndarray<Dtype2>& rhs) {
+    auto operator*(const ndarray<Dtype2>& rhs) {
       return multiply(*this, rhs);
     }
 
     template <class Dtype2>
-    auto operator/(ndarray<Dtype2>& rhs) {
+    auto operator/(const ndarray<Dtype2>& rhs) {
       return divide(*this, rhs);
     }
 
-    ndarray<Dtype>& operator+=(ndarray<Dtype>& rhs) {
+    ndarray<Dtype>& operator+=(const ndarray<Dtype>& rhs) {
       return add(*this, rhs, *this);
     }
 
-    ndarray<Dtype>& operator-=(ndarray<Dtype>& rhs) {
+    ndarray<Dtype>& operator-=(const ndarray<Dtype>& rhs) {
       return subtract(*this, rhs, *this);
     }
 
-    ndarray<Dtype>& operator*=(ndarray<Dtype>& rhs) {
+    ndarray<Dtype>& operator*=(const ndarray<Dtype>& rhs) {
       return multiply(*this, rhs, *this);
     }
 
-    ndarray<Dtype>& operator/=(ndarray<Dtype>& rhs) {
+    ndarray<Dtype>& operator/=(const ndarray<Dtype>& rhs) {
       return divide(*this, rhs, *this);
     }
     

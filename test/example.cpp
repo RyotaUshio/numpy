@@ -13,8 +13,8 @@ int main() {
   print(np::arange(0.0, 1.0, 0.05));
   print(np::arange(3, 7));
   print(np::arange(5));
-  print(np::linspace(0.0, 1.0, 11));
-  print(np::linspace(0.0, 1.1, 11, false));
+  print(np::linspace(0, 1, 11));
+  print(np::linspace(0, 1, 10, false));
 
   // Array's Attribute Accessors
   print(x.shape());
@@ -45,10 +45,13 @@ int main() {
   np::add(a, b, out);
   print(out);
 
+  print(np::exp(out));
+
   // Handling Overlapping Memories
   x = np::array(range(9)).reshape(3, 3);
   print(x);
   print(x.T());
+  print(x + x.T()); // just fine!
   print(x.T() + x); // just fine!
 
   // Copy & Move Assignment

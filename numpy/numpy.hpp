@@ -76,16 +76,18 @@ namespace numpy {
     return arange<Dtype>(0, stop, 1);
   }
 
-  template <class Dtype>
-  ndarray<Dtype> linspace(Dtype start, Dtype stop, intp num=50, bool endpoint=true) {
+  template <class Dtype=void>
+  auto linspace(double start, double stop, intp num=50, bool endpoint=true)
+    -> ndarray<typename std::conditional<std::is_same<Dtype, void>::value, float64, Dtype>::type> {
+    using OutputType = typename std::conditional<std::is_same<Dtype, void>::value, float64, Dtype>::type;
     if (endpoint) {
-      auto result = empty<Dtype>({num});
+      auto result = empty<OutputType>({num});
       intp i = 0;
       std::generate(result.begin(), result.end(),
-		    [&i, start, stop, num](){return i++ * (stop - start) / static_cast<Dtype>(num - 1);});
+		    [&i, start, stop, num](){return i++ * (stop - start) / (num - 1);});
       return result;
     }
-    return linspace(start, stop, num + 1, true)[":-1"];
+    return linspace(start, stop - (stop - start) / num, num, true);
   }
   
 
@@ -116,9 +118,9 @@ namespace numpy {
   // template<> inline ndarray<bool_>& ndarray<bool_>::operator-(ndarray<bool_>& rhs) = delete;
   // template<> inline ndarray<bool_>& ndarray<bool_>::operator*(ndarray<bool_>& rhs) = delete;
   // template<> inline ndarray<bool_>& ndarray<bool_>::operator/(ndarray<bool_>& rhs) = delete;
-  template<> inline ndarray<bool_>& ndarray<bool_>::operator+=(ndarray<bool_>& rhs) = delete;
-  template<> inline ndarray<bool_>& ndarray<bool_>::operator-=(ndarray<bool_>& rhs) = delete;
-  template<> inline ndarray<bool_>& ndarray<bool_>::operator*=(ndarray<bool_>& rhs) = delete;
-  template<> inline ndarray<bool_>& ndarray<bool_>::operator/=(ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator+=(const ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator-=(const ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator*=(const ndarray<bool_>& rhs) = delete;
+  template<> inline ndarray<bool_>& ndarray<bool_>::operator/=(const ndarray<bool_>& rhs) = delete;
 
 }
