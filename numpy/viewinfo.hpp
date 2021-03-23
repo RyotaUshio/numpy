@@ -125,7 +125,10 @@ namespace numpy {
     }
     
     void broadcast_to(const shape_type& newshape) {
-      for(axis_type ax=0; ax<shape.size(); ax++)
+      auto new_ndim = newshape.size();
+      shape.insert(shape.begin(), new_ndim - ndim, 1);
+      stride.insert(stride.begin(), new_ndim - ndim, 0);
+      for(axis_type ax=0; ax<new_ndim; ax++)
 	if(shape[ax] != newshape[ax]) {
 	  shape[ax] = newshape[ax];
 	  stride[ax] = 0;
