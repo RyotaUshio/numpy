@@ -84,7 +84,7 @@ namespace numpy {
       auto result = empty<OutputType>({num});
       intp i = 0;
       std::generate(result.begin(), result.end(),
-		    [&i, start, stop, num](){return i++ * (stop - start) / (num - 1);});
+		    [&i, start, stop, num](){return start + i++ * (stop - start) / (num - 1);});
       return result;
     }
     return linspace(start, stop - (stop - start) / num, num, true);
@@ -114,10 +114,10 @@ namespace numpy {
   // template class ndarray<clongdouble>;
 
   /* specailization for bool_ */
-  // template<> inline ndarray<bool_>& ndarray<bool_>::operator+(ndarray<bool_>& rhs) = delete;
-  // template<> inline ndarray<bool_>& ndarray<bool_>::operator-(ndarray<bool_>& rhs) = delete;
-  // template<> inline ndarray<bool_>& ndarray<bool_>::operator*(ndarray<bool_>& rhs) = delete;
-  // template<> inline ndarray<bool_>& ndarray<bool_>::operator/(ndarray<bool_>& rhs) = delete;
+  // template<> inline ndarray<bool_>& ndarray<bool_>::operator+(const ndarray<bool_>& rhs) = delete;
+  // template<> inline ndarray<bool_>& ndarray<bool_>::operator-(const ndarray<bool_>& rhs) = delete;
+  // template<> inline ndarray<bool_>& ndarray<bool_>::operator*(const ndarray<bool_>& rhs) = delete;
+  // template<> inline ndarray<bool_>& ndarray<bool_>::operator/(const ndarray<bool_>& rhs) = delete;
   template<> inline ndarray<bool_>& ndarray<bool_>::operator+=(const ndarray<bool_>& rhs) = delete;
   template<> inline ndarray<bool_>& ndarray<bool_>::operator-=(const ndarray<bool_>& rhs) = delete;
   template<> inline ndarray<bool_>& ndarray<bool_>::operator*=(const ndarray<bool_>& rhs) = delete;

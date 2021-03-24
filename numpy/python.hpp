@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <iomanip> // setprecision
 #include <string>
 #include <sstream>
 #include <stdexcept>
@@ -110,6 +111,7 @@ namespace python {
   template <class... Args>
   void print_sep(std::string sep, Args&&... args) {
     bool first = true;
+    std::cout << std::setprecision(8);
     (std::cout << ... << [sep, &first](auto&& arg){
 			   if (first) {first = false; return str(arg);}
 			   else return sep + str(arg);}(args));

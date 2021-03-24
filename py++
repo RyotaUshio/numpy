@@ -140,8 +140,7 @@ namespace = re.compile(r'(\w*)(::)(\w+)')
 mainfunc = re.compile(r'.*int\s+main\s*\(.*\)\s*\{(.*)}', re.DOTALL)
 
 def genname(filename):
-    p = re.compile(r'(.*\.cpp)')
-    res = p.sub(r'._py++_\1', filename)
+    res = re.sub(r'(.*\.cpp)', r'._py++_\1', filename)
     return res
 
 def lineparser(cppline):
