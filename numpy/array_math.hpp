@@ -3,14 +3,15 @@
 #include <numeric>
 #include <algorithm>
 #include <vector>
+#include <tuple>
 
 namespace numpy {
 
   template <class Dtype> ndarray<Dtype> empty(const shape_type& shape);
   template <class Dtype> ndarray<Dtype> zeros(const shape_type& shape);
-  
-  // parameter `axis` will be supported
+  template <class... Dtype> std::tuple<ndarray<Dtype>...> at_least_2d(const ndarray<Dtype>&... arys);
 
+  
   template <class Dtype>
   auto sum(const ndarray<Dtype>& a) -> Dtype {
     return std::accumulate(a.begin(), a.end(), Dtype(0));
@@ -60,16 +61,25 @@ namespace numpy {
   template <class Dtype1, class Dtype2>
   auto matmul(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b)
       -> ndarray<decltype(Dtype1() * Dtype2())> {
+
+    if (a.ndim() * b.ndim() == 0) {
+      throw std::invalid_argument("ValueError: matmul: Scolar is not allowed.");
+    }
     
     using OutputType = decltype(Dtype1() * Dtype2());
-    auto out = empty<OutputType>({a.shape(0), b.shape(1)});
+    auto [a_2d] = at_least_2d(a);
+    auto out = empty<OutputType>({a_2d.shape(a_2d.ndim() - 2), b.shape(b.ndim() - 1)});
     return matmul(a, b, out);
   }
       
   template <class Dtype1, class Dtype2, class OutputType>
   auto matmul(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b, ndarray<OutputType>& out)
     -> ndarray<OutputType>& {
-    
+
+    if (a.ndim() * b.ndim() == 0) {
+      throw std::invalid_argument("ValueError: matmul: Scolar is not allowed.");
+    }
+			     
     if (a.ndim() == 1) {
       auto n = a.size();
       out = matmul(a.reshape(1, n), b).reshape(n);
