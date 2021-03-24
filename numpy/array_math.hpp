@@ -6,6 +6,9 @@
 
 namespace numpy {
 
+  template <class Dtype> ndarray<Dtype> empty(const shape_type& shape);
+  template <class Dtype> ndarray<Dtype> zeros(const shape_type& shape);
+  
   // parameter `axis` will be supported
 
   template <class Dtype>
@@ -44,29 +47,40 @@ namespace numpy {
   
   template <class Dtype1, class Dtype2>
   auto matmul(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b)
-    -> ndarray<decltype(Dtype1() * Dtype2())> {
+      -> ndarray<decltype(Dtype1() * Dtype2())> {
+    
+    using OutputType = decltype(Dtype1() * Dtype2());
+    auto out = empty<OutputType>({a.shape(0), b.shape(1)});
+    return matmul(a, b, out);
+  }
+      
+  template <class Dtype1, class Dtype2, class OutputType>
+  auto matmul(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b, ndarray<OutputType>& out)
+    -> ndarray<OutputType>& {
     
     if (a.ndim() == 1) {
       auto n = a.size();
-      return matmul(a.reshape(1, n), b).reshape(n);
+      out = matmul(a.reshape(1, n), b).reshape(n);
+      return out;
     }
 
     if (b.ndim() == 1) {
       auto n = b.size();
-      return matmul(a, b.reshape(n, 1)).reshape(n);
-    }
+      out = matmul(a, b.reshape(n, 1)).reshape(n);
+      return out;
+    }    
     
-    using OutputType = decltype(Dtype1() * Dtype2());
-    if (a.ndim() == b.ndim() == 2) {     
+    if (a.ndim() == b.ndim() == 2) {
+      if (a.shape(1) != b.shape(0))
+	throw std::invalid_argument("ValueError: matmul: Input operand 1 has a mismatch in its core dimension 0, with gufunc signature (n?,k),(k,m?)->(n?,m?) (size " + python::str(a.shape(1)) + " is different from " + python::str(b.shape(0)) + ")");
+      
       auto b_T = b.T();
       auto m = a.shape(0);
       auto n = b_T.shape(0);
-      std::vector<OutputType> tmp(m * n);
-      int idx = 0;
-      std::generate(tmp.begin(), tmp.end(),
-		    [&](){return dot(a[idx / n], b_T[idx++ % n]);});
-      auto result =  ndarray<OutputType>(tmp, {m, n});
-      return result;
+      int idx = -1;
+      std::generate(out.begin(), out.end(),
+		    [&](){idx++; return dot(a[idx / n], b_T[idx % n]);});
+      return out;
     }
 
     else {
@@ -76,8 +90,6 @@ namespace numpy {
     }
     
   }
-
-  template <class Dtype> ndarray<Dtype> zeros(const shape_type& shape);
 
   template <class Dtype1, class Dtype2>
   auto _matmul_recursive(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b)
