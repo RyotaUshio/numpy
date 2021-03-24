@@ -61,5 +61,12 @@ int main() {
   print(np::may_share_memory(a, b)); // -> True
   a = a + b; // this calls the move assignment operator
   print(a);
-  
+
+  // Assignment through indexing
+  x[0] *= 100;
+  print(x);
+  x(-1, -1) = 500;
+  print(x);
+  x(":", 1) = np::array(range(1000, 4000, 1000));
+  print(x);
 }

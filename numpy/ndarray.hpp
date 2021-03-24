@@ -65,7 +65,7 @@ namespace numpy {
       return typeid(Dtype);
     }
 
-    inline ndarray<Dtype> T() const {
+    inline const ndarray<Dtype> T() const {
       return ndarray<Dtype>(memory_ptr, view_transpose, base_ptr);
     }
 
@@ -161,7 +161,8 @@ namespace numpy {
       swap(*this, tmp);
       return *this;
     }
-    
+
+    // https://cpprefjp.github.io/lang/cpp11/ref_qualifier_for_this.html
     ndarray<Dtype>& operator=(const ndarray<Dtype>& rhs) && {
       std::copy(rhs.begin(), rhs.end(), begin());
       return *this;
