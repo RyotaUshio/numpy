@@ -98,13 +98,15 @@ namespace numpy {
     return linspace(start, stop - (stop - start) / num, num, true);
   }
 
-  // template <class Dtype, class... Dtypes>
-  // std::tuple<ndarray<Dtype>, ndarray<Dtypes>...> at_least_2d(const ndarray<Dtype>& arys1, const ndarray<Dtypes>&... arys_rest) {
-  //   ndarray<Dtype> arys1_copy(arys1);
-  //   if (arys1.ndim() < 2) {
-      
-  //   }
-  // }
+  template <class Dtype>
+  ndarray<Dtype> _at_least_2d_impl(const ndarray<Dtype>& ary) {
+    return (ary.ndim() < 2) ? ary.reshape(1, ary.size()) : ary;
+  }
+    
+  template <class... Dtype>
+  std::tuple<ndarray<Dtype>...> at_least_2d(const ndarray<Dtype>&... arys) {
+    return {_at_least_2d_impl(arys)...};
+  }
   
 
   /* constants */
