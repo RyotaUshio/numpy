@@ -3,6 +3,7 @@
 #include <numpy/array_math.hpp>
 #include <cmath>
 #include <vector>
+#include <tuple>
 #include <algorithm>
 #include <type_traits>
 
@@ -25,6 +26,12 @@ namespace numpy {
     std::copy(object.begin(), object.end(), std::back_inserter(tmp));
     ndarray<Type> out(tmp, std::vector<shape_elem_type>(1, tmp.size()));
     return out;
+  }
+
+  template <class Dtype>
+  auto array(const Dtype scolar)
+    -> typename std::enable_if<std::is_arithmetic<Dtype>::value, ndarray<Dtype>>::type {
+    return ndarray<Dtype>(scolar);
   }
 
   template <class Dtype>
@@ -90,6 +97,14 @@ namespace numpy {
     }
     return linspace(start, stop - (stop - start) / num, num, true);
   }
+
+  // template <class Dtype, class... Dtypes>
+  // std::tuple<ndarray<Dtype>, ndarray<Dtypes>...> at_least_2d(const ndarray<Dtype>& arys1, const ndarray<Dtypes>&... arys_rest) {
+  //   ndarray<Dtype> arys1_copy(arys1);
+  //   if (arys1.ndim() < 2) {
+      
+  //   }
+  // }
   
 
   /* constants */
