@@ -32,8 +32,7 @@ namespace numpy {
     template <template <class> class UnaryOperation> friend struct ufunc_unary;
     template <template <class, class> class BinaryOperation> friend struct ufunc_binary;
     template <class Type> friend bool may_share_memory(const ndarray<Type>& a, const ndarray<Type>& b);
-    template <class Dtype1, class Dtype2> friend void debug::broadcast(ndarray<Dtype1>& a, ndarray<Dtype2>& b);
-
+    friend struct debug;
 
   private:
     std::shared_ptr<shared_memory<Dtype>> memory_ptr;
@@ -103,9 +102,11 @@ namespace numpy {
     ndarray(Dtype* first, Dtype* last, const shape_type& shape_)
       : ndarray<Dtype>(std::vector<Dtype>(first, last), shape_) {}
 
+    ndarray(Dtype scolar)
+      : ndarray<Dtype>(std::vector<Dtype>(1, scolar), shape_type()) {}
+
     friend void swap(ndarray<Dtype>& first, ndarray<Dtype>& second) {
       using std::swap;
-      // std::cout << "ndarray::swap is called" << std::endl;
       first.memory_ptr.swap(second.memory_ptr);
       swap(first.view, second.view);
       swap(first.view_transpose, second.view_transpose);
@@ -121,9 +122,7 @@ namespace numpy {
      */
     
     ndarray(const ndarray<Dtype>& src)
-      : ndarray<Dtype>(src.memory_ptr, src.view, src.base_ptr) {
-      // std::cout << "ndarray::(copy constructor) is called" << std::endl;
-    }
+      : ndarray<Dtype>(src.memory_ptr, src.view, src.base_ptr) {}
 
     /**
      * The elegant implementation of the copy assignment operator with the COPY-AND-SWAP IDIOM
@@ -158,7 +157,6 @@ namespace numpy {
      */
         
     ndarray<Dtype>& operator=(const ndarray<Dtype>& rhs) {
-      // std::cout << "ndarray::(copy assignment operator) is called" << std::endl;
       ndarray<Dtype> tmp(rhs);
       swap(*this, tmp);
       return *this;
@@ -168,12 +166,10 @@ namespace numpy {
     
     ndarray(ndarray<Dtype>&& src) noexcept
       : ndarray<Dtype>() {
-      // std::cout << "ndarray::(move constructor) is called" << std::endl;
       swap(*this, src);
     }
       
     ndarray<Dtype>& operator=(ndarray<Dtype>&& rhs) noexcept {
-      // std::cout << "ndarray::(move assignment operator) is called" << std::endl;
       swap(*this, rhs);
       return *this;
     }

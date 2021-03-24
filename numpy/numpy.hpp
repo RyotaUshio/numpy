@@ -1,5 +1,6 @@
 #pragma once
 #include <numpy/ndarray.hpp>
+#include <numpy/array_math.hpp>
 #include <cmath>
 #include <vector>
 #include <algorithm>

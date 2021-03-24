@@ -48,9 +48,11 @@ namespace numpy {
 
     inline void shape_to_stride() {
       stride = stride_type(ndim);
-      stride[ndim-1] = 1;
-      for(int i=ndim-2; i>=0; i--){
-	stride[i] = stride[i+1] * shape[i+1];
+      if (ndim) {
+	stride[ndim-1] = 1;
+	for(int i=ndim-2; i>=0; i--){
+	  stride[i] = stride[i+1] * shape[i+1];
+	}
       }
     }
 
