@@ -57,5 +57,18 @@ namespace numpy {
       line();
     }
 
+    template <class Dtype>
+    ndarray<Dtype> bring_axis_to_head(const ndarray<Dtype>& array, axis_type axis) {
+      auto axes = axes_type(array.ndim());
+      axes[0] = axis;
+      axis_type ax = 0;
+      std::generate(axes.begin() + 1, axes.end(),
+		    [&ax, axis](){
+		      if (ax == axis) ax++;
+		      return ax++;
+		    });
+      return array.transpose(axes);
+    }    
   }
+  
 }

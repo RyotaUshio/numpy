@@ -12,13 +12,25 @@ namespace numpy {
   // parameter `axis` will be supported
 
   template <class Dtype>
-  Dtype sum(const ndarray<Dtype>& a) {
+  auto sum(const ndarray<Dtype>& a) -> Dtype {
     return std::accumulate(a.begin(), a.end(), Dtype(0));
   }
 
   template <class Dtype>
-  auto mean(const ndarray<Dtype>& a) -> decltype(sum(a)) {
-    return sum(a) / a.size();
+  auto sum(const ndarray<Dtype>& a, axis_type axis) -> ndarray<Dtype> {
+    auto shape = a.shape();
+    shape.erase(shape.begin() + axis);
+    auto out = zeros<Dtype>(shape);
+    auto tmp = utils::bring_axis_to_head(a, axis);
+    for (int i = 0; i<tmp.shape(0); i++)
+      out += tmp[i];
+    return out;
+  }
+
+  template <class Dtype, class... Args>
+  auto mean(const ndarray<Dtype>& a, Args... args) -> decltype(sum(a, args...)) {
+    auto sum_ = sum(a, args...);
+    return sum_ /= a.size();
   }
 
   template <class Dtype1, class Dtype2>
