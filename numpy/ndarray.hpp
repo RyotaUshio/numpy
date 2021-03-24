@@ -156,9 +156,14 @@ namespace numpy {
      * So, I'm obliged to throw away the graceful fasion above, and instead, choose the usual way of implmentation using a `const T&` parameter.
      */
         
-    ndarray<Dtype>& operator=(const ndarray<Dtype>& rhs) {
+    ndarray<Dtype>& operator=(const ndarray<Dtype>& rhs) & {
       ndarray<Dtype> tmp(rhs);
       swap(*this, tmp);
+      return *this;
+    }
+    
+    ndarray<Dtype>& operator=(const ndarray<Dtype>& rhs) && {
+      std::copy(rhs.begin(), rhs.end(), begin());
       return *this;
     }
  
@@ -169,7 +174,7 @@ namespace numpy {
       swap(*this, src);
     }
       
-    ndarray<Dtype>& operator=(ndarray<Dtype>&& rhs) noexcept {
+    ndarray<Dtype>& operator=(ndarray<Dtype>&& rhs) & noexcept {
       swap(*this, rhs);
       return *this;
     }
