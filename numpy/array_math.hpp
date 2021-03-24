@@ -1,0 +1,184 @@
+#pragma once
+
+#include <numeric>
+#include <algorithm>
+#include <vector>
+
+namespace numpy {
+
+  // parameter `axis` will be supported
+
+  template <class Dtype>
+  Dtype sum(const ndarray<Dtype>& a) {
+    return std::accumulate(a.begin(), a.end(), Dtype(0));
+  }
+
+  template <class Dtype>
+  auto mean(const ndarray<Dtype>& a) -> decltype(sum(a)) {
+    return sum(a) / a.size();
+  }
+
+  template <class Dtype1, class Dtype2>
+  auto dot(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b) 
+    -> decltype(Dtype1() * Dtype2())
+  {
+    if (a.ndim() == b.ndim() == 1) {
+      if (a.size() != b.size())
+	throw std::invalid_argument("ValueError: shapes "
+				    + python::str(a.shape()) + " and " + python::str(b.shape())
+				    + " not aligned: "
+				    + python::str(a.shape(0)) + " (dim 0) != "
+				    + python::str(b.shape(0)) + " (dim 0)");
+      
+      // Broadcasting, constructing & destructing temporary objects are so heavy
+      // that (1) is much slower than (2)
+      
+      // (1)
+      // return sum(a * b);
+      
+      // (2)
+      using OutputType = decltype(Dtype1() * Dtype2());
+      return std::inner_product(a.begin(), a.end(), b.begin(), OutputType(0));
+    }
+  }
+  
+  template <class Dtype1, class Dtype2>
+  auto matmul(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b)
+    -> ndarray<decltype(Dtype1() * Dtype2())> {
+    
+    if (a.ndim() == 1) {
+      auto n = a.size();
+      return matmul(a.reshape(1, n), b).reshape(n);
+    }
+
+    if (b.ndim() == 1) {
+      auto n = b.size();
+      return matmul(a, b.reshape(n, 1)).reshape(n);
+    }
+    
+    using OutputType = decltype(Dtype1() * Dtype2());
+    if (a.ndim() == b.ndim() == 2) {     
+      auto b_T = b.T();
+      auto m = a.shape(0);
+      auto n = b_T.shape(0);
+      std::vector<OutputType> tmp(m * n);
+      int idx = 0;
+      std::generate(tmp.begin(), tmp.end(),
+		    [&](){return dot(a[idx / n], b_T[idx++ % n]);});
+      auto result =  ndarray<OutputType>(tmp, {m, n});
+      return result;
+    }
+
+    else {
+      // Not implemented
+      // https://numpy.org/doc/stable/reference/generated/numpy.matmul.html
+      // - "If either argument is N-D, N > 2, it is treated as a stack of matrices residing in the last two indexes and broadcast accordingly."
+    }
+    
+  }
+
+  template <class Dtype> ndarray<Dtype> zeros(const shape_type& shape);
+
+  template <class Dtype1, class Dtype2>
+  auto _matmul_recursive(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b)
+    -> ndarray<decltype(Dtype1() * Dtype2())> {
+    auto l = a.shape(0);
+    auto m = a.shape(1);
+    auto n = b.shape(1);
+
+    if (l > 1 or m > 1 or n > 1) {
+
+      auto out = zeros<decltype(Dtype1() * Dtype2())>({l, n});
+    
+      auto a11 = a(python::slice(l/2), python::slice(m/2));
+      auto a12 = a(python::slice(l/2), python::slice(m/2, m));
+      auto a21 = a(python::slice(l/2, l), python::slice(m/2));
+      auto a22 = a(python::slice(l/2, l), python::slice(m/2, m));
+
+      auto b11 = b(python::slice(m/2), python::slice(n/2));
+      auto b12 = b(python::slice(m/2), python::slice(n/2, n));
+      auto b21 = b(python::slice(m/2, m), python::slice(n/2));
+      auto b22 = b(python::slice(m/2, m), python::slice(n/2, n));
+
+      if (a11.size() * b11.size())
+	out(python::slice(l/2), python::slice(n/2)) += _matmul_recursive(a11, b11);
+      if (a12.size() * b21.size())
+	out(python::slice(l/2), python::slice(n/2)) += _matmul_recursive(a12, b21);
+      if (a11.size() * b12.size())
+	out(python::slice(l/2), python::slice(n/2, n)) += _matmul_recursive(a11, b12);
+      if (a12.size() * b22.size())
+	out(python::slice(l/2), python::slice(n/2, n)) += _matmul_recursive(a12, b22);
+      if (a21.size() * b11.size())
+	out(python::slice(l/2, l), python::slice(n/2)) += _matmul_recursive(a21, b11);
+      if (a22.size() * b21.size())
+	out(python::slice(l/2, l), python::slice(n/2)) += _matmul_recursive(a22, b21);
+      if (a21.size() * b12.size())
+	out(python::slice(l/2, l), python::slice(n/2, n)) += _matmul_recursive(a21, b12);
+      if (a22.size() * b22.size())
+	out(python::slice(l/2, l), python::slice(n/2, n)) += _matmul_recursive(a22, b22);
+
+      return out;
+      
+    } else if (a.size() == 1 and b.size() == 1) {
+      return a * b;
+    }
+    throw std::runtime_error("something's gone wrong");
+  }
+
+  template <class Dtype1, class Dtype2>
+  auto _matmul_strassen(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b)
+    -> ndarray<decltype(Dtype1() * Dtype2())> {
+    auto l = a.shape(0);
+    auto m = a.shape(1);
+    auto n = b.shape(1);
+
+    if (l > 1 or m > 1 or n > 1) {
+
+      auto out = zeros<decltype(Dtype1() * Dtype2())>({l, n});
+    
+      auto a11 = a(python::slice(l/2), python::slice(m/2));
+      auto a12 = a(python::slice(l/2), python::slice(m/2, m));
+      auto a21 = a(python::slice(l/2, l), python::slice(m/2));
+      auto a22 = a(python::slice(l/2, l), python::slice(m/2, m));
+
+      auto b11 = b(python::slice(m/2), python::slice(n/2));
+      auto b12 = b(python::slice(m/2), python::slice(n/2, n));
+      auto b21 = b(python::slice(m/2, m), python::slice(n/2));
+      auto b22 = b(python::slice(m/2, m), python::slice(n/2, n));
+
+      auto s1 = b12 - b22;
+      auto s2 = a11 + a12;
+      auto s3 = a21 + a22;
+      auto s4 = b21 - b11;
+      auto s5 = a11 + a22;
+      auto s6 = b11 + b22;
+      auto s7 = a12 - a22;
+      auto s8 = b21 + b22;
+      auto s9 = a11 - a21;
+      auto s10 = b11 + b12;
+
+      auto p1 = _matmul_strassen(a11, s1);
+      auto p2 = _matmul_strassen(s2, b22);
+      auto p3 = _matmul_strassen(s3, b11);
+      auto p4 = _matmul_strassen(a22, s4);
+      auto p5 = _matmul_strassen(s5, s6);
+      auto p6 = _matmul_strassen(s7, s8);
+      auto p7 = _matmul_strassen(s9, s10);
+
+      python::print_sep("\n", p1, p2, p3, p4, p5, p6, p7);
+
+      out(python::slice(l/2), python::slice(n/2)) = p5 + p4 - p2 + p6;
+      out(python::slice(l/2), python::slice(n/2)) = p1 + p2;
+      out(python::slice(l/2), python::slice(n/2, n)) = p3 + p4;
+      out(python::slice(l/2), python::slice(n/2, n)) = p5 + p1 - p3 - p7;
+
+      return out;
+      
+    } else if (a.size() == 1 or b.size() == 1) {
+      return a * b;
+    }
+    throw std::runtime_error("something's gone wrong");
+  }
+  
+}
+  
