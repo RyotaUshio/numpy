@@ -33,7 +33,18 @@ namespace numpy {
     -> typename std::enable_if<std::is_arithmetic<Dtype>::value, ndarray<Dtype>>::type {
     return ndarray<Dtype>(scolar);
   }
-
+  
+  template <class dtype=void, class array_like>
+  auto asarray(const array_like& a) -> ndarray<decltype(*a.begin())> {
+    using Dtype = typename std::conditional<
+      std::is_same<dtype, void>::value, decltype(*a.begin()), dtype>::type;
+    if constexpr(std::is_same<array_like, ndarray<Dtype>>::value) {
+      return a;
+    } else {
+      return array(a);
+    }
+  }
+  
   template <class Dtype>
   ndarray<Dtype> full(const shape_type& shape, Dtype fill_value) {
     return ndarray<Dtype>(std::vector<Dtype>(utils::product(shape), fill_value), shape);

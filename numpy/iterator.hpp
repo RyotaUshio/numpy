@@ -56,17 +56,20 @@ namespace numpy {
 
     void index_to_coord() {
       coord.resize(array->view.ndim);
-      int q, r;
-      q = index / array->view.size;
-      r = index % array->view.size;
-      int i;
 
-      for (i=0; i<array->view.ndim; i++)
-	coord[i] = q * array->view.shape[i];
+      if (array->view.ndim) {
+	int q, r;
+	q = index / array->view.size;
+	r = index % array->view.size;
+	int i;
 
-      for (i=array->view.ndim - 1; i>=0; i--) {
-	coord[i] += r % array->view.shape[i];
-	r /= array->view.shape[i];
+	for (i=0; i<array->view.ndim; i++)
+	  coord[i] = q * array->view.shape[i];
+
+	for (i=array->view.ndim - 1; i>=0; i--) {
+	  coord[i] += r % array->view.shape[i];
+	  r /= array->view.shape[i];
+	}
       }
     }
 
@@ -121,6 +124,16 @@ namespace numpy {
     }
     
     array_iter<Dtype>& operator++() { // pre-increment
+      index++;
+      index_to_coord();
+      auto ndim = array->view.ndim;
+      if (ndim > 0) {
+      	if (ndim > 1 and index % array->view.shape[ndim - 1] == 0) {
+      	  dataptr += array->view.stride[ndim - 2];
+      	  dataptr -= array->view.stride[ndim - 1] * array->view.shape[ndim - 1];
+      	}
+      	dataptr += array->view.stride[ndim - 1];
+      }
       *this += 1;
       return *this;
     }

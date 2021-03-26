@@ -1,21 +1,19 @@
-#include <numpy/python.hpp>
-using namespace python;
 #include <numpy/numpy.hpp>
-#include <iostream>
-
+using namespace python;
 namespace np = numpy;
 
 int main() {
-  np::ndarray<int> a({0, 1, 2, 3, 4, 5}, {2, 3});
-  std::cout << std::boolalpha;
-  
-  for(np::ndarray<int>::iterator it=a.begin(); it!=a.end(); it++)
-    std::cout << *it << std::endl;
+  int N = 100000;
+  auto a = np::arange(N);
+  auto time = np::debug::timeit([&](){
+				  auto it = a.begin();
+				  while (it != a.end())
+				    ++it;
+				});
+  print("N =", N, ":", time, "[micro sec]");
 
-  for(const auto e : a)
-    std::cout << e << std::endl;
-
-  // 現時点で可能なもっともPythonicな書き方
-  for(auto e : a)
-    print(e);
+  // issue #1
+  // N = 100000
+  // new : 24054 [micro sec] <- !!
+  // old : 42684 [micro sec]
 }

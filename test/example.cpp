@@ -16,6 +16,20 @@ int main() {
   print(np::linspace(0, 1, 11));
   print(np::linspace(0, 1, 10, false));
 
+  auto scolar = np::array(123);
+  print(scolar); // scolar as array
+  print(scolar.begin());
+
+  auto vec = std::vector<int>{3, 1, 4, 1, 5, 9, 2};
+  // auto z = np::asarray(vec); // copy
+  //print(z);
+  // auto w = np::asarray(z); // no copy is performed
+  // print(w);
+
+  // Iterate Over Arrays
+  for(const auto e : x) print(e);
+  for(const auto e : scolar) print(e);
+
   // Array's Attribute Accessors
   print(x.shape());
   print(x.T());
