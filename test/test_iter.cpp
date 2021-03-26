@@ -2,18 +2,23 @@
 using namespace python;
 namespace np = numpy;
 
-int main() {
-  int N = 100000;
-  auto a = np::arange(N);
-  auto time = np::debug::timeit([&](){
+template <class Dtype>
+void timeit(const np::ndarray<Dtype>& a) {
+  auto time = np::debug::timeit([&a](){
 				  auto it = a.begin();
-				  while (it != a.end())
+				  auto end = a.end();
+				  while (it != end)
 				    ++it;
 				});
-  print("N =", N, ":", time, "[micro sec]");
+  print("shape =", a.shape(), ":", time / 1000, "[ms]");
+}
 
-  // issue #1
-  // N = 100000
-  // new : 24054 [micro sec] <- !!
-  // old : 42684 [micro sec]
+int main() {
+  auto a = np::arange(1000 * 1000);
+  // 1-D array
+  timeit(a);
+  // 2-D array
+  timeit(a.reshape(100, 10000));
+  // 3-D array
+  timeit(a.reshape(10, 100, 1000));
 }

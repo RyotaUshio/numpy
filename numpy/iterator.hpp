@@ -124,16 +124,6 @@ namespace numpy {
     }
     
     array_iter<Dtype>& operator++() { // pre-increment
-      index++;
-      index_to_coord();
-      auto ndim = array->view.ndim;
-      if (ndim > 0) {
-      	if (ndim > 1 and index % array->view.shape[ndim - 1] == 0) {
-      	  dataptr += array->view.stride[ndim - 2];
-      	  dataptr -= array->view.stride[ndim - 1] * array->view.shape[ndim - 1];
-      	}
-      	dataptr += array->view.stride[ndim - 1];
-      }
       *this += 1;
       return *this;
     }
