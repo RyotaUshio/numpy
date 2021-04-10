@@ -44,7 +44,7 @@ namespace numpy {
   public:
     array_iter(const ndarray<Dtype>* array_)
       : array_iter<Dtype>(array_, array_->memory_ptr->begin() + array_->view.offset, 0) {}
-     
+
     void coord_to_index() {
       int unit = 1;
       index = 0;

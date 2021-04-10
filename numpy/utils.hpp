@@ -20,8 +20,10 @@ namespace numpy {
       return std::reduce(vec.begin()+from, vec.end()-to, T(1), [](T a, T b){return a * b;});
     }
 
-    template <typename T>
-    T dot(const std::vector<T>& lhs, const std::vector<T>& rhs, T init=0) {
+    template <template <class, class...> class Container1,
+	      template <class, class...> class Container2,
+	      class T>
+    T dot(const Container1<T>& lhs, const Container2<T>& rhs, T init=0) {
       return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), init);
     }
 

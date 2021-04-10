@@ -14,14 +14,17 @@ namespace numpy {
 
   template <class dtype=void, class array_like>
   auto array(const array_like& object)
-    -> decltype(object.begin(), object.end(),
-		ndarray<typename std::conditional<std::is_same<dtype, void>::value, decltype(*(object.begin())), dtype>::type>()) {
+    -> typename std::remove_reference<decltype(object.begin(), object.end(),
+					       std::declval<ndarray<typename std::conditional<std::is_same<dtype, void>::value, decltype(*(object.begin())), dtype>::type>>())>::type {
     /**
      * The original parameters: 
      *     object, Dtype=None, *, copy=True, order='K', subok=False, ndmin=0, like=None
      * `copy` will be supported before long. `order` and `subok` will not for now.
      */
-    using Type = typename std::conditional<std::is_same<dtype, void>::value, decltype(*(object.begin())), dtype>::type;
+    using Type = typename std::conditional<
+      std::is_same<dtype, void>::value,
+      typename std::remove_reference<decltype(*object.begin())>::type,
+      dtype>::type;
     std::vector<Type> tmp;
     std::copy(object.begin(), object.end(), std::back_inserter(tmp));
     ndarray<Type> out(tmp, std::vector<shape_elem_type>(1, tmp.size()));
@@ -35,16 +38,21 @@ namespace numpy {
   }
   
   template <class dtype=void, class array_like>
-  auto asarray(const array_like& a) -> ndarray<decltype(*a.begin())> {
+  auto asarray(const array_like& a)
+    -> ndarray<
+    typename std::conditional<
+    std::is_same<dtype, void>::value, typename std::remove_reference<
+					decltype(*a.begin())>::type, dtype>::type>
+  {  
     using Dtype = typename std::conditional<
-      std::is_same<dtype, void>::value, decltype(*a.begin()), dtype>::type;
+      std::is_same<dtype, void>::value, typename std::remove_reference<decltype(*a.begin())>::type, dtype>::type;
     if constexpr(std::is_same<array_like, ndarray<Dtype>>::value) {
       return a;
     } else {
-      return array(a);
+      return array<Dtype>(a);
     }
   }
-  
+
   template <class Dtype>
   ndarray<Dtype> full(const shape_type& shape, Dtype fill_value) {
     return ndarray<Dtype>(std::vector<Dtype>(utils::product(shape), fill_value), shape);

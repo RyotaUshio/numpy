@@ -8,6 +8,7 @@
 #include <typeinfo>
 #include <memory>
 #include <utility>
+#include <initializer_list>
 #include <numpy/python.hpp>
 #include <numpy/dtype.hpp>
 #include <numpy/memory.hpp>
@@ -266,10 +267,37 @@ namespace numpy {
     //   }
     // }
 
-    template <class Index>
-    ndarray<Dtype> operator[](Index index) const {
-      return operator()(index);
+    Dtype& __getitem__(coord_type&& coord) {
+      if (coord.size() != view.ndim)
+	throw std::invalid_argument("IndexError: too many indices for array: "
+				    "array is " + python::str(view.ndim)
+				    + "-dimensional, but "
+				    + python::str(coord.size()) + " were indexed");
+      
+      std::transform(coord.begin(), coord.end(), view.shape.begin(), coord.begin(),
+		     [](auto e_coord, auto e_shape) {
+		       return python::slice::abs_index(e_shape, e_coord);
+		     });
+      auto index = utils::dot(view.stride, coord, view.offset);
+      try {
+	return memory_ptr->data.at(index);
+      } catch (const std::out_of_range& e) {
+	throw std::out_of_range("IndexError: index is out of bounds");
+      }
     }
+    
+    Dtype& operator[](coord_type&& coord) {
+      return __getitem__(std::move(coord));
+    }
+
+    Dtype& operator[](intp coord) {
+      return __getitem__({coord});
+    }
+    
+    // template <class Index>
+    // ndarray<Dtype> operator[](Index index) const {
+    //   return operator()(index);
+    // }
 
     template <class AnotherDtype>
     ndarray<AnotherDtype> astype() const {

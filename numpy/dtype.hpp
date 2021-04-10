@@ -61,5 +61,5 @@ namespace numpy {
   using axes_type = std::vector<axis_type>;
   using stride_type = std::vector<intp>;
   using offset_type = intp;
-  
+  using coord_type = std::vector<dim_type>;
 }
