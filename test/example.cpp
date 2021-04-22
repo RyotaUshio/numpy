@@ -93,6 +93,8 @@ int main() {
     print(x);
     x(":", 1) = np::array(range(1000, 4000, 1000));
     print(x);
+    x(-1) = 0;
+    print(x);
 
     // make an array 1-dimensional
     auto x1 = x.ravel();
@@ -101,6 +103,10 @@ int main() {
     print(x2);
     print(x1.memory_info());
     print(x2.memory_info());
+
+    // max & min
+    print(np::max(x));
+    print(np::min(x));
     
   } catch (const std::exception& e) {print(e);}
 }

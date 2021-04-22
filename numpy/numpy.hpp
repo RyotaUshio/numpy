@@ -1,6 +1,8 @@
 #pragma once
 #include <numpy/ndarray.hpp>
 #include <numpy/array_math.hpp>
+#include <numpy/io.hpp>
+#include <numpy/algorithm.hpp>
 #include <cmath>
 #include <vector>
 #include <tuple>

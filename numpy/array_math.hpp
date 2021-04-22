@@ -10,7 +10,6 @@ namespace numpy {
   template <class Dtype> ndarray<Dtype> empty(const shape_type& shape);
   template <class Dtype> ndarray<Dtype> zeros(const shape_type& shape);
   template <class... Dtype> std::tuple<ndarray<Dtype>...> at_least_2d(const ndarray<Dtype>&... arys);
-
   
   template <class Dtype>
   auto sum(const ndarray<Dtype>& a) -> Dtype {

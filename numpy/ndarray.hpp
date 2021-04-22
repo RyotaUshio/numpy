@@ -165,7 +165,12 @@ namespace numpy {
 
     // https://cpprefjp.github.io/lang/cpp11/ref_qualifier_for_this.html
     ndarray<Dtype>& operator=(const ndarray<Dtype>& rhs) && {
-      std::copy(rhs.begin(), rhs.end(), begin());
+      auto rhs_view = rhs.view;
+      array_view::broadcast(view, rhs_view);
+      ndarray<Dtype> rhs_broadcasted(rhs.memory_ptr, rhs_view, rhs.base_ptr);
+      
+      std::copy(rhs_broadcasted.begin(), rhs_broadcasted.end(), begin());
+      // std::copy(rhs.begin(), rhs.end(), begin());
       return *this;
     }
  
@@ -199,7 +204,7 @@ namespace numpy {
     }
 
     ndarray<Dtype> ravel() const {
-      return reshape(shape_type(1, view.size));
+      return reshape(shape_type(1, size()));
     }
 
     ndarray<Dtype> flatten() const {

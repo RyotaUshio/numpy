@@ -32,9 +32,9 @@ namespace numpy {
       data.clear();
       data.shrink_to_fit();
       _destructed_count++;
-      manager();
+      // manager();
     }
-
+    
     // cf) https://cpprefjp.github.io/reference/vector/vector/begin.html
     inline iterator begin() noexcept {
       return data.begin();
