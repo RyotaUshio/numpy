@@ -112,8 +112,14 @@ namespace numpy {
     }
 
     template <class... Tail>
-    void _indexer_inplace_impl(dim_type axis, int head, Tail... tail) {
-      offset += python::slice::abs_index(shape[axis], head) * stride[axis];
+    void _indexer_inplace_impl(dim_type axis, int head, Tail... tail) noexcept(false) {
+      try {
+	offset += python::slice::abs_index(shape[axis], head) * stride[axis];
+      } catch (const std::out_of_range& e) {
+	throw std::out_of_range("IndexError: index " + python::str(head) +
+				" is out of bounds for axis " + python::str(axis) +
+				" with size " + python::str(shape[axis]));
+      }
       shape.erase(shape.begin() + axis);
       stride.erase(stride.begin() + axis);
       _indexer_inplace_impl(axis, tail...);

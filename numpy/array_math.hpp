@@ -56,12 +56,13 @@ namespace numpy {
       using OutputType = decltype(Dtype1() * Dtype2());
       return std::inner_product(a.begin(), a.end(), b.begin(), OutputType(0));
     }
+    throw std::logic_error("NotImplementedError: dot product of 2+d arrays");
   }
   
   template <class Dtype1, class Dtype2>
   auto matmul(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b)
-      -> ndarray<decltype(Dtype1() * Dtype2())> {
-
+    -> ndarray<decltype(Dtype1() * Dtype2())> {
+    
     if (a.ndim() * b.ndim() == 0) {
       throw std::invalid_argument("ValueError: matmul: Scolar is not allowed.");
     }
@@ -71,11 +72,9 @@ namespace numpy {
     auto out = empty<OutputType>({a_2d.shape(a_2d.ndim() - 2), b.shape(b.ndim() - 1)});
     return matmul(a, b, out);
   }
-      
+  
   template <class Dtype1, class Dtype2, class OutputType>
-  auto matmul(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b, ndarray<OutputType>& out)
-    -> ndarray<OutputType>& {
-
+  ndarray<OutputType>& matmul(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b, ndarray<OutputType>& out) {
     if (a.ndim() * b.ndim() == 0) {
       throw std::invalid_argument("ValueError: matmul: Scolar is not allowed.");
     }
@@ -92,27 +91,31 @@ namespace numpy {
       return out;
     }    
     
-    if (a.ndim() == b.ndim() == 2) {
+    if (a.ndim() == 2 and b.ndim() == 2) {
       if (a.shape(1) != b.shape(0))
 	throw std::invalid_argument("ValueError: matmul: Input operand 1 has a mismatch in its core dimension 0, with gufunc signature (n?,k),(k,m?)->(n?,m?) (size " + python::str(a.shape(1)) + " is different from " + python::str(b.shape(0)) + ")");
       
-      auto b_T = b.T();
-      auto m = a.shape(0);
+      auto b_T = b.T();      
       auto n = b_T.shape(0);
       int idx = -1;
       std::generate(out.begin(), out.end(),
-		    [&](){idx++; return dot(a[idx / n], b_T[idx % n]);});
+      		    [&](){idx++; return dot(a(idx / n), b_T(idx % n));});
       return out;
-    }
-
-    else {
-      // Not implemented
-      // https://numpy.org/doc/stable/reference/generated/numpy.matmul.html
-      // - "If either argument is N-D, N > 2, it is treated as a stack of matrices residing in the last two indexes and broadcast accordingly."
+      
+      // auto m = a.shape(0);
+      // auto n = b.shape(1);
+      // for(int i=0; i<m; i++)
+      // 	for(int j=0; j<n; j++)
+      // 	  out[{i, j}] = dot(a(i), b_T(j));
+      // return out;
     }
     
+    // matmul of stack of matrices has not been implemented yet
+    throw std::logic_error("NotImplementedError: application of matmul to stack of matrices");
+    // https://numpy.org/doc/stable/reference/generated/numpy.matmul.html
+    // - "If either argument is N-D, N > 2, it is treated as a stack of matrices residing in the last two indexes and broadcast accordingly."
   }
-
+  
   template <class Dtype1, class Dtype2>
   auto _matmul_recursive(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b)
     -> ndarray<decltype(Dtype1() * Dtype2())> {
@@ -215,4 +218,3 @@ namespace numpy {
   }
   
 }
-  

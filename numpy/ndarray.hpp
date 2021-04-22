@@ -197,6 +197,14 @@ namespace numpy {
     ndarray<Dtype> transpose() const {
       return T();
     }
+
+    ndarray<Dtype> ravel() const {
+      return reshape(shape_type(1, view.size));
+    }
+
+    ndarray<Dtype> flatten() const {
+      return ravel().copy();
+    }
     
     /* operators */
 
@@ -267,25 +275,37 @@ namespace numpy {
     //   }
     // }
 
-    Dtype& __getitem__(coord_type&& coord) {
+    auto __getindex__(coord_type&& coord) const
+      -> decltype(utils::dot(view.stride, coord, view.offset)) {
       if (coord.size() != view.ndim)
 	throw std::invalid_argument("IndexError: too many indices for array: "
 				    "array is " + python::str(view.ndim)
 				    + "-dimensional, but "
 				    + python::str(coord.size()) + " were indexed");
-      
-      std::transform(coord.begin(), coord.end(), view.shape.begin(), coord.begin(),
-		     [](auto e_coord, auto e_shape) {
-		       return python::slice::abs_index(e_shape, e_coord);
-		     });
-      auto index = utils::dot(view.stride, coord, view.offset);
-      try {
-	return memory_ptr->data.at(index);
-      } catch (const std::out_of_range& e) {
-	throw std::out_of_range("IndexError: index is out of bounds");
+
+      for(axis_type ax = 0; ax<view.ndim; ax++) {
+      	try {
+      	  coord[ax] =  python::slice::abs_index(shape(ax), coord[ax]);
+      	} catch (const std::out_of_range& e) {
+      	  throw std::out_of_range("IndexError: index " + python::str(coord[ax]) +
+      				  " is out of bounds for axis " + python::str(ax) +
+      				  " with size " + python::str(shape(ax)));
+      	}
       }
+      auto index = utils::dot(view.stride, coord, view.offset);
+      return index;
     }
-    
+
+    Dtype& __getitem__(coord_type&& coord) {
+      auto index = __getindex__(std::move(coord));
+      return *(memory_ptr->data.begin() + index);
+    }
+
+    Dtype __getitem__(coord_type&& coord) const {
+      auto index = __getindex__(std::move(coord));
+      return *(memory_ptr->data.begin() + index);      
+    }
+      
     Dtype& operator[](coord_type&& coord) {
       return __getitem__(std::move(coord));
     }
@@ -293,7 +313,15 @@ namespace numpy {
     Dtype& operator[](intp coord) {
       return __getitem__({coord});
     }
-    
+
+    Dtype operator[](coord_type&& coord) const {
+      return __getitem__(std::move(coord));
+    }
+
+    Dtype operator[](intp coord) const {
+      return __getitem__({coord});
+    }
+
     // template <class Index>
     // ndarray<Dtype> operator[](Index index) const {
     //   return operator()(index);

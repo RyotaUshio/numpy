@@ -46,7 +46,8 @@ int main() {
     print(x(1,"::-1")); // you can't do `x[1,"::-1"]` due to the C++ language specification
     print(x.__getitem__({2, 2}));
     print(x.__getitem__({2, -1}));
-    // print(x[{3, 1, 3}]); // raises IndexError
+    // print(x[{3, 1}]); // raises IndexError
+    // print(x(3, 1)); // raises IndexError
     // indexing is done without copying
     print(np::may_share_memory(x, x(-1))); // -> True
     print(np::may_share_memory(x, x("1:3","2::"))); // -> True
@@ -88,7 +89,18 @@ int main() {
     print(x);
     x(-1, -1) = 500;
     print(x);
+    x[{-1, -2}] = 999;
+    print(x);
     x(":", 1) = np::array(range(1000, 4000, 1000));
     print(x);
+
+    // make an array 1-dimensional
+    auto x1 = x.ravel();
+    auto x2 = x.flatten();
+    print(x1);
+    print(x2);
+    print(x1.memory_info());
+    print(x2.memory_info());
+    
   } catch (const std::exception& e) {print(e);}
 }

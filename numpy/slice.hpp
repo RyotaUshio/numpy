@@ -67,8 +67,10 @@ namespace python {
       return (start < 0) ? length + start : start;
     }
 
-    static int abs_index(int length, int index)  {
-      return (index < 0) ? length + index : index;
+    static int abs_index(int length, int index) noexcept(false) {
+      if (-length <= index and index < length)
+	return (index < 0) ? length + index : index;
+      throw std::out_of_range("IndexError");
     }
 
     inline int abs_stop(int length) const {
