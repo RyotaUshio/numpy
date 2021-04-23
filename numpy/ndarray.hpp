@@ -100,8 +100,8 @@ namespace numpy {
     ndarray(const std::vector<Dtype>& data, const shape_type& shape_)
       : ndarray<Dtype>(data, viewinfo(shape_)) {}
     
-    ndarray(Dtype* first, Dtype* last, const shape_type& shape_)
-      : ndarray<Dtype>(std::vector<Dtype>(first, last), shape_) {}
+    // ndarray(Dtype* first, Dtype* last, const shape_type& shape_)
+    //   : ndarray<Dtype>(std::vector<Dtype>(first, last), shape_) {}
 
     ndarray(Dtype scolar)
       : ndarray<Dtype>(std::vector<Dtype>(1, scolar), shape_type()) {}
@@ -283,10 +283,10 @@ namespace numpy {
     auto __getindex__(coord_type&& coord) const
       -> decltype(utils::dot(view.stride, coord, view.offset)) {
       if (coord.size() != view.ndim)
-	throw std::invalid_argument("IndexError: too many indices for array: "
-				    "array is " + python::str(view.ndim)
-				    + "-dimensional, but "
-				    + python::str(coord.size()) + " were indexed");
+      	throw std::invalid_argument("IndexError: too many indices for array: "
+      				    "array is " + python::str(view.ndim)
+      				    + "-dimensional, but "
+      				    + python::str(coord.size()) + " were indexed");
 
       for(axis_type ax = 0; ax<view.ndim; ax++) {
       	try {

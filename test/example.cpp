@@ -107,6 +107,10 @@ int main() {
     // max & min
     print(np::max(x));
     print(np::min(x));
+    print(a);
+    print(b);
+    print(np::maximum(a, b));
+    print(np::heaviside(a, b));
     
   } catch (const std::exception& e) {print(e);}
 }
