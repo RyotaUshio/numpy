@@ -115,6 +115,11 @@ int main() {
     // linalg
     print(np::linalg::norm(a));
     print(np::linalg::norm(a, 1));
-    
+
+    print(np::add(1, a));
+    print(np::add(a, 1));
+    print(x * 100.0);
+    print(b / 2.0);
+
   } catch (const std::exception& e) {print(e);}
 }

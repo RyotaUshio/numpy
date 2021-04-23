@@ -32,7 +32,7 @@ namespace numpy {
     friend array_iter<Dtype>;
     template <template <class> class UnaryOperation> friend struct ufunc_unary;
     template <template <class, class> class BinaryOperation> friend struct ufunc_binary;
-    template <class Type> friend bool may_share_memory(const ndarray<Type>& a, const ndarray<Type>& b);
+    template <class Type1, class Type2> friend bool may_share_memory(const ndarray<Type1>& a, const ndarray<Type2>& b);
     friend struct debug;
 
   private:
@@ -217,24 +217,44 @@ namespace numpy {
     // Some of these ufuncs are called automatically on arrays when the relevant infix notation is used (e.g., add(a, b) is called internally when a + b is written and a or b is an ndarray).
 
     template <class Dtype2>
-    auto operator+(const ndarray<Dtype2>& rhs) const {
+    auto operator+(const Dtype2& rhs) const {
       return add(*this, rhs);
     }
     
     template <class Dtype2>
-    auto operator-(const ndarray<Dtype2>& rhs) const {
+    auto operator-(const Dtype2& rhs) const {
       return subtract(*this, rhs);
     }
 
     template <class Dtype2>
-    auto operator*(const ndarray<Dtype2>& rhs) const {
+    auto operator*(const Dtype2& rhs) const {
       return multiply(*this, rhs);
     }
 
     template <class Dtype2>
-    auto operator/(const ndarray<Dtype2>& rhs) const {
+    auto operator/(const Dtype2& rhs) const {
       return divide(*this, rhs);
     }
+
+    // template <class Dtype2>
+    // auto operator+(const ndarray<Dtype2>& rhs) const {
+    //   return add(*this, rhs);
+    // }
+    
+    // template <class Dtype2>
+    // auto operator-(const ndarray<Dtype2>& rhs) const {
+    //   return subtract(*this, rhs);
+    // }
+
+    // template <class Dtype2>
+    // auto operator*(const ndarray<Dtype2>& rhs) const {
+    //   return multiply(*this, rhs);
+    // }
+
+    // template <class Dtype2>
+    // auto operator/(const ndarray<Dtype2>& rhs) const {
+    //   return divide(*this, rhs);
+    // }
 
     ndarray<Dtype>& operator+=(const ndarray<Dtype>& rhs) {
       return add(*this, rhs, *this);
@@ -409,26 +429,32 @@ namespace numpy {
     return true;
   }
 
-  template <class Dtype>
-  bool may_share_memory(const ndarray<Dtype>& a, const ndarray<Dtype>& b) {
-    if (a.memory_ptr != b.memory_ptr)
-      return false;
+  template <class Dtype1, class Dtype2>
+  bool may_share_memory(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b) {
+    
+    if constexpr (std::is_same<Dtype1, Dtype2>::value) {
+  	
+      if (a.memory_ptr != b.memory_ptr)
+        return false;
 
-    auto a_begin = &(*a.begin());
-    auto a_end = &(*a.end());
-    auto b_begin = &(*b.begin());
-    auto b_end = &(*b.end());
+      auto a_begin = &(*a.begin());
+      auto a_end = &(*a.end());
+      auto b_begin = &(*b.begin());
+      auto b_end = &(*b.end());
 
-    if (a_begin < a_end) {
-      if (b_begin < b_end)
-	return _may_share_memory_impl(a_begin, a_end, b_begin, b_end);
-      else
-	return _may_share_memory_impl(a_begin, a_end, b_end, b_begin);
-    } else {
-      if (b_begin < b_end)
-	return _may_share_memory_impl(a_end, a_begin, b_begin, b_end);
-      else
-	return _may_share_memory_impl(a_end, a_begin, b_end, b_begin);
+      if (a_begin < a_end) {
+        if (b_begin < b_end)
+  	return _may_share_memory_impl(a_begin, a_end, b_begin, b_end);
+        else
+  	return _may_share_memory_impl(a_begin, a_end, b_end, b_begin);
+      } else {
+        if (b_begin < b_end)
+  	return _may_share_memory_impl(a_end, a_begin, b_begin, b_end);
+        else
+  	return _may_share_memory_impl(a_end, a_begin, b_end, b_begin);
+      }
+      } else {
+    return false;
     }
   }
      
