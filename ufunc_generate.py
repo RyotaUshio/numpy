@@ -1,9 +1,20 @@
 import re, sys
 
+# Contents of ufunc.txt must be written in the following order:
+#   1) signature
+#   2) returntype: optional
+#   3) cppexpression
+#   4) description
+# Lines in ufunc.txt can be of other category, such as:
+#   a) equivalent
+#   b) section
+#   c) comment
+
 signature     = re.compile(r'^(\w+)\((.+)\)$', re.MULTILINE)
+returntype    = re.compile(r'^ret\[(.+)\]')
 cppexpression = re.compile(r'^cpp\[(.+)\]')
-equivalent    = re.compile(r'^eq\[(.+)\]')
 description   = re.compile(r'^\w.*\.$', re.MULTILINE)
+equivalent    = re.compile(r'^eq\[(.+)\]')
 section       = re.compile(r'^\w+$')
 comment       = re.compile(r'^#.*')
 
@@ -18,9 +29,10 @@ def main(source, target):
         
         for line in f:
             sig = signature.match(line)
+            ret = returntype.match(line)
             cpp = cppexpression.match(line)
-            eq  = equivalent.match(line)
             des = description.match(line)
+            eq  = equivalent.match(line)
             sec = section.match(line)
             com = comment.match(line)
 
@@ -31,6 +43,7 @@ def main(source, target):
                 name, args = sig.groups()
                 binary = 'x1, x2' in args
                 unary = not binary and 'x' in args
+                rettype = None
 
                 if unary:
                     decls += [f'  constexpr ufunc_unary<_ufunc_internal::_{name}> {name};']
@@ -39,14 +52,19 @@ def main(source, target):
                 else:
                     raise Exception(f'{name} is neither unary or binary?')
 
+            elif ret:
+                rettype, = ret.groups()
+                
             elif cpp:
                 cppexp, = cpp.groups()
+                if rettype is None:
+                    rettype = f"decltype({cppexp})"
                 if unary:
                     g.write("\n".join([
                          "    template <class Type>",
                         f"    struct _{name} {{",
                         f"      constexpr _{name}() = default;",
-                        f"      auto operator()(Type x) -> decltype({cppexp}) const {{",
+                        f"      auto operator()(Type x) -> {rettype} const {{",
                         f"        return {cppexp};",
                          "      }",
                          "    };\n\n"
@@ -56,7 +74,7 @@ def main(source, target):
                          "    template <class Type1, class Type2>",
                         f"    struct _{name} {{",
                         f"      constexpr _{name}() = default;",
-                        f"      auto operator()(Type1 x1, Type2 x2) -> decltype({cppexp}) const {{",
+                        f"      auto operator()(Type1 x1, Type2 x2) -> {rettype} const {{",
                         f"        return {cppexp};",
                          "      }",
                          "    };\n\n"

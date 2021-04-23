@@ -80,6 +80,13 @@ namespace numpy {
 		     out.begin(), UnaryOperation<Type>());
       return out;
     }
+
+    // template <class Type, class... Args>
+    // auto operator()(Type x, Args... args) const
+    //   -> typename std::enable_if<std::is_arithmetic<Type>::value,
+    // 				 decltype(operator()(ndarray<Type>(x), args...))>::type {
+    //   return operator()(ndarray<Type>(x), args...);
+    // }     
     
   };
   
@@ -124,6 +131,20 @@ namespace numpy {
 		     x2_broadcasted.begin(), out.begin(), BinaryOperation<Type1, Type2>());
       return out;
     }
+
+    // template <class Type1, class Type2, class... Args>
+    // auto operator()(const ndarray<Type1>& x1, Type2 x2, Args... args) const
+    //   -> typename std::enable_if<std::is_arithmetic<Type2>::value,
+    // 			decltype(operator()(x1, ndarray<Type2>(x2), args...))>::type {
+    //   return operator()(x1, ndarray<Type2>(x2), args...);
+    // }     
+
+    // template <class Type1, class Type2, class... Args>
+    // auto operator()(Type1 x1, const ndarray<Type2>& x2, Args... args) const
+    //   -> typename std::enable_if<std::is_arithmetic<Type1>::value,
+    // 			decltype(operator()(ndarray<Type1>(x1), x2, args...))>::type {
+    //   return operator()(ndarray<Type1>(x1), x2, args...);
+    // }     
     
   };
 }

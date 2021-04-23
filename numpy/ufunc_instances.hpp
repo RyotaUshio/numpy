@@ -148,8 +148,8 @@ namespace numpy {
     template <class Type1, class Type2>
     struct _heaviside {
       constexpr _heaviside() = default;
-      auto operator()(Type1 x1, Type2 x2) -> decltype(std::max(x1, 0)) const {
-        return std::max(x1, 0);
+      auto operator()(Type1 x1, Type2 x2) -> decltype(x1 ? (Type1(0) < x1) - (x1 < Type1(0)) : x2) const {
+        return x1 ? (Type1(0) < x1) - (x1 < Type1(0)) : x2;
       }
     };
 
@@ -401,6 +401,14 @@ namespace numpy {
       }
     };
 
+    template <class Type1, class Type2>
+    struct _maximum {
+      constexpr _maximum() = default;
+      auto operator()(Type1 x1, Type2 x2) -> Type1 const {
+        return std::max(x1, x2);
+      }
+    };
+
   } // namespace _ufunc_internal
 
   constexpr ufunc_binary<_ufunc_internal::_add> add;	// Add arguments element-wise.
@@ -457,5 +465,6 @@ namespace numpy {
   constexpr ufunc_unary<_ufunc_internal::_radians> radians;	// Convert angles from degrees to radians.
   constexpr auto deg2rad = radians;	// Convert angles from degrees to radians.
   constexpr auto rad2deg = degrees;	// Convert angles from radians to degrees.
+  constexpr ufunc_binary<_ufunc_internal::_maximum> maximum;	// Element-wise maximum of array elements.
 
 } // namespace numpy

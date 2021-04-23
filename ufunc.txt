@@ -84,7 +84,7 @@ cpp[(Type(0) < x) - (x < Type(0))]
 Returns an element-wise indication of the sign of a number.
 
 heaviside(x1, x2, /[, out, where, casting, …])
-cpp[std::max(x1, 0)]
+cpp[x1 ? (Type1(0) < x1) - (x1 < Type1(0)) : x2]
 Compute the Heaviside step function.
 
 conj(x, /[, out, where, casting, order, …])
@@ -302,9 +302,10 @@ Convert angles from radians to degrees.
 
 # The bit-wise operators & and | are the proper way to perform element-by-element array comparisons. Be sure you understand the operator precedence: (a > 2) & (a < 5) is the proper syntax because a > 2 & a < 5 will result in an error due to the fact that 2 & a is evaluated first.
 
-# maximum(x1, x2, /[, out, where, casting, …])
-
-# Element-wise maximum of array elements.
+maximum(x1, x2, /[, out, where, casting, …])
+ret[Type1]
+cpp[std::max(x1, x2)]
+Element-wise maximum of array elements.
 
 # Tip
 
