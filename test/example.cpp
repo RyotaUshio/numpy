@@ -125,5 +125,7 @@ int main() {
     print(b / 2);
     print(-x);
 
+    print(np::indices({2, 3, 4, 5})); // correct!
+
   } catch (const std::exception& e) {print(e);}
 }

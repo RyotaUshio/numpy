@@ -129,6 +129,23 @@ namespace numpy {
   std::tuple<ndarray<Dtype>...> at_least_2d(const ndarray<Dtype>&... arys) {
     return {_at_least_2d_impl(arys)...};
   }
+
+  template <class Dtype=int>
+  ndarray<Dtype> indices(const shape_type& dimensions) {
+    auto shape = dimensions;
+    auto ndim = dimensions.size();
+    shape.insert(shape.begin(), ndim);
+    auto grid = empty<Dtype>(shape);
+
+    int i, j;
+    for(i=0; i<ndim; i++) {
+      auto ith_dim = utils::bring_axis_to_head(grid(i), i);
+      for(j=0; j<dimensions[i]; j++)
+	ith_dim(j) = j;
+    }
+
+    return grid;
+  }
   
 
   /* constants */
