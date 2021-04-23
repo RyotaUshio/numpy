@@ -179,7 +179,7 @@ cpp[std::atan(x)]
 Trigonometric inverse tangent, element-wise.
 
 arctan2(x1, x2, /[, out, where, casting, …])
-cpp[std::atan(x1, x2)]
+cpp[std::atan2(x1, x2)]
 Element-wise arc tangent of x1/x2 choosing the quadrant correctly.
 
 hypot(x1, x2, /[, out, where, casting, …])

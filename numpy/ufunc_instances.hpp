@@ -324,8 +324,8 @@ namespace numpy {
     template <class Type1, class Type2>
     struct _arctan2 {
       constexpr _arctan2() = default;
-      auto operator()(Type1 x1, Type2 x2) -> decltype(std::atan(x1, x2)) const {
-        return std::atan(x1, x2);
+      auto operator()(Type1 x1, Type2 x2) -> decltype(std::atan2(x1, x2)) const {
+        return std::atan2(x1, x2);
       }
     };
 
