@@ -214,27 +214,15 @@ namespace numpy {
     /* operators */
 
     // https://numpy.org/doc/stable/reference/ufuncs.html
-    // Some of these ufuncs are called automatically on arrays when the relevant infix notation is used (e.g., add(a, b) is called internally when a + b is written and a or b is an ndarray).
+    // -- "Some of these ufuncs are called automatically on arrays when the relevant infix notation is used (e.g., add(a, b) is called internally when a + b is written and a or b is an ndarray)."
 
-    // template <class Dtype2>
-    // auto operator+(const Dtype2& rhs) const {
-    //   return add(*this, rhs);
-    // }
+    auto operator+() const {
+      return positive(*this);
+    }
     
-    // template <class Dtype2>
-    // auto operator-(const Dtype2& rhs) const {
-    //   return subtract(*this, rhs);
-    // }
-
-    // template <class Dtype2>
-    // auto operator*(const Dtype2& rhs) const {
-    //   return multiply(*this, rhs);
-    // }
-
-    // template <class Dtype2>
-    // auto operator/(const Dtype2& rhs) const {
-    //   return divide(*this, rhs);
-    // }
+    auto operator-() const {
+      return negative(*this);
+    }
 
     ndarray<Dtype>& operator+=(const ndarray<Dtype>& rhs) {
       return add(*this, rhs, *this);
@@ -399,25 +387,61 @@ namespace numpy {
 
   };
 
+
+  namespace {
+    /**
+     * operator+, -, *, /の引数の少なくとも一方がndarrayのときに
+     * ufuncが呼び出されるようにしたいので、SFINAEのための準備をする。
+     * このくらいならオーバーロードをたくさん用意すればよいだけな気がするが、
+     * 勉強の一環としてやっておく。
+     **/
+
+    /* Check if the type `T` is an instance of ClassTemplate */
+    // https://stackoverflow.com/questions/16337610/how-to-know-if-a-type-is-a-specialization-of-stdvector
+    template <class T, template <class...> class ClassTemplate>
+    struct is_instance : public std::false_type {};
+    // ちょっと自信がないが、これはたぶん「特定の場合に継承元のクラスを変更する」という明示的特殊化。
+    template <template <class...> class ClassTemplate, class... Args>
+    struct is_instance<ClassTemplate<Args...>, ClassTemplate> : std::true_type {};
+
+
+    /* Check if at least one of the template arguments is an ndarray */
+    template <class Dtype> using is_array = is_instance<Dtype, ndarray>;
+    template <class Dtype1, class Dtype2>
+    constexpr bool at_least_one_is_array() {
+      return is_array<Dtype1>::value or is_array<Dtype2>::value;
+    }
+
+    /* Temporary type alias for SFINAE */
+    template <class Dtype1, class Dtype2, class ReturnType>
+    using __sfinae__ = typename std::enable_if<at_least_one_is_array<Dtype1, Dtype2>(),
+					       ReturnType>::type;
+  }
+
   template <class Dtype1, class Dtype2>
-  auto operator+(const Dtype1& lhs, const Dtype2& rhs) {
+  auto operator+(const Dtype1& lhs, const Dtype2& rhs)
+    -> __sfinae__<Dtype1, Dtype2, decltype(add(lhs, rhs))> {
     return add(lhs, rhs);
   }
   
   template <class Dtype1, class Dtype2>
-  auto operator-(const Dtype1& lhs, const Dtype2& rhs) {
+  auto operator-(const Dtype1& lhs, const Dtype2& rhs)
+    -> __sfinae__<Dtype1, Dtype2, decltype(subtract(lhs, rhs))> {
     return subtract(lhs, rhs);
   }
 
   template <class Dtype1, class Dtype2>
-  auto operator*(const Dtype1& lhs, const Dtype2& rhs) {
+  auto operator*(const Dtype1& lhs, const Dtype2& rhs)
+    -> __sfinae__<Dtype1, Dtype2, decltype(multiply(lhs, rhs))> {
     return multiply(lhs, rhs);
   }
 
   template <class Dtype1, class Dtype2>
-  auto operator/(const Dtype1& lhs, const Dtype2& rhs) {
+  auto operator/(const Dtype1& lhs, const Dtype2& rhs) 
+    -> __sfinae__<Dtype1, Dtype2, decltype(divide(lhs, rhs))> {
     return divide(lhs, rhs);
   }
+
 
   
   template <class Dtype>

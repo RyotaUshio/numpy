@@ -121,8 +121,9 @@ int main() {
     print(np::add(1, 1));
     print(np::negative(a));
     print(np::negative(1));
-    // print(100.0 * x);
-    print(b / 2.0);
+    print(100.0 * x);
+    print(b / 2);
+    print(-x);
 
   } catch (const std::exception& e) {print(e);}
 }
