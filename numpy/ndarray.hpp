@@ -216,25 +216,25 @@ namespace numpy {
     // https://numpy.org/doc/stable/reference/ufuncs.html
     // Some of these ufuncs are called automatically on arrays when the relevant infix notation is used (e.g., add(a, b) is called internally when a + b is written and a or b is an ndarray).
 
-    template <class Dtype2>
-    auto operator+(const Dtype2& rhs) const {
-      return add(*this, rhs);
-    }
+    // template <class Dtype2>
+    // auto operator+(const Dtype2& rhs) const {
+    //   return add(*this, rhs);
+    // }
     
-    template <class Dtype2>
-    auto operator-(const Dtype2& rhs) const {
-      return subtract(*this, rhs);
-    }
+    // template <class Dtype2>
+    // auto operator-(const Dtype2& rhs) const {
+    //   return subtract(*this, rhs);
+    // }
 
-    template <class Dtype2>
-    auto operator*(const Dtype2& rhs) const {
-      return multiply(*this, rhs);
-    }
+    // template <class Dtype2>
+    // auto operator*(const Dtype2& rhs) const {
+    //   return multiply(*this, rhs);
+    // }
 
-    template <class Dtype2>
-    auto operator/(const Dtype2& rhs) const {
-      return divide(*this, rhs);
-    }
+    // template <class Dtype2>
+    // auto operator/(const Dtype2& rhs) const {
+    //   return divide(*this, rhs);
+    // }
 
     ndarray<Dtype>& operator+=(const ndarray<Dtype>& rhs) {
       return add(*this, rhs, *this);
@@ -399,25 +399,25 @@ namespace numpy {
 
   };
 
-  // template <class Dtype1, class Dtype2>
-  // auto operator+(const Dtype1& lhs, const Dtype2& rhs) {
-  //   return add(lhs, rhs);
-  // }
+  template <class Dtype1, class Dtype2>
+  auto operator+(const Dtype1& lhs, const Dtype2& rhs) {
+    return add(lhs, rhs);
+  }
   
-  // template <class Dtype1, class Dtype2>
-  // auto operator-(const Dtype1& lhs, const Dtype2& rhs) {
-  //   return subtract(lhs, rhs);
-  // }
+  template <class Dtype1, class Dtype2>
+  auto operator-(const Dtype1& lhs, const Dtype2& rhs) {
+    return subtract(lhs, rhs);
+  }
 
-  // template <class Dtype1, class Dtype2>
-  // auto operator*(const Dtype1& lhs, const Dtype2& rhs) {
-  //   return multiply(lhs, rhs);
-  // }
+  template <class Dtype1, class Dtype2>
+  auto operator*(const Dtype1& lhs, const Dtype2& rhs) {
+    return multiply(lhs, rhs);
+  }
 
-  // template <class Dtype1, class Dtype2>
-  // auto operator/(const Dtype1& lhs, const Dtype2& rhs) {
-  //   return divide(lhs, rhs);
-  // }
+  template <class Dtype1, class Dtype2>
+  auto operator/(const Dtype1& lhs, const Dtype2& rhs) {
+    return divide(lhs, rhs);
+  }
 
   
   template <class Dtype>
