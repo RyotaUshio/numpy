@@ -236,26 +236,6 @@ namespace numpy {
       return divide(*this, rhs);
     }
 
-    // template <class Dtype2>
-    // auto operator+(const ndarray<Dtype2>& rhs) const {
-    //   return add(*this, rhs);
-    // }
-    
-    // template <class Dtype2>
-    // auto operator-(const ndarray<Dtype2>& rhs) const {
-    //   return subtract(*this, rhs);
-    // }
-
-    // template <class Dtype2>
-    // auto operator*(const ndarray<Dtype2>& rhs) const {
-    //   return multiply(*this, rhs);
-    // }
-
-    // template <class Dtype2>
-    // auto operator/(const ndarray<Dtype2>& rhs) const {
-    //   return divide(*this, rhs);
-    // }
-
     ndarray<Dtype>& operator+=(const ndarray<Dtype>& rhs) {
       return add(*this, rhs, *this);
     }
@@ -418,6 +398,27 @@ namespace numpy {
     }
 
   };
+
+  // template <class Dtype1, class Dtype2>
+  // auto operator+(const Dtype1& lhs, const Dtype2& rhs) {
+  //   return add(lhs, rhs);
+  // }
+  
+  // template <class Dtype1, class Dtype2>
+  // auto operator-(const Dtype1& lhs, const Dtype2& rhs) {
+  //   return subtract(lhs, rhs);
+  // }
+
+  // template <class Dtype1, class Dtype2>
+  // auto operator*(const Dtype1& lhs, const Dtype2& rhs) {
+  //   return multiply(lhs, rhs);
+  // }
+
+  // template <class Dtype1, class Dtype2>
+  // auto operator/(const Dtype1& lhs, const Dtype2& rhs) {
+  //   return divide(lhs, rhs);
+  // }
+
   
   template <class Dtype>
   inline bool _may_share_memory_impl(const Dtype* a_begin, const Dtype* a_end,

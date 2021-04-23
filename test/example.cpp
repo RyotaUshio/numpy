@@ -118,7 +118,10 @@ int main() {
 
     print(np::add(1, a));
     print(np::add(a, 1));
-    print(x * 100.0);
+    print(np::add(1, 1));
+    print(np::negative(a));
+    print(np::negative(1));
+    // print(100.0 * x);
     print(b / 2.0);
 
   } catch (const std::exception& e) {print(e);}

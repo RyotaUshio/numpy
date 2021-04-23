@@ -79,14 +79,15 @@ namespace numpy {
 		     out.begin(), UnaryOperation<Type>());
       return out;
     }
-
-    // template <class Type, class... Args>
-    // auto operator()(Type x, Args... args) const
-    //   -> typename std::enable_if<std::is_arithmetic<Type>::value,
-    // 				 decltype(operator()(ndarray<Type>(x), args...))>::type {
-    //   return operator()(ndarray<Type>(x), args...);
-    // }     
     
+    template <class Type, class... Args>
+    auto operator()(const Type& x, const Args&... args) const
+      ->typename std::enable_if<std::is_arithmetic<Type>::value,
+				decltype(operator()(ndarray(x), args...))
+				>::type {
+      return operator()(ndarray(x), args...);
+    }     
+
   };
   
 
@@ -132,7 +133,7 @@ namespace numpy {
     }
 
     template <class Type1, class Type2, class... Args>
-    auto operator()(const ndarray<Type1>& x1, const Type2& x2, const Args&... args) const
+    auto operator()(const Type1& x1, const Type2& x2, const Args&... args) const
       ->typename std::enable_if<std::is_arithmetic<Type2>::value,
 				decltype(operator()(x1, ndarray(x2), args...))
 				>::type {
@@ -140,12 +141,12 @@ namespace numpy {
     }     
 
     template <class Type1, class Type2, class... Args>
-    auto operator()(const Type1& x1, const ndarray<Type2>& x2, const Args&... args) const
+    auto operator()(const Type1& x1, const Type2& x2, const Args&... args) const
       ->typename std::enable_if<std::is_arithmetic<Type1>::value,
 				decltype(operator()(ndarray(x1), x2, args...))
 				>::type {
       return operator()(ndarray(x1), x2, args...);
-    }     
+    }
     
   };
 }
