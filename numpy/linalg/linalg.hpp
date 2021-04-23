@@ -15,6 +15,8 @@ namespace numpy {
 	return sum(absolute(x));
       if (ord == 2)
 	return std::sqrt(std::inner_product(x.begin(), x.end(), x.begin(), 0));
+      else
+	throw std::runtime_error("NotImplementedError");
     }
     
   } // namespace linalg
