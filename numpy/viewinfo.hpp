@@ -150,7 +150,7 @@ namespace numpy {
 	newshape.push_back(shape[e]);
 	newstride.push_back(stride[e]);
       }
-      return array_view(newshape, newstride);
+      return array_view(newshape, newstride, offset);
     }
 
     array_view transpose() const {
