@@ -111,6 +111,10 @@ int main() {
     print(b);
     print(np::maximum(a, b));
     print(np::heaviside(a, b));
+
+    // linalg
+    print(np::linalg::norm(a));
+    print(np::linalg::norm(a, 1));
     
   } catch (const std::exception& e) {print(e);}
 }
