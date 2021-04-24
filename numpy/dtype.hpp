@@ -50,7 +50,21 @@ namespace numpy {
   using float_ = float64;
   using complex64 = std::complex<float>;   // Complex number, represented by two 32-bit floats (real and imaginary components)
   using complex128 = std::complex<double>; // Note that this matches the precision of the builtin python complex.
-  using complex_ = complex128; 
+  using complex_ = complex128;
+
+  template <class Dtype>
+  struct is_complex : std::false_type {};
+  template <class value_type>
+  struct is_complex<std::complex<value_type>> : std::true_type {};
+  // template <class Dtype>
+  // struct isscolar : public std::false_type {};
+  template <class Dtype>
+  // struct isscolar<typename std::enable_if<std::is_arithmetic<Dtype>::value, Dtype>::type>
+  //   : public std::true_type {};
+  // struct isscolar<Dtype> : public std::enable_if<std::is_arithmetic<Dtype>::value, std::true_type>::type {};
+  constexpr bool isscolar() {
+    return std::is_arithmetic<Dtype>::value or is_complex<Dtype>::value;
+  }
 
   /******** type aliases for internal use ********/
   using size_type = intp;

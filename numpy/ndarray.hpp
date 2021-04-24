@@ -303,22 +303,17 @@ namespace numpy {
       return __getitem__(std::move(coord));
     }
 
-    Dtype& operator[](intp coord) {
-      return __getitem__({coord});
-    }
-
     Dtype operator[](coord_type&& coord) const {
       return __getitem__(std::move(coord));
     }
 
-    Dtype operator[](intp coord) const {
-      return __getitem__({coord});
+    Dtype& operator[](intp index) {
+      return *(begin() + index);
     }
 
-    // template <class Index>
-    // ndarray<Dtype> operator[](Index index) const {
-    //   return operator()(index);
-    // }
+    Dtype operator[](intp index) const {
+      return *(begin() + index);
+    }
 
     template <class AnotherDtype>
     ndarray<AnotherDtype> astype() const {

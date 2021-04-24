@@ -57,7 +57,7 @@ namespace numpy {
   template <template <class> class UnaryOperation>
   struct ufunc_unary: public ufunc {
 
-    template <class Type> using return_type = typename std::invoke_result<UnaryOperation<Type>, Type>::type;
+    template <class Type> using return_type = typename std::remove_const<typename std::invoke_result<UnaryOperation<Type>, Type>::type>::type;
     constexpr ufunc_unary() = default;
     
     template <class Type>
@@ -70,7 +70,8 @@ namespace numpy {
     auto operator()(const ndarray<Type>& x, ndarray<OutputType>& out) const
       -> ndarray< return_type<Type> >& {
 					
-      static_assert(std::is_same_v<OutputType, decltype(UnaryOperation<Type>()(Type()))>, "output operand of invalid type");
+      static_assert(std::is_same_v<OutputType, return_type<Type>>,
+		    "output operand of invalid type");
       
       auto x_copy = x.view;
       array_view::broadcast(out.view, x_copy);
@@ -95,21 +96,28 @@ namespace numpy {
   struct ufunc_binary: public ufunc {
 
     template <class Type1, class Type2>
-    using return_type = typename std::invoke_result<BinaryOperation<Type1, Type2>, Type1, Type2>::type;
+    using return_type = typename std::remove_const<typename std::invoke_result<BinaryOperation<Type1, Type2>, Type1, Type2>::type>::type;
+    // template <class Type1, class Type2, class... Args>
+    // using return_type_scolar_args =
+    //   typename std::enable_if<std::is_arithmetic<Type1>::value,
+    // 			      decltype(operator()(std::declval<ndarray<Type1>>(),
+    // 						  std::declval<Type2>(),
+    // 						  std::declval<Args>()...))>::type;
     constexpr ufunc_binary() = default;
 
     template <class Type1, class Type2>
     auto operator()(const ndarray<Type1>& x1, const ndarray<Type2>& x2) const
       -> ndarray< return_type<Type1, Type2> > {
       auto outshape = array_view::get_broadcasted_shape(x1.view, x2.view);
-      auto out = empty<decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>(outshape);
+      auto out = empty<return_type<Type1, Type2>>(outshape);
       return operator()(x1, x2, out);
     }
     
     template <class Type1, class Type2, class OutputType>
     auto operator()(const ndarray<Type1>& x1, const ndarray<Type2>& x2, ndarray<OutputType>& out) const
-      -> ndarray< return_type<Type1, Type2> >& {
-      static_assert(std::is_same_v<OutputType, decltype(BinaryOperation<Type1, Type2>()(Type1(), Type2()))>, "output operand of invalid type");
+      -> ndarray< return_type<Type1, Type2>> & {
+      static_assert(std::is_same_v<OutputType, return_type<Type1, Type2>>,
+		    "output operand of invalid type");
 
       // avoid the memory overlap problem (issue #13)
       if (may_share_memory(x1, out)) {
@@ -134,7 +142,7 @@ namespace numpy {
 
     template <class Type1, class Type2, class... Args>
     auto operator()(const Type1& x1, const Type2& x2, const Args&... args) const
-      ->typename std::enable_if<std::is_arithmetic<Type2>::value,
+      ->typename std::enable_if<isscolar<Type2>(),//std::is_arithmetic<Type2>::value,
 				decltype(operator()(x1, ndarray(x2), args...))
 				>::type {
       return operator()(x1, ndarray(x2), args...);
@@ -142,9 +150,12 @@ namespace numpy {
 
     template <class Type1, class Type2, class... Args>
     auto operator()(const Type1& x1, const Type2& x2, const Args&... args) const
-      ->typename std::enable_if<std::is_arithmetic<Type1>::value,
-				decltype(operator()(ndarray(x1), x2, args...))
-				>::type {
+      -> typename std::enable_if<isscolar<Type1>(),// std::is_arithmetic<Type1>::value,
+      				 decltype(operator()(ndarray(x1),
+      						     std::declval<Type2>(),
+      						     std::declval<Args>()...
+      						     ))>::type
+    {
       return operator()(ndarray(x1), x2, args...);
     }
     

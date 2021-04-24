@@ -127,5 +127,13 @@ int main() {
 
     print(np::indices({2, 3, 4, 5})); // correct!
 
+    // Complex numbers handling
+    print(np::is_complex<float>::value);
+    print(np::is_complex<np::complex128>::value);
+    np::complex_ c1(1, 1), c2(2, 0);
+    print(np::_ufunc_internal::_add<np::complex_, np::complex_>()(c1, c2));
+    print(np::add(c1, c2));
+    print(np::add(c1, 2.0));
+
   } catch (const std::exception& e) {print(e);}
 }
