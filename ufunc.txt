@@ -15,9 +15,9 @@ Multiply arguments element-wise.
 
 # Matrix product of two arrays.
 
-divide(x1, x2, /[, out, where, casting, …])
-cpp[double(x1) / double(x2)]
-Returns a true division of the inputs, element-wise.
+# divide(x1, x2, /[, out, where, casting, …])
+# cpp[double(x1) / double(x2)]
+# Returns a true division of the inputs, element-wise.
 
 logaddexp(x1, x2, /[, out, where, casting, …])
 cpp[std::log(std::exp(x1) + std::exp(x2))]
@@ -27,9 +27,9 @@ logaddexp2(x1, x2, /[, out, where, casting, …])
 cpp[std::log2(std::exp2(x1) + std::exp2(x2))]
 Logarithm of the sum of exponentiations of the inputs in base-2.
 
-true_divide(x1, x2, /[, out, where, …])
-cpp[double(x1) / double(x2)]
-Returns a true division of the inputs, element-wise.
+# true_divide(x1, x2, /[, out, where, …])
+# cpp[double(x1) / double(x2)]
+# Returns a true division of the inputs, element-wise.
 
 floor_divide(x1, x2, /[, out, where, …])
 cpp[long(x1) / long(x2)]
@@ -71,6 +71,10 @@ absolute(x, /[, out, where, casting, order, …])
 cpp[std::abs(x)]
 Calculate the absolute value element-wise.
 
+abs(x, /[, out, where, casting, order, …])
+eq[absolute]
+Calculate the absolute value element-wise.
+
 fabs(x, /[, out, where, casting, order, …])
 cpp[std::fabs(x)]
 Compute the absolute values element-wise.
@@ -94,6 +98,18 @@ Return the complex conjugate, element-wise.
 conjugate(x, /[, out, where, casting, …])
 cpp[std::conj(x)]
 Return the complex conjugate, element-wise.
+
+angle(x[, deg])
+cpp[std::arg(x)]
+Return the angle of the complex argument.
+
+real(x)
+cpp[std::real(x)]
+Return the real part of the complex argument.
+
+imag(x)
+cpp[std::imag(x)]
+Return the imaginary part of the complex argument.
 
 exp(x, /[, out, where, casting, order, …])
 cpp[std::exp(x)]
@@ -311,9 +327,10 @@ Element-wise maximum of array elements.
 
 # The Python function max() will find the maximum over a one-dimensional array, but it will do so using a slower sequence interface. The reduce method of the maximum ufunc is much faster. Also, the max() method will not give answers you might expect for arrays with greater than one dimension. The reduce method of minimum also allows you to compute a total minimum over an array.
 
-# minimum(x1, x2, /[, out, where, casting, …])
-
-# Element-wise minimum of array elements.
+minimum(x1, x2, /[, out, where, casting, …])
+ret[Type1]
+cpp[std::min(x1, x2)]
+Element-wise minimum of array elements.
 
 # Warning
 

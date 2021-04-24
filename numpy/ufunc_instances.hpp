@@ -34,14 +34,6 @@ namespace numpy {
     };
 
     template <class Type1, class Type2>
-    struct _divide {
-      constexpr _divide() = default;
-      auto operator()(Type1 x1, Type2 x2) -> decltype(double(x1) / double(x2)) const {
-        return double(x1) / double(x2);
-      }
-    };
-
-    template <class Type1, class Type2>
     struct _logaddexp {
       constexpr _logaddexp() = default;
       auto operator()(Type1 x1, Type2 x2) -> decltype(std::log(std::exp(x1) + std::exp(x2))) const {
@@ -54,14 +46,6 @@ namespace numpy {
       constexpr _logaddexp2() = default;
       auto operator()(Type1 x1, Type2 x2) -> decltype(std::log2(std::exp2(x1) + std::exp2(x2))) const {
         return std::log2(std::exp2(x1) + std::exp2(x2));
-      }
-    };
-
-    template <class Type1, class Type2>
-    struct _true_divide {
-      constexpr _true_divide() = default;
-      auto operator()(Type1 x1, Type2 x2) -> decltype(double(x1) / double(x2)) const {
-        return double(x1) / double(x2);
       }
     };
 
@@ -166,6 +150,30 @@ namespace numpy {
       constexpr _conjugate() = default;
       auto operator()(Type x) -> decltype(std::conj(x)) const {
         return std::conj(x);
+      }
+    };
+
+    template <class Type>
+    struct _angle {
+      constexpr _angle() = default;
+      auto operator()(Type x) -> decltype(std::arg(x)) const {
+        return std::arg(x);
+      }
+    };
+
+    template <class Type>
+    struct _real {
+      constexpr _real() = default;
+      auto operator()(Type x) -> decltype(std::real(x)) const {
+        return std::real(x);
+      }
+    };
+
+    template <class Type>
+    struct _imag {
+      constexpr _imag() = default;
+      auto operator()(Type x) -> decltype(std::imag(x)) const {
+        return std::imag(x);
       }
     };
 
@@ -409,15 +417,21 @@ namespace numpy {
       }
     };
 
+    template <class Type1, class Type2>
+    struct _minimum {
+      constexpr _minimum() = default;
+      auto operator()(Type1 x1, Type2 x2) -> Type1 const {
+        return std::min(x1, x2);
+      }
+    };
+
   } // namespace _ufunc_internal
 
   constexpr ufunc_binary<_ufunc_internal::_add> add;	// Add arguments element-wise.
   constexpr ufunc_binary<_ufunc_internal::_subtract> subtract;	// Subtract arguments, element-wise.
   constexpr ufunc_binary<_ufunc_internal::_multiply> multiply;	// Multiply arguments element-wise.
-  constexpr ufunc_binary<_ufunc_internal::_divide> divide;	// Returns a true division of the inputs, element-wise.
   constexpr ufunc_binary<_ufunc_internal::_logaddexp> logaddexp;	// Logarithm of the sum of exponentiations of the inputs.
   constexpr ufunc_binary<_ufunc_internal::_logaddexp2> logaddexp2;	// Logarithm of the sum of exponentiations of the inputs in base-2.
-  constexpr ufunc_binary<_ufunc_internal::_true_divide> true_divide;	// Returns a true division of the inputs, element-wise.
   constexpr ufunc_binary<_ufunc_internal::_floor_divide> floor_divide;	// Return the largest integer smaller or equal to the division of the inputs.
   constexpr ufunc_unary<_ufunc_internal::_negative> negative;	// Numerical negative, element-wise.
   constexpr ufunc_unary<_ufunc_internal::_positive> positive;	// Numerical positive, element-wise.
@@ -425,12 +439,16 @@ namespace numpy {
   constexpr ufunc_binary<_ufunc_internal::_float_power> float_power;	// First array elements raised to powers from second array, element-wise.
   constexpr ufunc_binary<_ufunc_internal::_fmod> fmod;	// Return the element-wise remainder of division.
   constexpr ufunc_unary<_ufunc_internal::_absolute> absolute;	// Calculate the absolute value element-wise.
+  constexpr auto abs = absolute;	// Calculate the absolute value element-wise.
   constexpr ufunc_unary<_ufunc_internal::_fabs> fabs;	// Compute the absolute values element-wise.
   constexpr ufunc_unary<_ufunc_internal::_rint> rint;	// Round elements of the array to the nearest integer.
   constexpr ufunc_unary<_ufunc_internal::_sign> sign;	// Returns an element-wise indication of the sign of a number.
   constexpr ufunc_binary<_ufunc_internal::_heaviside> heaviside;	// Compute the Heaviside step function.
   constexpr ufunc_unary<_ufunc_internal::_conj> conj;	// Return the complex conjugate, element-wise.
   constexpr ufunc_unary<_ufunc_internal::_conjugate> conjugate;	// Return the complex conjugate, element-wise.
+  constexpr ufunc_unary<_ufunc_internal::_angle> angle;	// Return the angle of the complex argument.
+  constexpr ufunc_unary<_ufunc_internal::_real> real;	// Return the real part of the complex argument.
+  constexpr ufunc_unary<_ufunc_internal::_imag> imag;	// Return the imaginary part of the complex argument.
   constexpr ufunc_unary<_ufunc_internal::_exp> exp;	// Calculate the exponential of all elements in the input array.
   constexpr ufunc_unary<_ufunc_internal::_exp2> exp2;	// Calculate 2**p for all p in the input array.
   constexpr ufunc_unary<_ufunc_internal::_log> log;	// Natural logarithm, element-wise.
@@ -466,5 +484,6 @@ namespace numpy {
   constexpr auto deg2rad = radians;	// Convert angles from degrees to radians.
   constexpr auto rad2deg = degrees;	// Convert angles from radians to degrees.
   constexpr ufunc_binary<_ufunc_internal::_maximum> maximum;	// Element-wise maximum of array elements.
+  constexpr ufunc_binary<_ufunc_internal::_minimum> minimum;	// Element-wise minimum of array elements.
 
 } // namespace numpy

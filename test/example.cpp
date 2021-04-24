@@ -134,6 +134,15 @@ int main() {
     print(np::_ufunc_internal::_add<np::complex_, np::complex_>()(c1, c2));
     print(np::add(c1, c2));
     print(np::add(c1, 2.0));
+    auto X = np::arange(6.0).reshape({2, 3});
+    auto Y = X.astype<np::complex_>();
+    auto OUT = np::empty<np::complex_>({2, 3});
+    OUT = X * Y;
+    print(OUT);
+
+    auto Z = OUT.flatten();
+    print(Z);
+    print(Z(slice(0, Z.size(), 2)));
 
   } catch (const std::exception& e) {print(e);}
 }

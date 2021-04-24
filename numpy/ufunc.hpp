@@ -163,3 +163,24 @@ namespace numpy {
 }
 
 #include <numpy/ufunc_instances.hpp>
+
+namespace numpy {
+
+  namespace _ufunc_internal {
+    
+    template <class Type1, class Type2>
+    struct _divide {
+      constexpr _divide() = default;
+      template <class Type> using Float = typename std::conditional<std::is_integral<Type>::value, double, Type>::type;
+      auto operator()(Type1 x1, Type2 x2)
+	-> decltype(static_cast<Float<Type1>>(x1) / static_cast<Float<Type2>>(x2)) const {
+	return static_cast<Float<Type1>>(x1) / static_cast<Float<Type2>>(x2);
+      }
+    };
+    
+  }
+  
+  constexpr ufunc_binary<_ufunc_internal::_divide> divide;	// Returns a true division of the inputs, element-wise.
+  constexpr auto true_divide = divide;	// Returns a true division of the inputs, element-wise.
+
+}
