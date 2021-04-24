@@ -27,6 +27,7 @@ namespace numpy {
   public:
     using iterator = array_iter<Dtype>;
     using viewinfo = array_view;
+    using dtype = Dtype;
     
     template <typename AnotherDtype> friend class ndarray;
     friend array_iter<Dtype>;
@@ -62,9 +63,9 @@ namespace numpy {
       return view.ndim;
     }
     
-    inline const std::type_info& dtype() const{
-      return typeid(Dtype);
-    }
+    // inline const std::type_info& dtype() const{
+    //   return typeid(Dtype);
+    // }
 
     inline const ndarray<Dtype> T() const {
       return ndarray<Dtype>(memory_ptr, view_transpose, base_ptr);
