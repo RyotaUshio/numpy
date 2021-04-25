@@ -21,7 +21,7 @@ int main() {
     print(scolar); // scolar as array
     print(scolar.begin());
 
-    auto vec = std::vector<int>{3, 1, 4, 1, 5, 9, 2};
+    // auto vec = std::vector<int>{3, 1, 4, 1, 5, 9, 2};
     // auto z = np::asarray<int>(vec); // copy
     // np::gettype(vec);
     // print(np::array(vec));
@@ -143,6 +143,13 @@ int main() {
     auto Z = OUT.flatten();
     print(Z);
     print(Z(slice(0, Z.size(), 2)));
+
+    // Matrix operations
+    auto mat = np::ones({3, 3});
+    auto vec = np::arange(1, 4);
+    print(mat);
+    print(vec);
+    print(np::matmul(mat, vec));
 
   } catch (const std::exception& e) {print(e);}
 }

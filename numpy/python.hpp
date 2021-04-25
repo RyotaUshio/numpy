@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <utility> // forward
+#include <set>
 #include <typeinfo>
 #include <type_traits>
 #include <numpy/slice.hpp>
@@ -72,6 +73,15 @@ namespace python {
     return vector_as_python_tuple(vec);
   }
 
+  template <typename T1, typename T2>
+  std::string str(const std::pair<T1, T2>& pair) {
+    return "(" + str(pair.first) + ", " + str(pair.second) + ")";
+  }
+
+  template <typename T>
+  std::string str(const std::set<T>& set) {
+    return str(std::vector(set.begin(), set.end()));
+  }
 
   std::string str(const std::type_info& type) {
     return getNameByTypeInfo(type);

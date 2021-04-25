@@ -9,6 +9,10 @@
 
 namespace python {
   std::string str(const std::type_info& dtype);
+  template <typename T>
+  auto str(const T& obj) -> decltype((std::declval<std::stringstream>()<<obj).str());
+  template <class T1, class T2>
+  std::string str(const std::pair<T1, T2>& pair);
 }    
 
 namespace numpy {
@@ -35,7 +39,7 @@ namespace numpy {
       for(const auto e : vec) {
 	if (not first) 
 	  ss << ", ";
-	ss << e;
+	ss << python::str(e);
 	first = false;
       }
       ss << suffix;

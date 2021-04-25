@@ -141,6 +141,12 @@ namespace numpy {
     array_iter<Dtype> operator-(const int n) const {
       return *this + (-n);
     }
+
+    int operator-(const array_iter<Dtype>& rhs) const {
+      if (array != rhs.array)
+	throw std::invalid_argument("Cannot compare iterators of different arrays");
+      return index - rhs.index;
+    }
     
     bool operator!=(const array_iter<Dtype>& rhs) const {
       return (array != rhs.array) or (index != rhs.index);
@@ -161,6 +167,14 @@ namespace numpy {
       ss << ", coord=" << python::str(coord);
       ss << ")";
       return ss.str();
+    }
+
+    int get_index() const {
+      return index;
+    };
+
+    coord_type get_coord() const {
+      return coord;
     }
   };
   
