@@ -9,29 +9,24 @@ namespace numpy {
 
   template <typename Dtype>
   void savetxt(const char* fname, const ndarray<Dtype>& X,
-	       std::string fmt="%.18e", std::string delimiter=" ", std::string newline="\n",
+	       std::string delimiter=" ", std::string newline="\n",
 	       std::string header="", std::string footer="") {
 
-    FILE* fp;
-    fp = std::fopen(fname, "w");
+    std::ofstream ofs(fname);
+    if (!ofs)
+      throw std::runtime_error("cannot open file " + std::string(fname));
 
-    // if (fp == NULL) {
-    //   例外処理...
-    // }
-
-    std::fprintf(fp, "%s", header.c_str());
-
+    ofs << header;
+    ofs << std::fixed << std::setprecision(18);
     auto it = X.begin();
     for(int i=0; i<X.shape(0); i++) {
       for(int j=0; j<X.shape(1); j++) {
-	std::fprintf(fp, (fmt + delimiter).c_str(), *it);
+	ofs << *it << delimiter;
 	++it;
       }
-      std::fprintf(fp, "%s", newline.c_str());
+      ofs << newline;
     }
-    std::fprintf(fp, "%s", footer.c_str());
-    
-    std::fclose(fp);
+    ofs << footer;
   }
 
   template <typename Dtype=float_>
