@@ -151,5 +151,10 @@ int main() {
     print(vec);
     print(np::matmul(mat, vec));
 
+    // slice
+    print(a);
+    print(a(slice(4)));
+    print(a(slice(2, 4)));
+
   } catch (const std::exception& e) {print(e);}
 }

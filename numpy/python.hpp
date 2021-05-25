@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <utility> // forward
 #include <set>
+#include <map>
 #include <typeinfo>
 #include <type_traits>
 #include <numpy/slice.hpp>
@@ -81,6 +82,31 @@ namespace python {
   template <typename T>
   std::string str(const std::set<T>& set) {
     return str(std::vector(set.begin(), set.end()));
+  }
+
+  template <typename Container>
+  std::string str(const typename Container::iterator itr) {
+    return str(*itr);
+  }
+
+  template <typename T>
+  std::string str(std::__1::__wrap_iter<T> itr) {
+    return str(*itr);
+  }
+  
+  template <typename... T>
+  std::string str(const std::map<T...>& map) {
+    std::stringstream ss;
+    bool first = true;
+    ss << "{";
+    for(const auto e : map) {
+      if (not first) 
+	ss << ", \n";
+      ss << str(e.first) << ": " << str(e.second);
+      first = false;
+    }
+    ss << "}";
+    return ss.str();  
   }
 
   std::string str(const std::type_info& type) {

@@ -224,7 +224,7 @@ namespace numpy {
     auto operator-() const {
       return negative(*this);
     }
-
+    
     ndarray<Dtype>& operator+=(const ndarray<Dtype>& rhs) {
       return add(*this, rhs, *this);
     }
@@ -437,6 +437,47 @@ namespace numpy {
     -> __sfinae__<Dtype1, Dtype2, decltype(divide(lhs, rhs))> {
     return divide(lhs, rhs);
   }
+
+  // template <class Dtype1, class Dtype2>
+  // ndarray<Dtype1>& operator+=(ndarray<Dtype1>& lhs, const Dtype2& rhs) {
+  //   return add(lhs, rhs, lhs);
+  // }
+
+  // template <class Dtype1, class Dtype2>
+  // ndarray<Dtype1>& operator-=(ndarray<Dtype1>& lhs, const Dtype2& rhs) {
+  //   return subtract(lhs, rhs, lhs);
+  // }
+
+  // template <class Dtype1, class Dtype2>
+  // ndarray<Dtype1>& operator*=(ndarray<Dtype1>& lhs, const Dtype2& rhs) {
+  //   return multiply(lhs, rhs, lhs);
+  // }
+
+  // template <class Dtype1, class Dtype2>
+  // ndarray<Dtype1>& operator/=(ndarray<Dtype1>& lhs, const Dtype2& rhs) {
+  //   return divide(lhs, rhs, lhs);
+  // }
+
+  // template <class Dtype1, class Dtype2>
+  // ndarray<Dtype1>& operator+=(ndarray<Dtype1>&& lhs, const Dtype2& rhs) {
+  //   return add(lhs, rhs, lhs);
+  // }
+
+  // template <class Dtype1, class Dtype2>
+  // ndarray<Dtype1>& operator-=(ndarray<Dtype1>&& lhs, const Dtype2& rhs) {
+  //   return subtract(lhs, rhs, lhs);
+  // }
+
+  // template <class Dtype1, class Dtype2>
+  // ndarray<Dtype1>& operator*=(ndarray<Dtype1>&& lhs, const Dtype2& rhs) {
+  //   return multiply(lhs, rhs, lhs);
+  // }
+
+  // template <class Dtype1, class Dtype2>
+  // ndarray<Dtype1>& operator/=(ndarray<Dtype1>&& lhs, const Dtype2& rhs) {
+  //   return divide(lhs, rhs, lhs);
+  // }
+
 
 
   

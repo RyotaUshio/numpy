@@ -13,6 +13,11 @@ namespace python {
   auto str(const T& obj) -> decltype((std::declval<std::stringstream>()<<obj).str());
   template <class T1, class T2>
   std::string str(const std::pair<T1, T2>& pair);
+  template <typename Container>
+  std::string str(const typename Container::iterator itr);
+  template <typename T>
+  std::string str(std::__1::__wrap_iter<T> itr);
+
 }    
 
 namespace numpy {
