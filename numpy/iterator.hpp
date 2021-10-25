@@ -18,7 +18,7 @@ namespace numpy {
   
   template <typename Dtype>
   class array_iter {
-    
+
     using coord_type = std::vector<dim_type>;
     using ptr = typename std::vector<Dtype>::iterator;
 
@@ -42,6 +42,12 @@ namespace numpy {
     }
 
   public:
+    using difference_type   = int;
+    using value_type        = Dtype;
+    using pointer           = Dtype*;
+    using reference         = Dtype&;
+    using iterator_category = std::random_access_iterator_tag;
+    
     array_iter(const ndarray<Dtype>* array_)
       : array_iter<Dtype>(array_, array_->memory_ptr->begin() + array_->view.offset, 0) {}
 

@@ -3,7 +3,6 @@
 #include <numpy/array_math.hpp>
 #include <numpy/io.hpp>
 #include <numpy/algorithm.hpp>
-#include <numpy/linalg/linalg.hpp>
 #include <cmath>
 #include <vector>
 #include <tuple>
@@ -181,3 +180,5 @@ namespace numpy {
   // template<> inline ndarray<bool_>& ndarray<bool_>::operator/=(const ndarray<bool_>& rhs) = delete;
 
 }
+
+#include <numpy/linalg/linalg.hpp>

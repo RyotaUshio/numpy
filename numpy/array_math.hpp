@@ -5,6 +5,8 @@
 #include <vector>
 #include <tuple>
 
+using python::print;
+
 namespace numpy {
 
   template <class Dtype> ndarray<Dtype> empty(const shape_type& shape);
@@ -61,14 +63,32 @@ namespace numpy {
   template <class Dtype1, class Dtype2>
   auto matmul(const ndarray<Dtype1>& a, const ndarray<Dtype2>& b)
     -> ndarray<decltype(Dtype1() * Dtype2())> {
+
+    auto a_d = a.ndim();
+    auto b_d = b.ndim();
     
-    if (a.ndim() * b.ndim() == 0) {
+    if (a_d * b_d == 0) {
       throw std::invalid_argument("ValueError: matmul: Scolar is not allowed.");
     }
     
     using OutputType = decltype(Dtype1() * Dtype2());
-    auto [a_2d] = at_least_2d(a);
-    auto out = empty<OutputType>({a_2d.shape(a_2d.ndim() - 2), b.shape(b.ndim() - 1)});
+    shape_type shape;
+    if (a_d == 2 and b_d == 2) {
+      shape.resize(2);
+      shape[0] = a.shape(0);
+      shape[1] = b.shape(1);
+    }
+    if (a_d == 1) {
+      shape.resize(1);
+      shape[0] = b.shape(1);
+    }
+    if (b_d == 1) {
+      shape.resize(1);
+      shape[0] = a.shape(0);
+    }
+
+    auto out = empty<OutputType>({a_d == 1 ? 1 : a.shape(0),
+				  b_d == 1 ? 1 : b.shape(1)});
     return matmul(a, b, out);
   }
   
@@ -80,20 +100,22 @@ namespace numpy {
 			     
     if (a.ndim() == 1) {
       auto n = a.size();
-      out = matmul(a.reshape(1, n), b).reshape(n);
+      matmul(a.reshape(1, n), b, out);
+      out = out.reshape(-1);
       return out;
     }
 
     if (b.ndim() == 1) {
       auto n = b.size();
-      out = matmul(a, b.reshape(n, 1)).reshape(n);
+      matmul(a, b.reshape(n, 1), out);
+      out = out.reshape(-1);
       return out;
     }    
     
-    if (a.ndim() == 2 and b.ndim() == 2) {
+    if (a.ndim() == 2 and b.ndim() == 2) {      
       if (a.shape(1) != b.shape(0))
 	throw std::invalid_argument("ValueError: matmul: Input operand 1 has a mismatch in its core dimension 0, with gufunc signature (n?,k),(k,m?)->(n?,m?) (size " + python::str(a.shape(1)) + " is different from " + python::str(b.shape(0)) + ")");
-      
+
       auto b_T = b.T();      
       auto n = b_T.shape(0);
       int idx = -1;

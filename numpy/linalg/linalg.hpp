@@ -1,5 +1,7 @@
 #pragma once
 
+#include <numpy/linalg/solve.hpp>
+
 namespace numpy {
 
   namespace linalg {

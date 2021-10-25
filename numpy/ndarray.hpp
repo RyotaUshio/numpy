@@ -187,7 +187,25 @@ namespace numpy {
       return *this;
     }
     
-    ndarray<Dtype> reshape(const shape_type& newshape) const {
+    ndarray<Dtype> reshape(shape_type newshape) const {
+      auto prod = utils::product(newshape);
+      auto sz = size();
+      bool minus_one_is_found = false;
+      for (auto& e : newshape) {
+	if (e == -1) {
+	  if (minus_one_is_found or sz % (-prod)) {
+	    throw std::runtime_error("reshape: incompatible newshape is given");
+	  }
+	  e = sz / (-prod);
+	  minus_one_is_found = true;
+	}
+      }
+
+      prod = utils::product(newshape);
+      if (prod != sz) {
+	throw std::runtime_error("reshape: incompatible newshape is given");
+      }
+     
       return ndarray<Dtype>(memory_ptr, viewinfo(newshape), base_ptr);
     }
 

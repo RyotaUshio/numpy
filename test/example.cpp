@@ -41,7 +41,8 @@ int main() {
   
     // Indexing & Slicing
     print(x[{-1, 3}]);
-    print(x(-1)); // equivalent to the above
+    print(x("0:1"));
+    print(x(-1));
     print(x("1:3","2::")); // slice is also available
     print(x(1,"::-1")); // you can't do `x[1,"::-1"]` due to the C++ language specification
     print(x.__getitem__({2, 2}));
@@ -52,7 +53,7 @@ int main() {
     print(np::may_share_memory(x, x(-1))); // -> True
     print(np::may_share_memory(x, x("1:3","2::"))); // -> True
     print(np::may_share_memory(x, x(1,"::-1"))); // -> True
-    
+
     // Broadcasting & Ufuncs
     auto a = np::array(range(4)).reshape(4, 1);
     auto b = np::array(range(3)).reshape(1, 3);
@@ -155,6 +156,7 @@ int main() {
     print(a);
     print(a(slice(4)));
     print(a(slice(2, 4)));
+    
 
   } catch (const std::exception& e) {print(e);}
 }
