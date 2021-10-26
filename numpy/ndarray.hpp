@@ -169,7 +169,7 @@ namespace numpy {
       auto rhs_view = rhs.view;
       array_view::broadcast(view, rhs_view);
       ndarray<Dtype> rhs_broadcasted(rhs.memory_ptr, rhs_view, rhs.base_ptr);
-      
+
       std::copy(rhs_broadcasted.begin(), rhs_broadcasted.end(), begin());
       // std::copy(rhs.begin(), rhs.end(), begin());
       return *this;

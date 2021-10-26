@@ -1,6 +1,8 @@
 #pragma once
+ 
+namespace np = numpy;
 
-namespace numpy {
+namespace scipy {
 
   namespace linalg {
 
@@ -8,16 +10,18 @@ namespace numpy {
     using python::str;
     
     template <class Dtype>
-    using matrix = ndarray<Dtype>;
+    using matrix = np::ndarray<Dtype>;
+    template <class Dtype>
+    using vector = np::ndarray<Dtype>;
     template <class Type>
     using Float = typename std::conditional<std::is_floating_point<Type>::value, Type, double>::type;
 
     /* direct solvers */
     
     template <class Dtype>
-    void _forward_elimination_step(matrix<Dtype>& a, ndarray<int>& p) {
+    void _forward_elimination_step(matrix<Dtype>& a, vector<int>& p) {
       // pivot selection
-      auto abs_first_col = fabs(a(":", 0));
+      auto abs_first_col = np::fabs(a(":", 0));
       auto itr_pivot = std::max_element(abs_first_col.begin(), abs_first_col.end());
       auto idx_pivot = itr_pivot.get_index();
 
@@ -39,7 +43,7 @@ namespace numpy {
     }
 
     template <class Dtype>
-    ndarray<int> _forward_elimination(matrix<Dtype>& Ab) {
+    vector<int> _forward_elimination(matrix<Dtype>& Ab) {
       // Let us consider the following equation:
       //   Ax = b.
       // This function conducts forward elimination in-place.
@@ -52,7 +56,7 @@ namespace numpy {
 
       int i;
       auto n = Ab.shape(0);
-      auto p = array(python::range(n)); // permutation
+      auto p = np::array(python::range(n)); // permutation
 
       for (i=0; i<n-1; i++) {
 	auto sl = slice(str(i) + ":");
@@ -76,7 +80,7 @@ namespace numpy {
       for (int i=n-1; i>=0; i--) {
 	auto sl = slice(str(i+1) + ":");
 	if (i < n-1) {
-	  auto sum = matmul(A(i, sl).copy(), b(sl).copy());
+	  auto sum = np::matmul(A(i, sl).copy(), b(sl).copy());
 	  b(i) -= sum;
 	}
 	if (not diag_is_1)
@@ -96,7 +100,7 @@ namespace numpy {
       for (int i=0; i<n; i++) {
 	auto sl = slice(":" + str(i));
 	if (i > 0) {
-	  auto sum = matmul(A(i, sl).copy(), b(sl).copy());
+	  auto sum = np::matmul(A(i, sl).copy(), b(sl).copy());
 	  b(i) -= sum;
 	}
 	if (not diag_is_1)
@@ -108,7 +112,10 @@ namespace numpy {
     struct LU_decomposition {
 
       matrix<Dtype> LU;
-      ndarray<int> p;
+      vector<int> p;
+
+      LU_decomposition(const matrix<Dtype>& LU_, const vector<int>& p_)
+	: LU(LU_), p(p_) {}
       
       LU_decomposition(const matrix<Dtype>& a, bool overwrite_a=false) {
 	if (overwrite_a)
@@ -120,7 +127,7 @@ namespace numpy {
       }
 
       matrix<Dtype> L() const {
-	auto ret = zeros(LU.shape());
+	auto ret = np::zeros(LU.shape());
       	int i, j;
       	int n = LU.shape(0);
 	for (i=0; i<n; i++)
@@ -134,7 +141,7 @@ namespace numpy {
       }
 
       matrix<Dtype> U() const {
-	auto ret = zeros(LU.shape());
+	auto ret = np::zeros(LU.shape());
       	int i, j;
       	int n = LU.shape(0);
 	for (i=0; i<n; i++)
@@ -144,13 +151,13 @@ namespace numpy {
 	return ret;
       }
 
-      ndarray<Dtype> permute(const ndarray<Dtype>& b, bool overwrite_b=false) const {
+      matrix<Dtype> permute(const matrix<Dtype>& b, bool overwrite_b=false) const {
 	auto tmp = b.copy();
-	ndarray<Dtype> rhs;
+	matrix<Dtype> rhs;
 	if (overwrite_b)
 	  rhs = b;
 	else
-	  rhs = empty(b.shape());
+	  rhs = np::empty(b.shape());
 
 	auto itr = p.begin();
 	auto end = p.end();
@@ -161,7 +168,7 @@ namespace numpy {
 	return rhs;
       }
 
-      ndarray<Dtype> solve(const ndarray<Dtype>& b, bool overwrite_b=false) const {	
+      matrix<Dtype> solve(const matrix<Dtype>& b, bool overwrite_b=false) const {	
 	auto rhs = permute(b, overwrite_b);
 	
 	_backward_substitution_lower(LU, rhs, true);
@@ -170,6 +177,96 @@ namespace numpy {
 	return rhs;
       }
     };
+
+    template <class Dtype>
+    struct Gaussian_elimination {
+
+      matrix<Dtype> LU;
+      matrix<Dtype> x;
+      
+      Gaussian_elimination(const matrix<Dtype>& ab, bool overwrite_ab=false) {
+	if (overwrite_ab)
+	  LU = ab;
+	else
+	  LU = ab.copy();
+	assert(LU.shape(0) < LU.shape(1));
+
+	_forward_elimination(LU);
+	
+	auto n = LU.shape(0);
+	
+      	auto slice_all = slice(":");
+      	auto slice_left = slice(n);
+      	auto slice_right = slice(str(n)+":");
+
+      	auto a = LU(slice_all, slice_left);
+      	auto b = LU(slice_all, slice_right);
+
+      	_backward_substitution_upper(a, b, false);
+
+	x = b;
+      }
+
+      Gaussian_elimination(const matrix<Dtype>& a, const matrix<Dtype>& b) {
+	auto ab = np::empty({a.shape(0),
+			     a.shape(1) + (b.ndim() == 1 ? 1 : b.shape(1))});
+
+       	auto n = a.shape(1);
+	auto slice_all = slice(":");
+	auto slice_left = slice(n);
+	auto slice_right = slice(str(n)+":");
+
+	ab(slice_all, slice_left) = a;
+	auto [b_2d] = at_least_2d(b);
+	ab(slice_all, slice_right) = b_2d;
+	
+	*this = Gaussian_elimination(ab, true);
+      }
+
+      matrix<Dtype> solve() const {
+	auto sol = x.copy();
+	return sol.shape(1) == 1 ? sol.reshape(-1) : sol;
+      }
+    };
+
+
+    // iterative solvers
+    
+    template <class ArrayLike>
+    auto norm(const ArrayLike& x, int ord=2) -> np::float64;
+
+    template <class Dtype>
+    bool _converge(const matrix<Dtype>& a, const vector<Dtype>& b, const vector<Dtype>& x, np::float_ eps) {
+      auto residual = np::matmul(a, x) - b;
+      auto norm_residual = norm(residual);
+      return norm_residual< eps;
+    }
+
+    template <class Dtype>
+    vector<Dtype> Gauss_Seidel(const matrix<Dtype>& a, const vector<Dtype>& b, np::float_ eps=1.0e-16) {	
+      // initialize x
+      auto x = np::zeros({a.shape(1)});
+
+      // preparation
+      auto n = a.shape(0);
+      auto itr_x = x.begin();
+
+      // loop
+      while (not _converge(a, b, x, eps)) {
+	auto itr_a = a.begin();
+	auto itr_b = b.begin();
+      
+	for (int i=0; i<n; i++) {
+	  auto sum = std::inner_product(itr_a, itr_a + i, itr_x, Dtype(0));
+	  sum += std::inner_product(itr_a + i+1, itr_a + n, itr_x + i+1, Dtype(0));
+	  *(itr_x + i) = (*itr_b - sum) / *(itr_a + i);
+	  itr_a += n;
+	  ++itr_b;
+	}
+      }
+
+      return x;
+    }
     
   }
 }

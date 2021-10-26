@@ -119,6 +119,15 @@ namespace numpy {
     return linspace(start, stop - (stop - start) / num, num, true);
   }
 
+  template <class Dtype=float_>
+  ndarray<Dtype> identity(int n) {
+    auto ret = empty({n, n});
+    for (int i=0; i<n; i++)
+      for (int j=0; j<n; j++)
+	ret(i, j) = (i == j ? Dtype(1) : Dtype(0));
+    return ret;
+  }
+
   template <class Dtype>
   ndarray<Dtype> _at_least_2d_impl(const ndarray<Dtype>& ary) {
     return (ary.ndim() < 2) ? ary.reshape(1, ary.size()) : ary;
@@ -180,5 +189,3 @@ namespace numpy {
   // template<> inline ndarray<bool_>& ndarray<bool_>::operator/=(const ndarray<bool_>& rhs) = delete;
 
 }
-
-#include <numpy/linalg/linalg.hpp>
