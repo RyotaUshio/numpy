@@ -235,38 +235,125 @@ namespace scipy {
     template <class ArrayLike>
     auto norm(const ArrayLike& x, int ord=2) -> np::float64;
 
-    template <class Dtype>
-    bool _converge(const matrix<Dtype>& a, const vector<Dtype>& b, const vector<Dtype>& x, np::float_ eps) {
-      auto residual = np::matmul(a, x) - b;
-      auto norm_residual = norm(residual);
-      return norm_residual< eps;
-    }
+    constexpr np::float_ eps_default = 1.0e-16;
 
-    template <class Dtype>
-    vector<Dtype> Gauss_Seidel(const matrix<Dtype>& a, const vector<Dtype>& b, np::float_ eps=1.0e-16) {	
-      // initialize x
-      auto x = np::zeros({a.shape(1)});
+    template <class Dtype, bool _use_x2>
+    struct _stationary_iterative_solver {
 
-      // preparation
-      auto n = a.shape(0);
-      auto itr_x = x.begin();
-
-      // loop
-      while (not _converge(a, b, x, eps)) {
-	auto itr_a = a.begin();
-	auto itr_b = b.begin();
+      matrix<Dtype> a;
+      vector<Dtype> b;
+      np::float_ eps;
       
-	for (int i=0; i<n; i++) {
-	  auto sum = std::inner_product(itr_a, itr_a + i, itr_x, Dtype(0));
-	  sum += std::inner_product(itr_a + i+1, itr_a + n, itr_x + i+1, Dtype(0));
-	  *(itr_x + i) = (*itr_b - sum) / *(itr_a + i);
-	  itr_a += n;
-	  ++itr_b;
-	}
+      _stationary_iterative_solver(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_)
+	: a(a_), b(b_), eps(eps_) {}
+
+      bool _converge(const vector<Dtype>& x) {
+	auto residual = np::matmul(a, x) - b;
+	auto norm_residual = norm(residual);
+	return norm_residual< eps;
       }
 
-      return x;
-    }
+      template <class ArrayIterator>
+      auto _get_new_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
+			ArrayIterator itr_x_old, ArrayIterator itr_x_new,
+			int n, int i) -> typename ArrayIterator::value_type {
+	auto init = typename ArrayIterator::value_type(0);
+	auto sum = std::inner_product(itr_a, itr_a + i, itr_x_old, init);
+	sum += std::inner_product(itr_a + i+1, itr_a + n, itr_x_old + i+1, init);
+	return (*itr_b - sum) / *(itr_a + i);
+      }
+
+      using ArrayIterator = typename np::ndarray<Dtype>::iterator;
+      virtual void _update_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
+		       ArrayIterator itr_x, ArrayIterator itr_x2,
+			       int n, int i) = 0;
+
+      vector<Dtype> solve() {
+
+	// initialize x
+	auto x = np::zeros({a.shape(1)});
+	auto x2 = x; // buffer
+
+	// preparation
+	auto n = a.shape(0);
+	auto itr_x = x.begin();
+	auto itr_x2 = itr_x;
+
+	if constexpr (_use_x2) {
+	    x2 = np::empty(x.shape());
+	    itr_x2 = x2.begin();
+	  }
+
+	// loop
+	while (not _converge(x)) {
+	  auto itr_a = a.begin();
+	  auto itr_b = b.begin();
+
+	  print(x);
+      
+	  for (int i=0; i<n; i++) {
+	    _update_x_i(itr_a, itr_b, itr_x, itr_x2, n, i);
+	    itr_a += n;
+	    ++itr_b;
+	  }
+
+	  if constexpr (_use_x2) { // Jacobi
+	      // swap
+	      auto tmp = itr_x;
+	      itr_x = itr_x2;
+	      itr_x2 = tmp;
+	    }  
+	}
+
+	return x;
+      }
+    };
+
+    template <class Dtype>
+    struct Jacobi: public _stationary_iterative_solver<Dtype, true> {
+
+      Jacobi(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_=eps_default)
+	: _stationary_iterative_solver<Dtype, true>(a_, b_, eps_) {}
+
+      using ArrayIterator = typename np::ndarray<Dtype>::iterator;
+      void _update_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
+		       ArrayIterator itr_x, ArrayIterator itr_x2,
+		       int n, int i) override {
+	*(itr_x2 + i) = this->_get_new_x_i(itr_a, itr_b, itr_x, itr_x2, n, i);
+      }
+    };
+
+    template <class Dtype>
+    struct Gauss_Seidel: public _stationary_iterative_solver<Dtype, false> {
+
+      Gauss_Seidel(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_=eps_default)
+	: _stationary_iterative_solver<Dtype, false>(a_, b_, eps_) {}
+      
+      using ArrayIterator = typename np::ndarray<Dtype>::iterator;
+      void _update_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
+		       ArrayIterator itr_x, ArrayIterator itr_x2,
+		       int n, int i) override {
+	*(itr_x + i) = this->_get_new_x_i(itr_a, itr_b, itr_x, itr_x, n, i);
+      }
+    };
+
+    template <class Dtype>
+    struct SOR: public _stationary_iterative_solver<Dtype, false> {
+
+      np::float_ omega;
+      
+      SOR(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ omega_, np::float_ eps_=eps_default)
+	: _stationary_iterative_solver<Dtype, false>(a_, b_, eps_), omega(omega_) {}
+      
+      using ArrayIterator = typename np::ndarray<Dtype>::iterator;
+      void _update_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
+		       ArrayIterator itr_x, ArrayIterator itr_x2,
+		       int n, int i) override {
+	auto y = this->_get_new_x_i(itr_a, itr_b, itr_x, itr_x, n, i);
+	*(itr_x + i) = *(itr_x + i) * (1 - omega) + y * omega;
+      }
+    };
     
   }
+  
 }

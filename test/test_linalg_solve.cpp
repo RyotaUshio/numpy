@@ -32,7 +32,7 @@ int main() {
   auto gauss = scipy::linalg::Gaussian_elimination(A, b);
   print(gauss.solve());
 
-  // With the Gauss-Seidel method
+  // With the iterative methods
 
   // spectral radius >= 1 so the iteration will not converge
   // auto x = scipy::linalg::Gauss_Seidel(A, b);
@@ -44,7 +44,22 @@ int main() {
   b = np::ndarray<np::float_>({0, 4, 6}, {3});
   print(A);
   print(b);
-  auto x = scipy::linalg::Gauss_Seidel(A, b);
+
+  // Jacobi method
+  auto jcb = scipy::linalg::Jacobi(A, b);
+  auto x = jcb.solve();
+  print(x);
+  print(np::matmul(A, x));
+
+  // Gauss-Seidel method
+  auto gs = scipy::linalg::Gauss_Seidel(A, b);
+  x = gs.solve();
+  print(x);
+  print(np::matmul(A, x));
+
+  // SOR method
+  auto sor = scipy::linalg::SOR(A, b, 1.15);
+  x = sor.solve();
   print(x);
   print(np::matmul(A, x));
 
