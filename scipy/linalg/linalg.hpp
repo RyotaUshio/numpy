@@ -24,6 +24,12 @@ namespace scipy {
       return LU.solve(b, overwrite_b);
     }
 
+    template <class Dtype>
+    matrix<Dtype> cg(const matrix<Dtype>& a, const vector<Dtype>& b, np::float_ tol=eps_default) {
+      auto CG = ConjugateGradient(a, b, tol);
+      return CG.solve();
+    }
+
     template <class ArrayLike>
     auto norm(const ArrayLike& x, int ord) -> np::float64 {
       if (ord == 1)

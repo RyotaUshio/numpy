@@ -64,8 +64,7 @@ int main() {
   print(np::matmul(A, x));
 
   // Conjugate Gradient method
-  auto cg = scipy::linalg::CG(A, b);
-  x = cg.solve();
+  x = scipy::linalg::cg(A, b);
   print(x);
   print(np::matmul(A, x));
 
@@ -80,5 +79,5 @@ int main() {
   auto A_inv = scipy::linalg::inv(A);
   print(A_inv);
   print(np::matmul(A, A_inv));
-  
+
 }

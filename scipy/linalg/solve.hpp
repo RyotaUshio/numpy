@@ -244,9 +244,10 @@ namespace scipy {
       vector<Dtype> b;
       np::float_ eps;
       np::float_ norm_b;
+      int n;
             
       _iterative_solver(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_=eps_default)
-	: a(a_), b(b_), eps(eps_), norm_b(norm(b)) {}
+	: a(a_), b(b_), eps(eps_), norm_b(norm(b)), n(a.shape(1)) {}
 
       bool _converge(const vector<Dtype>& x, bool relative=true) const {
 	auto residual = np::matmul(a, x) - b;
@@ -255,6 +256,20 @@ namespace scipy {
 	  error /= norm_b;
 	}
 	return error < eps;
+      }
+
+      virtual void _solve_impl(vector<Dtype>& x) = 0;
+
+      vector<Dtype> solve(const python::NoneType None=python::None) {
+	auto x = np::zeros({this->n});
+	_solve_impl(x);
+	return x;
+      }
+      
+      vector<Dtype> solve(const vector<Dtype>& x0) {
+	auto x = x0.copy();
+	_solve_impl(x);
+	return x;
       }
     };
 
@@ -265,57 +280,50 @@ namespace scipy {
 
       template <class ArrayIterator>
       auto _get_new_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
-			ArrayIterator itr_x_old, ArrayIterator itr_x_new,
-			int n, int i) -> typename ArrayIterator::value_type {
-	auto init = typename ArrayIterator::value_type(0);
-	auto sum = std::inner_product(itr_a, itr_a + i, itr_x_old, init);
-	sum += std::inner_product(itr_a + i+1, itr_a + n, itr_x_old + i+1, init);
-	return (*itr_b - sum) / *(itr_a + i);
+    			ArrayIterator itr_x_old, ArrayIterator itr_x_new,
+    			int n, int i) -> typename ArrayIterator::value_type {
+    	auto init = typename ArrayIterator::value_type(0);
+    	auto sum = std::inner_product(itr_a, itr_a + i, itr_x_old, init);
+    	sum += std::inner_product(itr_a + i+1, itr_a + n, itr_x_old + i+1, init);
+    	return (*itr_b - sum) / *(itr_a + i);
       }
 
       using ArrayIterator = typename np::ndarray<Dtype>::iterator;
       virtual void _update_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
-		       ArrayIterator itr_x, ArrayIterator itr_x2,
-			       int n, int i) = 0;
+    		       ArrayIterator itr_x, ArrayIterator itr_x2,
+    			       int n, int i) = 0;
 
-      vector<Dtype> solve() {
-
-	// initialize x
-	auto x = np::zeros({this->a.shape(1)});
+      void _solve_impl(vector<Dtype>& x) {
+    	// preparation
 	auto x2 = x; // buffer
+    	auto n = this->a.shape(0);
+    	auto itr_x = x.begin();
+    	auto itr_x2 = itr_x;
 
-	// preparation
-	auto n = this->a.shape(0);
-	auto itr_x = x.begin();
-	auto itr_x2 = itr_x;
+    	if constexpr (_use_x2) {
+    	    x2 = np::empty(x.shape());
+    	    itr_x2 = x2.begin();
+    	  }
 
-	if constexpr (_use_x2) {
-	    x2 = np::empty(x.shape());
-	    itr_x2 = x2.begin();
-	  }
-
-	// loop
-	while (not this->_converge(x)) {
-	  auto itr_a = this->a.begin();
-	  auto itr_b = this->b.begin();
-
+    	// loop
+    	while (not this->_converge(x)) {
 	  print(x);
+    	  auto itr_a = this->a.begin();
+    	  auto itr_b = this->b.begin();
       
-	  for (int i=0; i<n; i++) {
-	    _update_x_i(itr_a, itr_b, itr_x, itr_x2, n, i);
-	    itr_a += n;
-	    ++itr_b;
-	  }
+    	  for (int i=0; i<n; i++) {
+    	    _update_x_i(itr_a, itr_b, itr_x, itr_x2, n, i);
+    	    itr_a += n;
+    	    ++itr_b;
+    	  }
 
-	  if constexpr (_use_x2) { // Jacobi
-	      // swap
-	      auto tmp = itr_x;
-	      itr_x = itr_x2;
-	      itr_x2 = tmp;
-	    }  
-	}
-
-	return x;
+    	  if constexpr (_use_x2) { // Jacobi
+    	      // swap
+    	      auto tmp = itr_x;
+    	      itr_x = itr_x2;
+    	      itr_x2 = tmp;
+    	    }  
+    	}
       }
     };
 
@@ -327,9 +335,9 @@ namespace scipy {
 
       using ArrayIterator = typename np::ndarray<Dtype>::iterator;
       void _update_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
-		       ArrayIterator itr_x, ArrayIterator itr_x2,
-		       int n, int i) override {
-	*(itr_x2 + i) = this->_get_new_x_i(itr_a, itr_b, itr_x, itr_x2, n, i);
+    		       ArrayIterator itr_x, ArrayIterator itr_x2,
+    		       int n, int i) override {
+    	*(itr_x2 + i) = this->_get_new_x_i(itr_a, itr_b, itr_x, itr_x2, n, i);
       }
     };
 
@@ -337,13 +345,13 @@ namespace scipy {
     struct Gauss_Seidel: public _stationary_iterative_solver<Dtype, false> {
 
       Gauss_Seidel(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_=eps_default)
-	: _stationary_iterative_solver<Dtype, false>(a_, b_, eps_) {}
+    	: _stationary_iterative_solver<Dtype, false>(a_, b_, eps_) {}
       
       using ArrayIterator = typename np::ndarray<Dtype>::iterator;
       void _update_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
-		       ArrayIterator itr_x, ArrayIterator itr_x2,
-		       int n, int i) override {
-	*(itr_x + i) = this->_get_new_x_i(itr_a, itr_b, itr_x, itr_x, n, i);
+    		       ArrayIterator itr_x, ArrayIterator itr_x2,
+    		       int n, int i) override {
+    	*(itr_x + i) = this->_get_new_x_i(itr_a, itr_b, itr_x, itr_x, n, i);
       }
     };
 
@@ -353,32 +361,31 @@ namespace scipy {
       np::float_ omega;
       
       SOR(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ omega_, np::float_ eps_=eps_default)
-	: _stationary_iterative_solver<Dtype, false>(a_, b_, eps_), omega(omega_) {}
+    	: _stationary_iterative_solver<Dtype, false>(a_, b_, eps_), omega(omega_) {}
       
       using ArrayIterator = typename np::ndarray<Dtype>::iterator;
       void _update_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
-		       ArrayIterator itr_x, ArrayIterator itr_x2,
-		       int n, int i) override {
-	auto y = this->_get_new_x_i(itr_a, itr_b, itr_x, itr_x, n, i);
-	*(itr_x + i) = *(itr_x + i) * (1 - omega) + y * omega;
+    		       ArrayIterator itr_x, ArrayIterator itr_x2,
+    		       int n, int i) override {
+    	auto y = this->_get_new_x_i(itr_a, itr_b, itr_x, itr_x, n, i);
+    	*(itr_x + i) = *(itr_x + i) * (1 - omega) + y * omega;
       }
     };
 
 
     template <class Dtype>
-    struct CG: public _iterative_solver<Dtype> {
+    struct ConjugateGradient: public _iterative_solver<Dtype> {
 
       vector<Dtype> r; // residual = steepest decent direction
       vector<Dtype> p; // decent direction = A-orthogonalization of r
       np::float_ alpha; // step size
       
-      CG(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_=eps_default)
+      ConjugateGradient(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_=eps_default)
 	: _iterative_solver<Dtype>(a_, b_, eps_) {}
-      
-      vector<Dtype> solve() {
+
+      void _solve_impl(vector<Dtype>& x) override {
 	// init
 	auto n = this->a.shape(1);
-	auto x = np::zeros({n});
 	r = this->b - np::matmul(this->a, x);
 	p = r;
 	auto Ap = np::empty({n});
@@ -386,8 +393,7 @@ namespace scipy {
 	np::float_ beta;
 
 	while (not this->_converge(x)) {
-	  print(x);
-	  np::matmul(this->a, p, Ap);
+	  Ap = np::matmul(this->a, p);
 	  r_dot_p = np::dot(r, p);
 	  p_dot_Ap = np::dot(p, Ap);
 
@@ -400,12 +406,8 @@ namespace scipy {
 	  beta = r_dot_p / p_dot_Ap;
 	  p = r - beta * p;
 	}
-
-	return x;
       }
-      
     };
-    
   }
 
   
