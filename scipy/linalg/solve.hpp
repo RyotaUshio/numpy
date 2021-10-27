@@ -258,7 +258,7 @@ namespace scipy {
 	return error < eps;
       }
 
-      virtual void _solve_impl(vector<Dtype>& x) = 0;
+      virtual void _solve_impl(vector<Dtype>& x)  = 0;
 
       vector<Dtype> solve(const python::NoneType None=python::None) {
 	auto x = np::zeros({this->n});
@@ -375,22 +375,18 @@ namespace scipy {
 
     template <class Dtype>
     struct ConjugateGradient: public _iterative_solver<Dtype> {
-
-      vector<Dtype> r; // residual = steepest decent direction
-      vector<Dtype> p; // decent direction = A-orthogonalization of r
-      np::float_ alpha; // step size
       
       ConjugateGradient(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_=eps_default)
 	: _iterative_solver<Dtype>(a_, b_, eps_) {}
 
       void _solve_impl(vector<Dtype>& x) override {
 	// init
-	auto n = this->a.shape(1);
-	r = this->b - np::matmul(this->a, x);
-	p = r;
-	auto Ap = np::empty({n});
-	np::float_ r_dot_p, p_dot_Ap;
-	np::float_ beta;
+	auto r = this->b - np::matmul(this->a, x); // residual = steepest decent direction
+	auto p = r; // decent direction = A-orthogonalization of r
+	auto Ap = np::empty({this->n}); // product of a and p
+	np::float_ r_dot_p, p_dot_Ap; // inner products
+	np::float_ alpha; // step size of gradient decent
+	np::float_ beta; // a factor in Gram-Schmidt orthogonormalization
 
 	while (not this->_converge(x)) {
 	  Ap = np::matmul(this->a, p);
