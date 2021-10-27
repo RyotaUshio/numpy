@@ -63,6 +63,13 @@ int main() {
   print(x);
   print(np::matmul(A, x));
 
+  // Conjugate Gradient method
+  auto cg = scipy::linalg::CG(A, b);
+  x = cg.solve();
+  print(x);
+  print(np::matmul(A, x));
+
+
   // Let's try direct methods as well
   x = scipy::linalg::lu_solve(scipy::linalg::lu_factor(A), b);
   print(x);

@@ -235,23 +235,33 @@ namespace scipy {
     template <class ArrayLike>
     auto norm(const ArrayLike& x, int ord=2) -> np::float64;
 
-    constexpr np::float_ eps_default = 1.0e-16;
+    constexpr np::float_ eps_default = 1.0e-15;
 
-    template <class Dtype, bool _use_x2>
-    struct _stationary_iterative_solver {
+    template <class Dtype>
+    struct _iterative_solver {
 
       matrix<Dtype> a;
       vector<Dtype> b;
       np::float_ eps;
-      
-      _stationary_iterative_solver(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_)
-	: a(a_), b(b_), eps(eps_) {}
+      np::float_ norm_b;
+            
+      _iterative_solver(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_=eps_default)
+	: a(a_), b(b_), eps(eps_), norm_b(norm(b)) {}
 
-      bool _converge(const vector<Dtype>& x) {
+      bool _converge(const vector<Dtype>& x, bool relative=true) const {
 	auto residual = np::matmul(a, x) - b;
-	auto norm_residual = norm(residual);
-	return norm_residual< eps;
+	auto error = norm(residual);
+	if (relative) {
+	  error /= norm_b;
+	}
+	return error < eps;
       }
+    };
+
+    template <class Dtype, bool _use_x2>
+    struct _stationary_iterative_solver: public _iterative_solver<Dtype> {
+
+      using _iterative_solver<Dtype>::_iterative_solver;
 
       template <class ArrayIterator>
       auto _get_new_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
@@ -271,11 +281,11 @@ namespace scipy {
       vector<Dtype> solve() {
 
 	// initialize x
-	auto x = np::zeros({a.shape(1)});
+	auto x = np::zeros({this->a.shape(1)});
 	auto x2 = x; // buffer
 
 	// preparation
-	auto n = a.shape(0);
+	auto n = this->a.shape(0);
 	auto itr_x = x.begin();
 	auto itr_x2 = itr_x;
 
@@ -285,9 +295,9 @@ namespace scipy {
 	  }
 
 	// loop
-	while (not _converge(x)) {
-	  auto itr_a = a.begin();
-	  auto itr_b = b.begin();
+	while (not this->_converge(x)) {
+	  auto itr_a = this->a.begin();
+	  auto itr_b = this->b.begin();
 
 	  print(x);
       
@@ -313,7 +323,7 @@ namespace scipy {
     struct Jacobi: public _stationary_iterative_solver<Dtype, true> {
 
       Jacobi(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_=eps_default)
-	: _stationary_iterative_solver<Dtype, true>(a_, b_, eps_) {}
+      	: _stationary_iterative_solver<Dtype, true>(a_, b_, eps_) {}
 
       using ArrayIterator = typename np::ndarray<Dtype>::iterator;
       void _update_x_i(ArrayIterator itr_a, ArrayIterator itr_b,
@@ -353,7 +363,50 @@ namespace scipy {
 	*(itr_x + i) = *(itr_x + i) * (1 - omega) + y * omega;
       }
     };
+
+
+    template <class Dtype>
+    struct CG: public _iterative_solver<Dtype> {
+
+      vector<Dtype> r; // residual = steepest decent direction
+      vector<Dtype> p; // decent direction = A-orthogonalization of r
+      np::float_ alpha; // step size
+      
+      CG(const matrix<Dtype>& a_, const vector<Dtype>& b_, np::float_ eps_=eps_default)
+	: _iterative_solver<Dtype>(a_, b_, eps_) {}
+      
+      vector<Dtype> solve() {
+	// init
+	auto n = this->a.shape(1);
+	auto x = np::zeros({n});
+	r = this->b - np::matmul(this->a, x);
+	p = r;
+	auto Ap = np::empty({n});
+	np::float_ r_dot_p, p_dot_Ap;
+	np::float_ beta;
+
+	while (not this->_converge(x)) {
+	  print(x);
+	  np::matmul(this->a, p, Ap);
+	  r_dot_p = np::dot(r, p);
+	  p_dot_Ap = np::dot(p, Ap);
+
+	  alpha = r_dot_p / p_dot_Ap;
+	  x += alpha * p;
+	  r -= alpha * Ap;
+      	  
+	  r_dot_p = np::dot(r, p);
+
+	  beta = r_dot_p / p_dot_Ap;
+	  p = r - beta * p;
+	}
+
+	return x;
+      }
+      
+    };
     
   }
+
   
 }
