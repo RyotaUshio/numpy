@@ -17,6 +17,16 @@
 
 namespace python {
 
+  struct NoneType {
+    operator bool() const {
+      return false;
+    }
+    std::string __repr__() const {
+      return "None";
+    }
+  };
+  constexpr NoneType None;
+
   template <typename T>
   inline auto type(const T& obj) -> decltype(typeid(T)) {
     return typeid(T);
