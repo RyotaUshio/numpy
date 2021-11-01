@@ -59,6 +59,8 @@ namespace python {
   template <typename T>
   auto str(const T& obj) -> decltype((std::declval<std::stringstream>()<<obj).str()) {
     std::stringstream ss;
+    ss << std::setprecision(2);
+    ss << std::showpoint;
     ss << obj;
     return ss.str();
   }
@@ -157,7 +159,7 @@ namespace python {
   template <class... Args>
   void print_sep(std::string sep, Args&&... args) {
     bool first = true;
-    std::cout << std::setprecision(8);
+    std::cout << std::setprecision(8) << std::showpoint;
     (std::cout << ... << [sep, &first](auto&& arg){
 			   if (first) {first = false; return str(arg);}
 			   else return sep + str(arg);}(args));

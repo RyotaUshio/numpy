@@ -190,7 +190,7 @@ class CompilationFailure(Exception):
     pass
         
 def comp(filename, rootdir, src, exc, CXX="g++", append_to_CXXFLAGS="", force=False):
-    CXXFLAGS=f"-std=c++17 -O3 -Wall -I {rootdir} " + append_to_CXXFLAGS
+    CXXFLAGS=f"-std=c++17 -O3 -Wall -Wno-reorder -I {rootdir} " + append_to_CXXFLAGS
     cmd = f"{CXX} {CXXFLAGS} -o {exc} {src}"
     if (not force) and (exc in os.listdir()):
         file_time, exc_time = map(os.path.getmtime, [filename, exc])

@@ -14,7 +14,7 @@ int main() {
   print(A);
   print(b);
   
-  auto LU = scipy::linalg::LU_decomposition(A);
+  auto LU = scipy::linalg::_solve::LU_decomposition(A);
   print(b);
   print(LU.LU);
   auto L = LU.L();
@@ -29,13 +29,13 @@ int main() {
   print(A);
   print(b);
   
-  auto gauss = scipy::linalg::Gaussian_elimination(A, b);
+  auto gauss = scipy::linalg::_solve::Gaussian_elimination(A, b);
   print(gauss.solve());
 
   // With the iterative methods
 
   // spectral radius >= 1 so the iteration will not converge
-  // auto x = scipy::linalg::Gauss_Seidel(A, b);
+  // auto x = scipy::linalg::_solve::Gauss_Seidel(A, b);
   // print(x);
 
   // An example taken from
@@ -46,19 +46,19 @@ int main() {
   print(b);
 
   // Jacobi method
-  auto jcb = scipy::linalg::Jacobi(A, b);
+  auto jcb = scipy::linalg::_solve::Jacobi(A, b);
   auto x = jcb.solve();
   print(x);
   print(np::matmul(A, x));
 
   // Gauss-Seidel method
-  auto gs = scipy::linalg::Gauss_Seidel(A, b);
+  auto gs = scipy::linalg::_solve::Gauss_Seidel(A, b);
   x = gs.solve();
   print(x);
   print(np::matmul(A, x));
 
   // SOR method
-  auto sor = scipy::linalg::SOR(A, b, 1.15);
+  auto sor = scipy::linalg::_solve::SOR(A, b, 1.15);
   x = sor.solve();
   print(x);
   print(np::matmul(A, x));
@@ -78,6 +78,5 @@ int main() {
   print(A);
   auto A_inv = scipy::linalg::inv(A);
   print(A_inv);
-  print(np::matmul(A, A_inv));
-
+  print(np::matmul(A, A_inv));  
 }
