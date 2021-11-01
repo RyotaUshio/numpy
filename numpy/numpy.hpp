@@ -154,6 +154,34 @@ namespace numpy {
 
     return grid;
   }
+
+  template <class Dtype>
+  ndarray<Dtype> diag(const ndarray<Dtype>& v) {
+    auto ndim = v.ndim();
+    if (ndim == 2) {
+      auto n = std::min(v.shape(0), v.shape(1));
+      auto out = zeros<Dtype>({n});
+  
+      auto itr = out.begin();
+      auto end = out.end();
+      auto itr_v = v.begin();
+      for(; itr!=end; ++itr, itr_v+=n+1)
+	*itr = *itr_v;
+      return out;
+    }
+    if (ndim == 1) {
+      auto n = v.shape(0);
+      auto out = zeros<Dtype>({n, n});
+
+      auto itr = out.begin();
+      auto itr_v = v.begin();
+      auto end_v = v.end();
+      for(; itr_v!=end_v; itr+=n+1, ++itr_v)
+	*itr = *itr_v;
+      return out;
+    }
+    throw std::invalid_argument("np::diag's arg is a 1-D or 2-D array");
+  }
   
 
   /* constants */
